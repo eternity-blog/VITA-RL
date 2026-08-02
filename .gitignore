@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Training outputs
+outputs/
+output/
+checkpoints/
+checkpoint-*/
+runs/
+logs/
+*.log
+wandb/
+mm_projector.bin
+audio_adpter.bin
+non_lora_trainables.bin
+
+# Model weights
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.onnx
+*.gguf
+!web_demo/wakeup_and_vad/resource/*.onnx
+!web_demo/wakeup_and_vad/resource/*.jit
+
+# Data
+*.tar
+*.tar.gz
+*.zip
+data/
+datasets/
+
+# Secrets / local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Eval artifacts
+VLMEvalKit/outputs/
+videomme/logs/
+videomme/qa_wo_sub/
+videomme/qa_w_sub/
