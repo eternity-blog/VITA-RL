@@ -228,6 +228,92 @@ confirms both the audio encoder and the negative-sample behaviour are working.
 > **README inaccuracy:** the audio examples reference `asset/vita_newlog.png`,
 > which does not exist in the repository — the file is `asset/vita_newlog.jpg`.
 
+## Training pipeline smoke test
+
+Upstream cannot ship its training data, and `vita/config/dataset_config.py` is
+checked in with empty paths. To verify the training path itself works, this fork
+adds a tiny **synthetic** dataset built from the repository's own assets.
+
+> This is a pipeline check, **not** a reproduction of VITA-1.5 training. It says
+> nothing about model quality — only that data loading, multimodal token
+> expansion, collation, forward, backward, and checkpointing all work.
+
+### Dataset registry fixes
+
+Two upstream defects had to be fixed before any training script could start:
+
+1. **Missing `DataConfig` keys.** `vita/config/__init__.py` defined only
+   `Pretrain_video`, but `pretrain_mlp_qwen.sh`, `finetune_qwen.sh` and others
+   pass `--dataset_use Pretrain_video0`, and `pretrain_audio_mlp_qwen.sh` passes
+   `Pretrain_audio`. Both raise `KeyError` at
+   `data_utils_video_audio_neg_patch.py:833`. They are now defined.
+
+2. **Audio path layout is undocumented.** The loader resolves audio as
+   `os.path.join(AudioFolder, "audio", file)` — note the hard-coded `audio`
+   segment. So `AudioFolder` must be the *parent* of the `audio/` directory, not
+   the directory itself.
+
+Both the smoke dataset and the registry entry are opt-in via the
+`VITA_SMOKE_DATA_DIR` environment variable, so the default configuration remains
+identical to upstream.
+
+### Running it
+
+```bash
+python tools/make_smoke_data.py --out-dir /path/to/smoke_data
+# place images under <dir>/images and wavs under <dir>/audio
+export VITA_SMOKE_DATA_DIR=/path/to/smoke_data
+bash script/train/smoke_test_qwen.sh /path/to/output 8
+```
+
+The dataset covers the three sample shapes the loader branches on, and each
+produces the expected state token:
+
+| Sample type | Fields | State token |
+|---|---|---|
+| image only | `image` | `☜` (reply to a text query) |
+| image + audio | `image`, `audio` | `☞` (reply to an audio query) |
+| image + audio + negative | plus `inserted_id` | `☞` and `☟` on the marked turn |
+
+### Result
+
+```
+{'loss': 3.1885, 'grad_norm': 45.93, 'learning_rate': 1e-06, 'epoch': 0.33}
+{'loss': 3.7144, 'grad_norm': 55.69, 'learning_rate': 5e-07, 'epoch': 0.67}
+{'loss': 2.7051, 'grad_norm': 38.45, 'learning_rate': 0.0,   'epoch': 1.0}
+{'train_runtime': 14.68, 'train_loss': 3.2026, 'epoch': 1.0}
+```
+
+Losses are finite and gradients flow. With only 3 steps at `lr=1e-6` on 24
+synthetic samples, the loss trajectory is meaningless — that is intentional, the
+learning rate is deliberately tiny so the run cannot be mistaken for training.
+
+Checkpoint saving was verified separately (`--save_strategy steps --save_steps 2`,
+which `smoke_test_qwen.sh` disables by default). `VITATrainer._save_checkpoint`
+wrote a complete 4-shard model plus ZeRO-3 optimizer state, and the resulting
+checkpoint **loads and generates correctly** with `video_audio_demo.py` — closing
+the loop from training back to inference.
+
+> A saved full checkpoint is ~16 GB, and a run that keeps optimizer state can
+> reach ~130 GB. Point `--output_dir` outside the repository; `.gitignore`
+> already excludes `outputs/` and `checkpoint-*/` in case it is not.
+
+### Memory note
+
+Full-parameter 7B training does **not** fit on one 80GB H800. A single-GPU run
+completes forward and backward, then fails allocating AdamW state:
+
+```
+torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 3.84 GiB
+    at torch/optim/adamw.py:128, state["exp_avg_sq"] = torch.zeros_like(...)
+```
+
+AdamW keeps two fp32 moments per parameter (~56 GB for 7B) plus fp32 master
+weights (~28 GB). ZeRO-3 shards these across ranks, so **8 GPUs are required**;
+the same run succeeds on 8. Use LoRA (`--lora_enable True`) if fewer GPUs are
+available — note that code path is inherited from LLaVA and is not exercised by
+any upstream script.
+
 ## Status
 
 - [x] conda environment + all dependencies
@@ -235,4 +321,5 @@ confirms both the audio encoder and the negative-sample behaviour are working.
 - [x] `vita.model` imports cleanly
 - [x] Weights downloaded (VITA-1.5 19.6 GB + InternViT 0.3 GB)
 - [x] Inference reproduced — text, audio, and noisy-audio queries
-- [ ] Training reproduced
+- [x] Training pipeline verified end to end on synthetic data (8 × H800)
+- [ ] Training on real data (requires a dataset upstream does not provide)

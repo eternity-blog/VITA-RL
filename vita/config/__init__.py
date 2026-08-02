@@ -5,6 +5,14 @@ NaturalCap = [ShareGPT4V]
 
 DataConfig = {
     "Pretrain_video": NaturalCap0,
+    # Upstream scripts pass these two --dataset_use values but never defined
+    # them, so those scripts fail with a KeyError. Map them to the same
+    # (unconfigured) dataset as Pretrain_video; fill in dataset_config.py to
+    # actually use them.
+    "Pretrain_video0": NaturalCap0,
+    "Pretrain_audio": NaturalCap0,
+    # Synthetic pipeline smoke test -- see tools/make_smoke_data.py.
+    "SmokeTest": [SmokeTest],
 }
 
 NoPatchSets = ["khair", "jester"]

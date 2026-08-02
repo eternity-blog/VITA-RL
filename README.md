@@ -34,16 +34,26 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 
 | Stage | Status | Description |
 |---|---|---|
-| 1. Reproduce inference | 🚧 In progress | Run the quick-start and web demos against the released VITA-1.5 checkpoint |
-| 2. Reproduce training | 📋 Planned | Run continual training (Stage-3 `finetuneTaskNeg`) on a prepared dataset |
-| 3. Add RL | 📋 Planned | Add a preference-optimization / RL stage on top of the SFT model |
+| 1. Reproduce inference | ✅ Done | Text, audio and noisy-audio queries all run against the released VITA-1.5 checkpoint |
+| 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
+| 3. Train on real data | 📋 Blocked | Needs a dataset upstream does not provide |
+| 4. Add RL | 📋 Planned | Add a preference-optimization / RL stage on top of the SFT model |
+
+See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
+the code fixes required, and how to run the training smoke test.
 
 ### Changes relative to upstream
 
-At the moment this fork is **functionally identical to upstream `35d064a`**, plus:
-
 - Added a `.gitignore` (upstream has none) covering training outputs, model weights and secrets.
 - Rewrote this README to attribute the work to the upstream project and to document the fork's goals.
+- **Fixed `cache_position` under the pinned `transformers==4.41.1`** — upstream's
+  `vita_qwen2.py` cannot generate on the version its own `requirements.txt`
+  pins. See [REPRODUCE.md](./REPRODUCE.md#code-fixes-required).
+- **Added the missing `DataConfig` keys** (`Pretrain_video0`, `Pretrain_audio`)
+  that several upstream training scripts pass but that were never defined.
+- Added `tools/make_smoke_data.py` and `script/train/smoke_test_qwen.sh`, a
+  synthetic-data smoke test for the training pipeline.
+- Added `REPRODUCE.md`.
 
 Any further deviation from upstream will be recorded in this section.
 
