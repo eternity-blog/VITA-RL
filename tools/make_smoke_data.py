@@ -3,7 +3,8 @@
 
 This is NOT real training data. It exists only to exercise the code path
 end-to-end: dataset loading, multimodal token expansion, the collator, and a
-few optimizer steps. Images and audio are the repository's own assets.
+few optimizer steps. Images and audio are the repository's own assets, which
+this script copies into place.
 
 The generated set covers the three sample shapes the data loader branches on
 in vita/util/data_utils_video_audio_neg_patch.py:
@@ -12,12 +13,14 @@ in vita/util/data_utils_video_audio_neg_patch.py:
   2. image + audio         -> both present (the main VITA-1.5 case)
   3. image + audio + negative sample, via "inserted_id"
 
-Usage:
+Run from the repository root:
     python tools/make_smoke_data.py --out-dir /path/to/smoke_data
+    export VITA_SMOKE_DATA_DIR=/path/to/smoke_data
 """
 import argparse
 import json
 import os
+import shutil
 
 # Descriptions are deliberately short; content quality is irrelevant for a
 # smoke test, only the shape of the data matters.
@@ -88,11 +91,51 @@ def build(n_per_type: int):
     return data
 
 
+def stage_assets(asset_dir: str, out_dir: str):
+    """Copy the repository's own images/wavs into the layout the loader expects.
+
+    The audio loader joins AudioFolder with a hard-coded "audio" segment, so
+    the wavs must live in <out_dir>/audio/ and AudioFolder must be <out_dir>.
+    """
+    img_dir = os.path.join(out_dir, "images")
+    aud_dir = os.path.join(out_dir, "audio")
+    os.makedirs(img_dir, exist_ok=True)
+    os.makedirs(aud_dir, exist_ok=True)
+
+    missing = []
+    for name, _ in IMAGES:
+        src = os.path.join(asset_dir, name)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(img_dir, name))
+        else:
+            missing.append(src)
+    for name in AUDIO:
+        src = os.path.join(asset_dir, name)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(aud_dir, name))
+        else:
+            missing.append(src)
+
+    if missing:
+        raise SystemExit(
+            "missing source assets (run this from the repository root):\n  "
+            + "\n  ".join(missing)
+        )
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out-dir", required=True, help="directory holding images/ and audio/")
+    ap.add_argument("--out-dir", required=True, help="directory to create the dataset in")
+    ap.add_argument(
+        "--asset-dir",
+        default="asset",
+        help="repository asset/ directory to copy images and wavs from",
+    )
     ap.add_argument("--n-per-type", type=int, default=8)
     args = ap.parse_args()
+
+    os.makedirs(args.out_dir, exist_ok=True)
+    stage_assets(args.asset_dir, args.out_dir)
 
     data = build(args.n_per_type)
     out = os.path.join(args.out_dir, "smoke_train.json")
@@ -102,6 +145,7 @@ def main():
     print(f"wrote {len(data)} samples to {out}")
     for kind in ("img_", "imgaud_", "neg_"):
         print(f"  {kind:9s} {sum(1 for d in data if d['id'].startswith(kind))}")
+    print(f"\nnow run:\n  export VITA_SMOKE_DATA_DIR={os.path.abspath(args.out_dir)}")
 
 
 if __name__ == "__main__":

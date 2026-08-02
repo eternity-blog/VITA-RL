@@ -42,6 +42,26 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test.
 
+### Reproducing this
+
+The upstream install and quick-start instructions further down do not work
+as written on every machine (see [REPRODUCE.md](./REPRODUCE.md) for why).
+Start here instead:
+
+```bash
+export VITA_REPO=$(pwd) VITA_WEIGHTS=/path/to/weights   # ~25 GB free
+conda create -n vita python=3.10 -y && conda activate vita
+# staged dependency install: REPRODUCE.md#install-order-order-matters
+# weights + config localization: REPRODUCE.md#weights
+python tools/localize_config.py \
+    --model-path "$VITA_WEIGHTS/VITA-1.5" \
+    --vision-tower "$VITA_WEIGHTS/InternViT-300M-448px"
+```
+
+Exact resolved versions are in
+[`requirements-lock.txt`](./requirements-lock.txt) — read it as a record of a
+known-good set, not as an install path.
+
 ### Changes relative to upstream
 
 - Added a `.gitignore` (upstream has none) covering training outputs, model weights and secrets.
@@ -53,7 +73,10 @@ the code fixes required, and how to run the training smoke test.
   that several upstream training scripts pass but that were never defined.
 - Added `tools/make_smoke_data.py` and `script/train/smoke_test_qwen.sh`, a
   synthetic-data smoke test for the training pipeline.
-- Added `REPRODUCE.md`.
+- Added `tools/localize_config.py`, which rewrites the checkpoint's
+  `mm_vision_tower` / `mm_audio_encoder` from HuggingFace repo IDs to local
+  paths so that loading does not require network access.
+- Added `REPRODUCE.md` and `requirements-lock.txt`.
 
 Any further deviation from upstream will be recorded in this section.
 

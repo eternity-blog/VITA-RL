@@ -19,11 +19,24 @@ set -euo pipefail
 OUTPUT_DIR=${1:?"usage: $0 <output_dir> [num_gpus]"}
 NUM_GPUS=${2:-1}
 
-# Weight locations; override in the environment if yours differ.
-WEIGHTS_ROOT=${WEIGHTS_ROOT:-/usr/local/kai/lx/weights}
+# Weight locations. Set WEIGHTS_ROOT, or override the three paths individually.
+WEIGHTS_ROOT=${WEIGHTS_ROOT:-${VITA_WEIGHTS:-}}
+if [ -z "${WEIGHTS_ROOT}" ] && [ -z "${MODEL_PATH:-}" ]; then
+    echo "error: set WEIGHTS_ROOT (or VITA_WEIGHTS) to the directory holding" >&2
+    echo "       VITA-1.5/ and InternViT-300M-448px/, e.g." >&2
+    echo "         WEIGHTS_ROOT=/path/to/weights $0 $*" >&2
+    exit 1
+fi
 MODEL_PATH=${MODEL_PATH:-${WEIGHTS_ROOT}/VITA-1.5}
 VISION_TOWER=${VISION_TOWER:-${WEIGHTS_ROOT}/InternViT-300M-448px}
 AUDIO_ENCODER=${AUDIO_ENCODER:-${MODEL_PATH}/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning}
+
+for p in "${MODEL_PATH}" "${VISION_TOWER}" "${AUDIO_ENCODER}"; do
+    if [ ! -d "${p}" ]; then
+        echo "error: not a directory: ${p}" >&2
+        exit 1
+    fi
+done
 
 if [ -z "${VITA_SMOKE_DATA_DIR:-}" ]; then
     echo "error: VITA_SMOKE_DATA_DIR is not set." >&2

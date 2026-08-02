@@ -4,6 +4,24 @@ Environment setup and reproduction notes for this fork. Upstream ships a
 `requirements.txt` that does not install cleanly on every machine; this file
 records what actually worked, and why each deviation was necessary.
 
+Everything below was verified on the host in the next section. Paths are
+written as `$VITA_WEIGHTS` / `$VITA_REPO` so the commands can be pasted on
+another machine after setting those two variables:
+
+```bash
+export VITA_REPO=/path/to/VITA-RL          # this repository
+export VITA_WEIGHTS=/path/to/weights       # somewhere with ~25 GB free
+cd "$VITA_REPO"
+```
+
+If your machine has no direct internet egress, export a proxy first — the
+conda, pip, HuggingFace and git steps all need it:
+
+```bash
+export http_proxy=http://<host>:<port> https_proxy=http://<host>:<port>
+export no_proxy=localhost,127.0.0.1
+```
+
 ## Host
 
 | Item | Value |
@@ -13,12 +31,53 @@ records what actually worked, and why each deviation was necessary.
 | System CUDA toolkit | 11.4 (`nvcc`) — **not used**, see below |
 | System gcc | 4.8.5 — too old to compile C99/C++17 sources |
 | conda | 4.14.0 |
+| Python | 3.10.18 |
 | Network | No direct egress; HTTP proxy required for GitHub / HuggingFace |
 
 Because the system toolchain is old, **everything is installed from prebuilt
 wheels** (`--only-binary=:all:`). The wheels bundle their own CUDA 12.1
 runtime, so the 11.4 system toolkit is irrelevant — only the driver version
 matters, and 535 is new enough.
+
+**Minimum to run this:** one 80GB GPU for inference; **8 for full-parameter
+training** (see [Memory note](#memory-note)). A driver supporting CUDA ≥ 12.1.
+Roughly 25 GB of disk for weights, plus ~16 GB per saved checkpoint.
+
+## Quick start
+
+The whole reproduction, assuming the variables above are set:
+
+```bash
+# 1. environment (see the next section for what each pin is for)
+conda create -n vita python=3.10 -y && conda activate vita
+#    ... staged install, see "Install order" below ...
+
+# 2. weights (~20 GB)
+python -c "
+from huggingface_hub import snapshot_download
+import os
+w = os.environ['VITA_WEIGHTS']
+snapshot_download('VITA-MLLM/VITA-1.5', local_dir=f'{w}/VITA-1.5')
+snapshot_download('OpenGVLab/InternViT-300M-448px', local_dir=f'{w}/InternViT-300M-448px')"
+
+# 3. point the checkpoint at the local encoders instead of HF repo IDs
+python tools/localize_config.py \
+    --model-path  "$VITA_WEIGHTS/VITA-1.5" \
+    --vision-tower "$VITA_WEIGHTS/InternViT-300M-448px"
+
+# 4. inference
+export PYTHONPATH=./
+CUDA_VISIBLE_DEVICES=0 python video_audio_demo.py \
+    --model_path "$VITA_WEIGHTS/VITA-1.5" \
+    --image_path asset/vita_newlog.jpg \
+    --model_type qwen2p5_instruct --conv_mode qwen2p5_instruct \
+    --question "Describe this image."
+
+# 5. training pipeline smoke test (needs 8 GPUs)
+python tools/make_smoke_data.py --out-dir "$VITA_WEIGHTS/smoke_data"
+export VITA_SMOKE_DATA_DIR="$VITA_WEIGHTS/smoke_data"
+WEIGHTS_ROOT="$VITA_WEIGHTS" bash script/train/smoke_test_qwen.sh /tmp/smoke_out 8
+```
 
 ## Environment
 
@@ -91,9 +150,31 @@ conv modes: default, llama, minicpm, mixtral_two, mixtral_zh,
 which is a platform-metadata note rather than a dependency conflict; decord
 imports and runs.
 
+The exact resolved versions are recorded in
+[`requirements-lock.txt`](./requirements-lock.txt). Use it to check what you
+ended up with rather than as the install path — installing straight from it can
+fail, because the ordering above matters.
+
+Sanity-check the environment before downloading 20 GB of weights:
+
+```bash
+python -c "
+import torch, numpy, transformers, flash_attn
+from flash_attn import flash_attn_func
+print('torch', torch.__version__, '| cuda', torch.version.cuda)
+print('numpy', numpy.__version__, '| transformers', transformers.__version__)
+print('GPUs', torch.cuda.device_count(), '| bf16', torch.cuda.is_bf16_supported())
+q = torch.randn(2,64,8,64, dtype=torch.bfloat16, device='cuda')
+print('flash-attn kernel ok:', tuple(flash_attn_func(q,q,q).shape))
+import torchaudio; print('audio backends:', torchaudio.list_audio_backends())"
+```
+
+`audio backends` must be non-empty — an empty list means audio queries will
+fail later (see [the soundfile section](#soundfile-missing-its-native-library)).
+
 ## Weights
 
-Downloaded to `/usr/local/kai/lx/weights/` (outside the repo — see `.gitignore`):
+Downloaded to `$VITA_WEIGHTS` (outside the repository — see `.gitignore`):
 
 | Weight | Source | Size |
 |---|---|---|
@@ -101,14 +182,27 @@ Downloaded to `/usr/local/kai/lx/weights/` (outside the repo — see `.gitignore
 | InternViT-300M-448px | [`OpenGVLab/InternViT-300M-448px`](https://huggingface.co/OpenGVLab/InternViT-300M-448px) | ~0.3 GB |
 
 The audio encoder ships inside the VITA-1.5 repository, so only two downloads
-are needed rather than three.
+are needed rather than the three the upstream README implies. Both repos are
+public and ungated.
 
 ```bash
 python -c "
 from huggingface_hub import snapshot_download
-snapshot_download('VITA-MLLM/VITA-1.5', local_dir='/path/to/weights/VITA-1.5')
-snapshot_download('OpenGVLab/InternViT-300M-448px', local_dir='/path/to/weights/InternViT-300M-448px')
-"
+import os
+w = os.environ['VITA_WEIGHTS']
+snapshot_download('VITA-MLLM/VITA-1.5', local_dir=f'{w}/VITA-1.5')
+snapshot_download('OpenGVLab/InternViT-300M-448px', local_dir=f'{w}/InternViT-300M-448px')"
+```
+
+`snapshot_download` resumes, so re-run it if the connection drops. Verify:
+
+```bash
+python -c "
+import json, os
+w = os.environ['VITA_WEIGHTS'] + '/VITA-1.5'
+idx = json.load(open(f'{w}/model.safetensors.index.json'))
+missing = [f for f in set(idx['weight_map'].values()) if not os.path.exists(f'{w}/{f}')]
+print('missing shards:', missing or 'none')"
 ```
 
 ## Code fixes required
@@ -188,17 +282,15 @@ After this, `torchaudio.list_audio_backends()` returns `['soundfile']`.
 ## Inference reproduction
 
 Point the checkpoint's `config.json` at the local encoder paths first, so that
-loading does not depend on network access (upstream ships HuggingFace repo IDs
-in these fields):
+loading does not depend on network access. Upstream ships HuggingFace repo IDs
+in `mm_vision_tower` / `mm_audio_encoder`, which means every load reaches out to
+HF unless you rewrite them:
 
 ```bash
-# in the downloaded VITA-1.5 directory
-cp config.json config.json.orig
-python -c "
-import json; c=json.load(open('config.json'))
-c['mm_vision_tower']='/path/to/weights/InternViT-300M-448px'
-c['mm_audio_encoder']='/path/to/weights/VITA-1.5/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning'
-json.dump(c,open('config.json','w'),indent=2)"
+python tools/localize_config.py \
+    --model-path   "$VITA_WEIGHTS/VITA-1.5" \
+    --vision-tower "$VITA_WEIGHTS/InternViT-300M-448px"
+# keeps a backup at config.json.orig; --restore puts it back
 ```
 
 All three quick-start modes from the README were run on a single H800:
@@ -212,7 +304,7 @@ All three quick-start modes from the README were run on a single H800:
 ```bash
 export PYTHONPATH=./
 CUDA_VISIBLE_DEVICES=0 python video_audio_demo.py \
-    --model_path /path/to/weights/VITA-1.5 \
+    --model_path "$VITA_WEIGHTS/VITA-1.5" \
     --image_path asset/vita_newlog.jpg \
     --model_type qwen2p5_instruct \
     --conv_mode qwen2p5_instruct \
@@ -260,11 +352,18 @@ identical to upstream.
 ### Running it
 
 ```bash
-python tools/make_smoke_data.py --out-dir /path/to/smoke_data
-# place images under <dir>/images and wavs under <dir>/audio
-export VITA_SMOKE_DATA_DIR=/path/to/smoke_data
-bash script/train/smoke_test_qwen.sh /path/to/output 8
+# copies asset/ images and wavs into <dir>/images and <dir>/audio, then
+# writes <dir>/smoke_train.json -- run from the repository root
+python tools/make_smoke_data.py --out-dir "$VITA_WEIGHTS/smoke_data"
+export VITA_SMOKE_DATA_DIR="$VITA_WEIGHTS/smoke_data"
+
+WEIGHTS_ROOT="$VITA_WEIGHTS" bash script/train/smoke_test_qwen.sh /tmp/smoke_out 8
 ```
+
+`smoke_test_qwen.sh` takes the output directory and a GPU count, and reads
+`WEIGHTS_ROOT` (or the individual `MODEL_PATH` / `VISION_TOWER` /
+`AUDIO_ENCODER` variables) for weight locations, so it carries no absolute
+paths of its own.
 
 The dataset covers the three sample shapes the loader branches on, and each
 produces the expected state token:
@@ -323,3 +422,24 @@ any upstream script.
 - [x] Inference reproduced — text, audio, and noisy-audio queries
 - [x] Training pipeline verified end to end on synthetic data (8 × H800)
 - [ ] Training on real data (requires a dataset upstream does not provide)
+
+## Reproducing on another machine
+
+Everything above is path-independent: set `VITA_REPO` and `VITA_WEIGHTS`, add a
+proxy if needed, and follow [Quick start](#quick-start). Points where a
+different host is most likely to diverge:
+
+| If your machine has | Then |
+|---|---|
+| A different Python or torch version | The pinned flash-attn wheel will not match. Pick the right one from the [flash-attention releases](https://github.com/Dao-AILab/flash-attention/releases) for your `cp3XX` / `torchX.Y` / ABI. |
+| gcc ≥ 7 and a matching CUDA toolkit | You can build flash-attn from source (`pip install flash-attn --no-build-isolation`) instead of using a wheel. |
+| Fewer than 8 GPUs | Inference is fine on one. Full-parameter training is not — see [Memory note](#memory-note). |
+| Direct internet access | Skip the proxy exports; `tools/localize_config.py` is still worth running so loads do not hit the network. |
+| A numpy-2 based stack | Do not upgrade: torch 2.3.1 predates the numpy 2.0 ABI break. |
+
+Two independent runs on this host — the second driven entirely by the commands
+as written above — gave `loss = 3.1885, 3.7144, 2.705x`. The first two steps
+match bit-for-bit thanks to the fixed seed in `train.py` (`set_random_seed(42)`);
+the third differs in the fourth decimal (`2.7051` vs `2.7104`), the usual
+non-determinism of reduction order in distributed bf16. Expect close, not
+identical, numbers.
