@@ -40,7 +40,10 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 | 4. Add RL | 📋 Planned | Add a preference-optimization / RL stage on top of the SFT model |
 
 See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
-the code fixes required, and how to run the training smoke test.
+the code fixes required, and how to run the training smoke test. See
+[ARCHITECTURE.md](./ARCHITECTURE.md) for how the model and codebase actually
+work — the modality-fusion mechanism, the three encoders, the inference and
+training paths, and where an RL stage would attach.
 
 ### Reproducing this
 
@@ -76,7 +79,8 @@ known-good set, not as an install path.
 - Added `tools/localize_config.py`, which rewrites the checkpoint's
   `mm_vision_tower` / `mm_audio_encoder` from HuggingFace repo IDs to local
   paths so that loading does not require network access.
-- Added `REPRODUCE.md` and `requirements-lock.txt`.
+- Added `REPRODUCE.md` (operational log), `ARCHITECTURE.md` (code walkthrough)
+  and `requirements-lock.txt`.
 
 Any further deviation from upstream will be recorded in this section.
 
