@@ -41,7 +41,7 @@ pip install --only-binary=:all: "numpy<2" "xformers==0.0.27" \
 
 # 3. Imports used by the code but absent from requirements.txt
 pip install --only-binary=:all: timm einops PyYAML \
-    "opencv-python-headless==4.10.0.84" soundfile librosa \
+    "opencv-python-headless==4.10.0.84" "soundfile==0.12.1" librosa \
     sentencepiece protobuf six
 
 # 4. Re-pin numpy: numba/librosa pull numpy 2.x back in
@@ -111,11 +111,128 @@ snapshot_download('OpenGVLab/InternViT-300M-448px', local_dir='/path/to/weights/
 "
 ```
 
+## Code fixes required
+
+### `cache_position` incompatibility with the pinned `transformers==4.41.1`
+
+**Symptom.** `video_audio_demo.py` fails during `generate()`:
+
+```
+KeyError: 'cache_position'
+    at vita/model/language_model/vita_qwen2.py:250
+```
+
+and, once that is worked around:
+
+```
+TypeError: Qwen2Model.forward() got an unexpected keyword argument 'cache_position'
+    at vita/model/language_model/vita_qwen2.py:78
+```
+
+**Cause.** In `transformers==4.41.1` — the version upstream pins in
+`requirements.txt` — `cache_position` had been added to the **Llama**
+implementation but not yet to **Qwen2**:
+
+| | 4.41.1 |
+|---|---|
+| `LlamaForCausalLM.prepare_inputs_for_generation` returns `cache_position` | yes |
+| `Qwen2ForCausalLM.prepare_inputs_for_generation` returns `cache_position` | **no** |
+| `Qwen2Model.forward` accepts `cache_position` | **no** |
+
+Upstream added this code and pinned `transformers==4.41.1` in the same commit
+(`fe4d74e` / `9a968b3`, both 2024-12-20), so the two were never consistent for the
+Qwen2 path. `MistralModel` and `MixtralModel` in 4.41.1 likewise do not accept it.
+
+**Fix applied** (`vita/model/language_model/vita_qwen2.py`):
+
+1. In `prepare_inputs_for_generation`, read `cache_position` with `.get()` and, when
+   absent, derive it from the cache length —
+   `torch.arange(past_length, past_length + input_ids.shape[1])`, which is what
+   `cache_position` means. The subsequent position-id adjustment is guarded so it
+   is skipped when either tensor is unavailable.
+2. In `custom_forward`, only pass `cache_position` to `self.model(...)` when the
+   installed `Qwen2Model.forward` actually accepts it, detected once at import
+   time via `inspect.signature`.
+
+Both changes are version-conditional, so the file still behaves as the authors
+intended on newer `transformers` releases where `cache_position` is supported.
+
+`VITAFOQwen2ForCausalLM` calls `super().forward(...)`, which resolves to the
+patched `custom_forward`, so it is covered by the same fix.
+
+> **Not fixed:** `vita/model/language_model/vita_nemo.py` (lines 78, 178) passes
+> `cache_position` to `MistralModel` the same way and will hit the identical
+> `TypeError` under 4.41.1. It was left alone because the Nemo/Mistral path is not
+> exercised by this reproduction and cannot be tested without those weights.
+
+### `soundfile` missing its native library
+
+**Symptom.** Audio queries fail with `cannot open asset/q1.wav!!!!!!!!!!!!!!!!`
+followed by `UnboundLocalError: local variable 'sample_rate' referenced before
+assignment` in `whale/init_model.py:40` — the loader swallows the real error and
+then dereferences an unset variable.
+
+**Cause.** `torchaudio.list_audio_backends()` returned `[]`. The latest
+`soundfile` wheel did not ship `libsndfile.so`, so `import soundfile` raised
+`OSError: cannot load library 'libsndfile.so'` and torchaudio silently registered
+no backend.
+
+**Fix.** Pin `soundfile==0.12.1`, whose wheel bundles the native library:
+
+```bash
+pip install --only-binary=:all: "soundfile==0.12.1"
+```
+
+After this, `torchaudio.list_audio_backends()` returns `['soundfile']`.
+
+## Inference reproduction
+
+Point the checkpoint's `config.json` at the local encoder paths first, so that
+loading does not depend on network access (upstream ships HuggingFace repo IDs
+in these fields):
+
+```bash
+# in the downloaded VITA-1.5 directory
+cp config.json config.json.orig
+python -c "
+import json; c=json.load(open('config.json'))
+c['mm_vision_tower']='/path/to/weights/InternViT-300M-448px'
+c['mm_audio_encoder']='/path/to/weights/VITA-1.5/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning'
+json.dump(c,open('config.json','w'),indent=2)"
+```
+
+All three quick-start modes from the README were run on a single H800:
+
+| Mode | Command | Result |
+|---|---|---|
+| Text query | `--question "Describe this image."` | ✅ Coherent description of the VITA logo, 7.4 s |
+| Audio query | `--audio_path asset/q1.wav` | ✅ Chinese description prefixed with `☞`, 2.3 s |
+| Noisy audio | `--audio_path asset/q2.wav` | ✅ Response prefixed with `☟`, 1.9 s |
+
+```bash
+export PYTHONPATH=./
+CUDA_VISIBLE_DEVICES=0 python video_audio_demo.py \
+    --model_path /path/to/weights/VITA-1.5 \
+    --image_path asset/vita_newlog.jpg \
+    --model_type qwen2p5_instruct \
+    --conv_mode qwen2p5_instruct \
+    --question "Describe this image."
+```
+
+The `☞` / `☟` prefixes are the state tokens described in
+`vita/util/data_utils_video_audio_neg_patch.py` (`preprocess_multimodal`):
+`☞` marks a reply to an audio query, `☜` a reply to a text query, and `☟` a reply
+in the negative/noisy-audio condition. Seeing `☞` on `q1.wav` and `☟` on `q2.wav`
+confirms both the audio encoder and the negative-sample behaviour are working.
+
+> **README inaccuracy:** the audio examples reference `asset/vita_newlog.png`,
+> which does not exist in the repository — the file is `asset/vita_newlog.jpg`.
+
 ## Status
 
 - [x] conda environment + all dependencies
 - [x] flash-attn working on GPU
 - [x] `vita.model` imports cleanly
-- [ ] Weights downloaded
-- [ ] Inference reproduced (`video_audio_demo.py`)
+- [x] Weights downloaded (VITA-1.5 19.6 GB + InternViT 0.3 GB)
+- [x] Inference reproduced — text, audio, and noisy-audio queries
 - [ ] Training reproduced

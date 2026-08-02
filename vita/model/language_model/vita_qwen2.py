@@ -1,5 +1,7 @@
 from typing import List, Optional, Tuple, Union
 
+import inspect
+
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -16,6 +18,12 @@ from transformers.modeling_outputs import CausalLMOutputWithPast, MoeCausalLMOut
 from transformers.generation.utils import GenerateOutput
 
 from ..vita_arch import VITAMetaForCausalLM, VITAMetaModel
+
+# transformers 4.41.1 (the pinned version) does not accept `cache_position` in
+# Qwen2Model.forward; later versions do. Detect it once at import time.
+_QWEN2_MODEL_ACCEPTS_CACHE_POSITION = (
+    "cache_position" in inspect.signature(Qwen2Model.forward).parameters
+)
 
 
 def custom_forward(
@@ -65,6 +73,11 @@ def custom_forward(
     return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
     # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
+    # `cache_position` was added to Qwen2Model.forward after transformers 4.41.1,
+    # so only forward it when the installed version accepts it.
+    extra_model_kwargs = {}
+    if _QWEN2_MODEL_ACCEPTS_CACHE_POSITION:
+        extra_model_kwargs["cache_position"] = cache_position
     outputs = self.model(
         input_ids=input_ids,
         attention_mask=attention_mask,
@@ -75,7 +88,7 @@ def custom_forward(
         output_attentions=output_attentions,
         output_hidden_states=output_hidden_states,
         return_dict=return_dict,
-        cache_position=cache_position,
+        **extra_model_kwargs,
     )
 
     hidden_states = outputs[0]
@@ -247,8 +260,27 @@ class VITAQwen2ForCausalLM(Qwen2ForCausalLM, VITAMetaForCausalLM):
 
 #        import pdb; pdb.set_trace()
         position_ids = _inputs["position_ids"]
-        cache_position = _inputs["cache_position"]
-        if cache_position.shape[-1] == 1 and position_ids.shape[-1] > 1:
+        # transformers==4.41.1 returns `cache_position` from Llama's
+        # prepare_inputs_for_generation but not from Qwen2's, so fall back to
+        # deriving it from the cache length (it is just the absolute index of
+        # the tokens being fed in this step).
+        cache_position = _inputs.get("cache_position", None)
+        if cache_position is None and past_key_values is not None:
+            if isinstance(past_key_values, Cache):
+                past_length = past_key_values.get_seq_length()
+            else:
+                past_length = past_key_values[0][0].shape[2]
+            cache_position = torch.arange(
+                past_length,
+                past_length + input_ids.shape[1],
+                device=input_ids.device,
+            )
+        if (
+            cache_position is not None
+            and position_ids is not None
+            and cache_position.shape[-1] == 1
+            and position_ids.shape[-1] > 1
+        ):
             new_position_ids = torch.zeros((position_ids.shape[0],1), dtype=position_ids.dtype, device=position_ids.device)
             new_position_ids[:, 0] = position_ids[0,-1] + cache_position[-1] + 1 - position_ids.shape[-1]
             position_ids = new_position_ids
