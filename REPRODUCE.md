@@ -4,6 +4,8 @@ Environment setup and reproduction notes for this fork. Upstream ships a
 `requirements.txt` that does not install cleanly on every machine; this file
 records what actually worked, and why each deviation was necessary.
 
+> Language: **English** | [中文](./REPRODUCE_zh-CN.md)
+
 Everything below was verified on the host in the next section. Paths are
 written as `$VITA_WEIGHTS` / `$VITA_REPO` so the commands can be pasted on
 another machine after setting those two variables:

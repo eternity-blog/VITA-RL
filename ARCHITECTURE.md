@@ -7,6 +7,8 @@ Everything here describes **upstream VITA-1.5** unless a section is marked as
 specific to this fork. Line references are to this repository at the time of
 writing; they may drift as the code changes.
 
+> Language: **English** | [中文](./ARCHITECTURE_zh-CN.md)
+>
 > Companion documents: [REPRODUCE.md](./REPRODUCE.md) is the operational log
 > (how to install, run, and what broke). This file is the conceptual map.
 

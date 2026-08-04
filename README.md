@@ -16,6 +16,8 @@
 > [original papers](#️-citation) and respect the [original license](./License.txt),
 > which restricts use to **academic, research and educational purposes only**.
 
+> Language: **English** | [中文](./README_zh-CN.md)
+
 <p align="center">
     <img src="./asset/vita_newlog.jpg" width="100%" height="100%">
 </p>
