@@ -41,7 +41,7 @@ The design is the LLaVA lineage, extended to audio:
 image/video ──> InternViT-300M ──> MLP projector ──┐
                                                     ├──> Qwen2.5-7B ──> text
 audio ────────> whale encoder ──> CNN adapter ─────┘         │
-                                                              └──> TTS decoder ──> speech
+                                                             └──> TTS decoder ──> speech
 ```
 
 The load-bearing idea is that **every modality is converted into vectors that

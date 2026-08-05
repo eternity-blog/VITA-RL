@@ -52,6 +52,8 @@ python tools/localize_config.py \
 
 精确解析出的版本记录在 [`requirements-lock.txt`](./requirements-lock.txt)——请把它当作**已知可用组合的记录**，而非安装路径。
 
+在全新机器上重建？见 [MIGRATION_zh-CN.md](./MIGRATION_zh-CN.md)——git 里只有代码（约 11 MB），权重和 conda 环境需要重新获取。
+
 ### 相对上游的改动
 
 - 增加了 `.gitignore`（上游没有），覆盖训练产物、模型权重与密钥。

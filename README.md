@@ -67,6 +67,9 @@ Exact resolved versions are in
 [`requirements-lock.txt`](./requirements-lock.txt) — read it as a record of a
 known-good set, not as an install path.
 
+Rebuilding on a fresh machine? See [MIGRATION.md](./MIGRATION.md) — git holds
+only code (~11 MB); the weights and conda environment must be re-acquired.
+
 ### Changes relative to upstream
 
 - Added a `.gitignore` (upstream has none) covering training outputs, model weights and secrets.

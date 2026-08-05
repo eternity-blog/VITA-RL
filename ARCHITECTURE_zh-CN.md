@@ -36,7 +36,7 @@ VITA-1.5 是一个**全模态 LLM**：单个语言模型接收图像、视频、
 图像/视频 ──> InternViT-300M ──> MLP projector ──┐
                                                   ├──> Qwen2.5-7B ──> 文本
 音频 ────────> whale 编码器 ──> CNN adapter ─────┘         │
-                                                            └──> TTS 解码器 ──> 语音
+                                                           └──> TTS 解码器 ──> 语音
 ```
 
 最关键的思想是：**每种模态都被转换成活在 LLM embedding 空间里的向量**，然后拼接进 token embedding 序列。LLM 本身是未经修改的 Qwen2.5——它从未学习新的输入类型，只是接收了一些恰好来自图像或波形（而非 token 查表）的 embedding。
