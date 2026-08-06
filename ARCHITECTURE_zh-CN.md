@@ -455,6 +455,7 @@ outputs['loss'] = loss
 | 问题 | 状态 |
 |---|---|
 | `cache_position` 在固定的 `transformers==4.41.1` 上导致生成失败——上游在同一个提交里加入这段代码和这个版本固定，而两者对 Qwen2 路径从未一致 | **本 fork 已修**（[REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)） |
+| `prepare_inputs_labels_for_multimodal` 在 `audios is None` 时置 `audio_features = None`，但六行后无条件解引用它——于是 `None` 分支不可达，所有调用方只能传一个假的 `torch.zeros(400, 80)`，纯文本和纯图像批次也要白跑 341M 参数的音频编码器 | **本 fork 已修**（`tools/test_audio_optional.py`） |
 | `DataConfig` 缺少 `Pretrain_video0` / `Pretrain_audio`，而多个脚本会传这两个值 → `KeyError` | **本 fork 已修** |
 | `vita_nemo.py:78,178` 有完全相同的 `cache_position` 缺陷 | **未修** —— 缺少 Nemo 权重无法测试 |
 | `requirements.txt` 无法顺利安装（未固定的 `xformers` 要求 `torch>=2.10`；未固定的 `pillow` 需要较新 gcc）；`six`/`timm`/`einops`/`PyYAML`/`opencv`/`librosa` 被 import 但未列出 | 已绕过（[REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#与上游-requirementstxt-的偏离)） |
@@ -489,8 +490,8 @@ outputs['loss'] = loss
 
 4. **状态符号需要一个策略决定**（[§6](#6-状态符号拒答机制)）。开头的 `☜`/`☞`/`☟` 算不算 action 的一部分？如果 reward model 从未见过它，训练与推理的分布就会偏移。最简单的做法：rollout 之后、打分之前把它剥掉。
 
-5. **显存。** PPO 需要 policy + ref + reward + critic，每一份都带着 InternViT 和 whale。在 8 卡上不用 LoRA 共享是不现实的。DPO（policy + ref）和 GRPO（无 critic）要可行得多。
+5. **显存。** PPO 需要 policy + ref + reward + critic，每一份都带着 InternViT 和 whale。在 8 卡上不用 LoRA 共享是不现实的。DPO（policy + ref）和 GRPO（无 critic）要可行得多。已部分缓解：自 `audios` 变为可选（[§12](#12-已知缺陷与粗糙之处)）后，纯文本+图像的 rollout 不再需要在每个模型副本、每一步都跑一遍 341M 的音频编码器。
 
 **建议顺序：** 先做离线 DPO——不需要 rollout，因此障碍 1 和 2 直接消失，只剩障碍 4 和 5，两者都可控。参考模型可以用冻结的基础权重或禁用的 LoRA adapter，避免在显存里放第二个 7B。等在那里验证过 log-prob 计算，GRPO 可以复用它，只需再加 rollout 循环。
 
-注意 RL **不需要**那份缺失的 SFT 数据集：已发布的 VITA-1.5 checkpoint 本身就是训练好的，而偏好数据无论如何都得自己构造。
+注意 RL **不需要**那份缺失的 SFT 数据集：已发布的 VITA-1.5 checkpoint 本身就是训练好的，而偏好数据无论如何都得自己构造。如果确实想先用真实数据跑一遍 SFT，见 [DATASETS.md](./DATASETS.md)——论文 2213 万条里约三分之一未发布，但公开的部分已经够用，文档给了三档匹配磁盘预算的方案。

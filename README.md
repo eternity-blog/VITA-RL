@@ -38,14 +38,17 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 |---|---|---|
 | 1. Reproduce inference | ✅ Done | Text, audio and noisy-audio queries all run against the released VITA-1.5 checkpoint |
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
-| 3. Train on real data | 📋 Blocked | Needs a dataset upstream does not provide |
+| 3. Train on real data | 🔍 Scoped | Upstream provides none; [DATASETS.md](./DATASETS.md) surveys what is still obtainable and gives a plan that fits the disk budget |
 | 4. Add RL | 📋 Planned | Add a preference-optimization / RL stage on top of the SFT model |
 
 See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test. See
 [ARCHITECTURE.md](./ARCHITECTURE.md) for how the model and codebase actually
 work — the modality-fusion mechanism, the three encoders, the inference and
-training paths, and where an RL stage would attach.
+training paths, and where an RL stage would attach. See
+[DATASETS.md](./DATASETS.md) for the training-data survey: what the paper used,
+what is still downloadable as of August 2026, and three plans sized to
+available disk.
 
 ### Reproducing this
 
@@ -79,13 +82,19 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   pins. See [REPRODUCE.md](./REPRODUCE.md#code-fixes-required).
 - **Added the missing `DataConfig` keys** (`Pretrain_video0`, `Pretrain_audio`)
   that several upstream training scripts pass but that were never defined.
+- **Made `audios` optional in `prepare_inputs_labels_for_multimodal`** — the
+  `None` branch existed but was unreachable, so every text-only or image-only
+  forward pass had to be fed a dummy waveform and ran the 341M-parameter audio
+  encoder for nothing. See [ARCHITECTURE.md](./ARCHITECTURE.md#12-known-defects-and-rough-edges).
 - Added `tools/make_smoke_data.py` and `script/train/smoke_test_qwen.sh`, a
   synthetic-data smoke test for the training pipeline.
+- Added `tools/test_audio_optional.py`, a CPU unit test for the fix above
+  (stubbed encoders, no weights needed).
 - Added `tools/localize_config.py`, which rewrites the checkpoint's
   `mm_vision_tower` / `mm_audio_encoder` from HuggingFace repo IDs to local
   paths so that loading does not require network access.
-- Added `REPRODUCE.md` (operational log), `ARCHITECTURE.md` (code walkthrough)
-  and `requirements-lock.txt`.
+- Added `REPRODUCE.md` (operational log), `ARCHITECTURE.md` (code walkthrough),
+  `DATASETS.md` (training-data survey) and `requirements-lock.txt`.
 
 Any further deviation from upstream will be recorded in this section.
 

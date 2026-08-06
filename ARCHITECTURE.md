@@ -564,6 +564,7 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 | Issue | Status |
 |---|---|
 | `cache_position` breaks generation on the pinned `transformers==4.41.1` — upstream added the code and the pin in the same commit, and they were never consistent for Qwen2 | **fixed in this fork** ([REPRODUCE.md](./REPRODUCE.md#code-fixes-required)) |
+| `prepare_inputs_labels_for_multimodal` sets `audio_features = None` when `audios is None`, then dereferences it unconditionally six lines later — so the `None` branch was unreachable and every caller passed a dummy `torch.zeros(400, 80)`, running the 341M-parameter audio encoder on text-only and image-only batches for nothing | **fixed in this fork** (`tools/test_audio_optional.py`) |
 | `DataConfig` missing `Pretrain_video0` / `Pretrain_audio`, which several scripts pass → `KeyError` | **fixed in this fork** |
 | `vita_nemo.py:78,178` has the same `cache_position` bug | **not fixed** — untestable without Nemo weights |
 | `requirements.txt` does not install cleanly (unpinned `xformers` demands `torch>=2.10`; unpinned `pillow` needs a modern gcc); `six`/`timm`/`einops`/`PyYAML`/`opencv`/`librosa` are imported but unlisted | worked around ([REPRODUCE.md](./REPRODUCE.md#deviations-from-upstream-requirementstxt)) |
@@ -617,6 +618,9 @@ returns nothing). Adding RL is the goal of this fork.
 5. **Memory.** PPO would need policy + ref + reward + critic, each carrying
    InternViT and whale. Not realistic on 8 GPUs without LoRA-sharing. DPO
    (policy + ref) and GRPO (no critic) are far more tractable.
+   Partly eased: since `audios` became optional ([§12](#12-known-defects-and-rough-edges)),
+   a text-and-image-only rollout no longer runs the 341M audio encoder in
+   every model copy on every step.
 
 **Suggested order:** offline DPO first — no rollout, so obstacles 1 and 2 vanish
 and only obstacles 4 and 5 remain, both manageable. The reference model can be
@@ -626,4 +630,7 @@ rollout loop.
 
 Note that RL does **not** require the missing SFT dataset: the released VITA-1.5
 checkpoint is already trained, and preference data has to be constructed
-regardless.
+regardless. If you do want to run the SFT stage on real data first, see
+[DATASETS.md](./DATASETS.md) — about a third of the paper's 22M samples is
+unreleased, but the public remainder is enough, and the survey gives three
+plans sized to available disk.

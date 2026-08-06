@@ -31,10 +31,10 @@
 |---|---|---|
 | 1. 复现推理 | ✅ 已完成 | 文本、音频、噪声音频三种查询均可在已发布的 VITA-1.5 checkpoint 上运行 |
 | 2. 验证训练链路 | ✅ 已完成 | 在 8×H800 上用合成数据端到端跑通；checkpoint 可保存并重新加载 |
-| 3. 真实数据训练 | 📋 受阻 | 需要上游未提供的数据集 |
+| 3. 真实数据训练 | 🔍 已调研 | 上游未提供数据；[DATASETS.md](./DATASETS.md) 梳理了今天还能拿到什么，并给出匹配磁盘预算的方案 |
 | 4. 增加 RL | 📋 计划中 | 在 SFT 模型之上增加偏好优化 / RL 阶段 |
 
-完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 该接在哪里。
+完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 该接在哪里。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及三档按磁盘容量裁剪的方案。
 
 ### 如何复现
 
@@ -60,9 +60,11 @@ python tools/localize_config.py \
 - 重写本 README，明确归属上游项目并说明本 fork 的目标。
 - **修复了固定版本 `transformers==4.41.1` 下的 `cache_position` 问题** —— 上游的 `vita_qwen2.py` 在其自身 `requirements.txt` 所固定的版本上根本无法生成。见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)。
 - **补上了缺失的 `DataConfig` key**（`Pretrain_video0`、`Pretrain_audio`）—— 多个上游训练脚本会传这两个值，但它们从未被定义。
+- **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
 - 新增 `tools/make_smoke_data.py` 与 `script/train/smoke_test_qwen.sh`，一套用合成数据验证训练链路的 smoke test。
+- 新增 `tools/test_audio_optional.py`，上述修复的 CPU 单元测试（编码器打桩，无需权重）。
 - 新增 `tools/localize_config.py`，把 checkpoint 的 `mm_vision_tower` / `mm_audio_encoder` 从 HuggingFace repo ID 改写为本地路径，使加载不需要访问网络。
-- 新增 `REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）和 `requirements-lock.txt`，其中文档均含中文版本。
+- 新增 `REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研）和 `requirements-lock.txt`，其中文档均含中文版本。
 
 后续任何相对上游的偏离都会记录在本节。
 
