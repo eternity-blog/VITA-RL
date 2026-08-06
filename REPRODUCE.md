@@ -111,6 +111,10 @@ pip install --only-binary=:all: "numpy==1.26.4" "numba<0.61" "llvmlite<0.44"
 # 5. Training only
 pip install "deepspeed==0.14.4"
 
+# 5b. LoRA only (single-GPU training). peft 0.11.x is the release that
+#     matches transformers 4.41.1.
+pip install --only-binary=:all: "peft==0.11.1"
+
 # 6. flash-attn: no wheel on our mirror, and gcc 4.8.5 cannot build it.
 #    Use the official prebuilt wheel matching cp310 / torch2.3 / cxx11abiFALSE.
 #    Check your ABI with: python -c "import torch; print(torch._C._GLIBCXX_USE_CXX11_ABI)"

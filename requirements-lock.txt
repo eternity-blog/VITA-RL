@@ -60,6 +60,7 @@ nvidia-nvjitlink-cu12==12.9.86
 nvidia-nvtx-cu12==12.1.105
 opencv-python-headless==4.10.0.84
 packaging==26.0
+peft==0.11.1
 pillow==10.4.0
 platformdirs==4.11.0
 pooch==1.9.0

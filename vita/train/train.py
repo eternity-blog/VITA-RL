@@ -157,13 +157,33 @@ def get_mm_adapter_state_maybe_zero_3(named_params, keys_to_match):
 def find_all_linear_names(model):
     cls = torch.nn.Linear
     lora_module_names = set()
-    multimodal_keywords = ["mm_projector", "vision_tower", "vision_resampler"]
+    # audio_encoder is excluded for the same reason as the vision modules: it
+    # is a separately pretrained encoder, and --freeze_audio_encoder is meant
+    # to keep it frozen. Upstream omitted it, which also made LoRA unusable --
+    # see the numeric-leaf-name note below.
+    multimodal_keywords = [
+        "mm_projector",
+        "vision_tower",
+        "vision_resampler",
+        "audio_encoder",
+    ]
     for name, module in model.named_modules():
         if any(mm_keyword in name for mm_keyword in multimodal_keywords):
             continue
         if isinstance(module, cls):
             names = name.split(".")
-            lora_module_names.add(names[0] if len(names) == 1 else names[-1])
+            leaf = names[0] if len(names) == 1 else names[-1]
+            # A Linear that sits directly inside an nn.Sequential/ModuleList
+            # has a purely numeric leaf name ("0"). peft matches target
+            # modules by suffix, so passing "0" makes it try to adapt every
+            # module ending in ".0" -- including Qwen2DecoderLayer "layers.0",
+            # which it then rejects as an unsupported module type. whale has
+            # two such Linears (encoder.enc.0.core.out.0, encoder.enc.1.embed.0),
+            # so before audio_encoder was excluded this made --lora_enable
+            # fail outright.
+            if leaf.isdigit():
+                continue
+            lora_module_names.add(leaf)
 
     if "lm_head" in lora_module_names:  # needed for 16-bit
         lora_module_names.remove("lm_head")

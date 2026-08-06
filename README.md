@@ -93,6 +93,14 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   `None` branch existed but was unreachable, so every text-only or image-only
   forward pass had to be fed a dummy waveform and ran the 341M-parameter audio
   encoder for nothing. See [ARCHITECTURE.md](./ARCHITECTURE.md#12-known-defects-and-rough-edges).
+- **Made LoRA usable.** `find_all_linear_names` did not exclude
+  `audio_encoder`, and whale contains two `nn.Linear`s whose leaf name is the
+  digit `"0"`; peft matches by suffix, so that matched `layers.0` — a whole
+  `Qwen2DecoderLayer` — and `--lora_enable True` always failed. Excluded
+  `audio_encoder` and skipped numeric leaf names. Single-GPU LoRA now peaks
+  at 23.3 GB.
+- Added `script/train/smoke_test_lora.sh`, the first script that exercises
+  the LoRA path.
 - Added `tools/make_smoke_data.py` and `script/train/smoke_test_qwen.sh`, a
   synthetic-data smoke test for the training pipeline.
 - Added `tools/test_audio_optional.py`, a CPU unit test for the fix above

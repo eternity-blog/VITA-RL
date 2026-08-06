@@ -66,6 +66,8 @@ python tools/localize_config.py \
 - **修复了固定版本 `transformers==4.41.1` 下的 `cache_position` 问题** —— 上游的 `vita_qwen2.py` 在其自身 `requirements.txt` 所固定的版本上根本无法生成。见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)。
 - **补上了缺失的 `DataConfig` key**（`Pretrain_video0`、`Pretrain_audio`）—— 多个上游训练脚本会传这两个值，但它们从未被定义。
 - **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
+- **让 LoRA 可用。** `find_all_linear_names` 没有排除 `audio_encoder`，而 whale 里有两个 `nn.Linear` 的叶子名是数字 `"0"`；peft 按后缀匹配，于是命中了 `layers.0`——整个 `Qwen2DecoderLayer`——导致 `--lora_enable True` 必然失败。现已排除 `audio_encoder` 并跳过纯数字叶子名。单卡 LoRA 峰值 23.3 GB。
+- 新增 `script/train/smoke_test_lora.sh`，仓库中第一个真正跑通 LoRA 路径的脚本。
 - 新增 `tools/make_smoke_data.py` 与 `script/train/smoke_test_qwen.sh`，一套用合成数据验证训练链路的 smoke test。
 - 新增 `tools/test_audio_optional.py`，上述修复的 CPU 单元测试（编码器打桩，无需权重）。
 - 新增 `tools/inspect_dataset.py`，在 CPU 上加载已配置的数据集，报告序列长度、被监督的文本片段、collate 后的张量形状，以及有多少样本的 label 被静默作废——接入数据集后、开 GPU 前先跑它。

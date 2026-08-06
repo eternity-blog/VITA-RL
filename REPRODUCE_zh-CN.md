@@ -103,6 +103,9 @@ pip install --only-binary=:all: "numpy==1.26.4" "numba<0.61" "llvmlite<0.44"
 # 5. 仅训练需要
 pip install "deepspeed==0.14.4"
 
+# 5b. 仅 LoRA（单卡训练）需要。peft 0.11.x 是与 transformers 4.41.1 同期的版本。
+pip install --only-binary=:all: "peft==0.11.1"
+
 # 6. flash-attn：内网源没有 wheel，而 gcc 4.8.5 编不了。
 #    使用官方预编译 wheel，需匹配 cp310 / torch2.3 / cxx11abiFALSE。
 #    用这条命令查你的 ABI：python -c "import torch; print(torch._C._GLIBCXX_USE_CXX11_ABI)"

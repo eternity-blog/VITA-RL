@@ -574,7 +574,8 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 | Tokenization mismatch silently voids a sample's labels | upstream behaviour, [§9.3](#93-label-masking) |
 | `command.sh` is the authors' scratch history, referencing deleted files — not an entry point | — |
 | `Conversation.get_prompt()` is **not idempotent**: it does `self.system = self.system[0]`, replacing the 3-element list with a string, so a second call on the same object indexes into that string and the whole system prompt collapses to one character. Harmless today (the data pipeline copies the template per sample and calls it once) but a live hazard for multi-turn RL rollouts that reuse a conversation object | upstream, unfixed ([PRIMER.md §6.2](./PRIMER.md#62-get_prompt-不幂等未记录的缺陷)) |
-| LoRA / 4-bit paths exist in `train.py` but no shipped script uses them | unverified |
+| LoRA was unusable: `find_all_linear_names` does not exclude `audio_encoder`, and whale has two `nn.Linear`s whose leaf name is the digit `"0"` (`encoder.enc.0.core.out.0`, `encoder.enc.1.embed.0`). peft matches target modules by suffix, so `"0"` matched `layers.0` — a whole `Qwen2DecoderLayer` — and peft rejected it. `--lora_enable True` failed outright regardless of memory | **fixed in this fork** (`script/train/smoke_test_lora.sh`, 23.3 GB peak on one GPU) |
+| 4-bit path exists in `train.py` but no shipped script uses it | unverified |
 | README audio examples reference `asset/vita_newlog.png`; the file is `.jpg` | — |
 | **No training data is provided.** The paper's ~20M QA come from ~20 third-party datasets, plus ~5.7M unreleased synthetic samples and 110,000 h of *internal* ASR data | see [§13](#13-where-rl-would-attach) |
 
@@ -621,7 +622,9 @@ returns nothing). Adding RL is the goal of this fork.
    (policy + ref) and GRPO (no critic) are far more tractable.
    Partly eased: since `audios` became optional ([§12](#12-known-defects-and-rough-edges)),
    a text-and-image-only rollout no longer runs the 341M audio encoder in
-   every model copy on every step.
+   every model copy on every step. LoRA is now a working option too — one
+   adapted 7B fits in 23.3 GB on a single card (161.5M trainable, 2.12%),
+   so a policy/reference pair sharing frozen base weights is realistic.
 
 **Suggested order:** offline DPO first — no rollout, so obstacles 1 and 2 vanish
 and only obstacles 4 and 5 remain, both manageable. The reference model can be
