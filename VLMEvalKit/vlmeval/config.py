@@ -1,3 +1,5 @@
+import os
+
 from vlmeval.vlm import *
 from vlmeval.api import *
 from functools import partial
@@ -137,9 +139,9 @@ llava_series = {
     'llava_onevision_qwen2_72b_ov': partial(LLaVA_OneVision, model_path='lmms-lab/llava-onevision-qwen2-72b-ov'),
 }
 
-vita_series = { 
-    'vita': partial(VITA, model_path='/path/to/model'),
-    'vita_qwen2': partial(VITAQwen2, model_path='/path/to/model'),
+vita_series = {
+    'vita': partial(VITA, model_path=os.environ.get('VITA_CKPT', '/path/to/model')),
+    'vita_qwen2': partial(VITAQwen2, model_path=os.environ.get('VITA_CKPT', '/path/to/model')),
 }
 
 vita_vllm_series = { 

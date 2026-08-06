@@ -249,9 +249,59 @@ python tools/inspect_dataset.py --dataset-use MyData --num-samples 5
 | **单卡 LoRA 训练** | ✅ **本机跑通（需先修复）** | 峰值 **23.3 GB**，24 步 10.4 s。上游此路径有致命 bug，本 fork 已修，见下 |
 | **视频推理** | ✅ **本机跑通** | 每秒抽 1 帧，上限 16 帧 |
 | web demo | ❌ **不可用** | `flask`/`flask_socketio`/`vllm`/`onnxruntime` 均未装；还缺 `web_demo/wakeup_and_vad/resource/` 下的 `silero_vad.onnx`/`.jit` |
-| VLMEvalKit 评测 | ⚠️ 未配置 | `VLMEvalKit/vlmeval/config.py:141-142` 仍是 `/path/to/model` |
+| VLMEvalKit 评测 | ⚠️ **部分就绪** | 配置已改为读 `VITA_CKPT`，依赖大部分装好，但卡在 omegaconf/antlr4 版本冲突，未跑出基线数字。见下 |
 | Video-MME 评测 | ⚠️ 未测 | 需另下 Video-MME 数据集 |
 | 语音输出（TTS） | ⚠️ 存疑 | 见 [PRIMER.md §9](./PRIMER.md#9-语音输出论文与代码不一致)——代码与论文描述不一致 |
+
+### VLMEvalKit：进行到哪一步了
+
+**已完成**：`VLMEvalKit/vlmeval/config.py` 改为读 `VITA_CKPT` 环境变量
+（原本硬编码 `/path/to/model`），并补上缺失的 `import os`。用法：
+
+```bash
+export VITA_CKPT=$VITA_WEIGHTS/VITA-1.5
+```
+
+**依赖安装的关键原则**：**不要** `pip install -r VLMEvalKit/requirements.txt`。
+那份需求没有固定 `transformers`/`torch`/`numpy` 版本，直接装会升级
+transformers，从而废掉 `vita_qwen2.py` 对 4.41.1 的 monkey patch，
+整个项目都跑不了。
+
+正确做法是全程 `--no-deps`：
+
+```bash
+pip install --only-binary=:all: --no-deps \
+  pandas openpyxl portalocker rich sty tabulate tiktoken validators \
+  xlsxwriter omegaconf imageio matplotlib python-dotenv "openai==1.3.5"
+pip install --no-deps timeout-decorator      # 只有源码包，需放开 --only-binary
+# --no-deps 会漏掉传递依赖，补上：
+pip install --only-binary=:all: --no-deps \
+  pytz python-dateutil tzdata six markdown-it-py mdurl pygments \
+  contourpy cycler fonttools kiwisolver pyparsing et-xmlfile \
+  regex httpx distro annotated-types
+```
+
+装完务必验证核心栈没被动过：
+
+```bash
+python -c "import torch,transformers,numpy; print(torch.__version__, transformers.__version__, numpy.__version__)"
+# 必须仍是 2.3.1+cu121 / 4.41.1 / 1.26.4
+```
+
+**已解决的坑**：`moviepy`。VLMEvalKit 的 `mvbench.py` 用
+`from moviepy.editor import ...`，但 moviepy 2.x 移除了该模块，
+而镜像上没有 1.0.3。麻烦在于 `mvbench.py` 被 `dataset/__init__.py`
+**无条件 import**，所以一个视频数据集的依赖问题会让**所有图像基准**
+都加载不了。处理方式是装 moviepy 2.x 再加一个 `.pth` 垫片，
+把 `moviepy.editor` / `moviepy.config_defaults` 注册为 2.x 顶层符号的别名
+（不改 VLMEvalKit 源码）。
+
+**未解决的坑**：`omegaconf 2.3.1` 需要 `antlr4-python3-runtime 4.9.x`，
+而企业镜像最低只有 4.11，导致
+`Exception: Could not deserialize ATN with version 3 (expected 4)`。
+omegaconf 被 `vlmeval/vlm/vxverse.py` 在模块顶层 import，同样会拖垮整个包。
+可行方向：从源码装 antlr4 4.9.3（纯 Python，无需编译），
+或给 omegaconf 也加垫片。
 
 ### 单卡 LoRA：上游的致命 bug（本 fork 已修）
 
