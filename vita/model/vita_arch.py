@@ -163,6 +163,31 @@ class VITAMetaForCausalLM(ABC):
         image_features = self.get_model().mm_projector(image_features)
         return image_features
 
+    def encode_images_deduped(self, images, group_size):
+        """Encode only the first `group_size` tiles and tile the result.
+
+        For objectives that score several responses against the same media --
+        DPO's chosen/rejected pair, GRPO's group of rollouts -- the batch is
+        laid out as N repetitions of the same images. The vision tower is
+        deterministic, so encoding one repetition and repeating the features
+        is bit-identical to encoding all of them, at 1/N of the cost.
+
+        `images` must be exactly N copies of the same `group_size` tiles, in
+        order. The caller owns that guarantee; this asserts the shape divides
+        and nothing more, because comparing the pixels would cost more than
+        the encode it saves.
+        """
+        total = images.shape[0]
+        if group_size <= 0 or total % group_size != 0:
+            raise ValueError(
+                f"{total} image tiles is not a whole number of groups of {group_size}"
+            )
+        repeats = total // group_size
+        if repeats == 1:
+            return self.encode_images(images)
+        features = self.encode_images(images[:group_size])
+        return features.repeat(repeats, *([1] * (features.dim() - 1)))
+
     def encode_images_frameCat(self, images):
         image_features = self.get_model().get_vision_tower()(images)
         assert len(image_features) % 5 == 0
@@ -306,8 +331,16 @@ class VITAMetaForCausalLM(ABC):
         return output_features
 
     def prepare_inputs_labels_for_multimodal(
-        self, input_ids, position_ids, attention_mask, past_key_values, labels, images, audios, sf_masks, shared_v_pid_stride=None
+        self, input_ids, position_ids, attention_mask, past_key_values, labels, images, audios, sf_masks, shared_v_pid_stride=None, image_group_size=None
     ):
+        """Splice image and audio features into the token embedding sequence.
+
+        image_group_size: when the batch repeats the same media across several
+            sequences (DPO's chosen/rejected pair, GRPO's rollout group), pass
+            the number of tiles in one repetition to encode it once instead of
+            N times. Bit-identical either way -- see encode_images_deduped.
+            Leave as None for ordinary training.
+        """
         vision_tower = self.get_vision_tower()
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
             if (
@@ -333,10 +366,15 @@ class VITAMetaForCausalLM(ABC):
 
         if type(images) is list or images.ndim == 5:
             concat_images = torch.cat([image for image in images], dim=0)
-            image_features = self.encode_images(concat_images)
+            if image_group_size:
+                image_features = self.encode_images_deduped(concat_images, image_group_size)
+            else:
+                image_features = self.encode_images(concat_images)
             split_sizes = [image.shape[0] for image in images]
             image_features = torch.split(image_features, split_sizes, dim=0)
             image_features = [x.flatten(0, 1).to(self.device) for x in image_features]
+        elif image_group_size:
+            image_features = self.encode_images_deduped(images, image_group_size).to(self.device)
         else:
             image_features = self.encode_images(images).to(self.device)
 

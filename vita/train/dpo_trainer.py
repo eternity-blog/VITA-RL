@@ -35,7 +35,7 @@ class VITADPOTrainer(VITATrainer):
         self.dpo_beta = dpo_beta
         self.dpo_label_smoothing = dpo_label_smoothing
 
-    def _fuse(self, model, inputs):
+    def _fuse(self, model, inputs, image_group_size=None):
         """Run the multimodal splice once, returning embeddings and labels."""
         unwrapped = self.accelerator.unwrap_model(model)
         _, position_ids, attention_mask, _, inputs_embeds, labels = (
@@ -48,14 +48,19 @@ class VITADPOTrainer(VITATrainer):
                 inputs.get("images"),
                 inputs.get("audios") or None,
                 inputs.get("sf_masks"),
+                image_group_size=image_group_size,
             )
         )
         return inputs_embeds, labels, position_ids, attention_mask
 
     def compute_loss(self, model, inputs, return_outputs=False):
         num_pairs = int(inputs.pop("num_pairs").flatten()[0])
+        group = inputs.pop("image_group_size", None)
+        image_group_size = int(group.flatten()[0]) if group is not None else None
 
-        inputs_embeds, labels, position_ids, attention_mask = self._fuse(model, inputs)
+        inputs_embeds, labels, position_ids, attention_mask = self._fuse(
+            model, inputs, image_group_size=image_group_size
+        )
 
         def logps() -> torch.Tensor:
             out = model(

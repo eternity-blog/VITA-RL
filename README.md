@@ -99,6 +99,12 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   `script/train/dpo_smoke_test.sh`. The reference policy is the same weights
   with the LoRA adapter disabled, so it costs no extra memory. See
   [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化).
+- Added `encode_images_deduped` to `vita_arch.py`: when a batch repeats the
+  same media across sequences (DPO's chosen/rejected pair, later GRPO's
+  rollout group), the vision tower encodes one repetition and the features
+  are tiled. Bit-identical, asserted with `torch.equal` in
+  `tools/test_image_dedup.py`; 44-46% off the vision-tower forward. Opt-in
+  via `image_group_size`, so SFT is untouched.
 - Generalised `train()` in `vita/train/train.py` to accept optional
   argument-class, data-module and trainer factories, so DPO reuses the ~230
   lines of model construction instead of copying them. Calling it with no

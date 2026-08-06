@@ -532,13 +532,38 @@ dropout 在 `model.train()` 下对 policy 生效，而参考模型关了 adapter
 - **没有真实偏好数据**。合成数据只验证链路，不产出有意义的模型。
   真实数据可考虑 RLAIF-V、VLFeedback 等（未调研）。
 - **只支持 LoRA**。全参 DPO 需要第二份 7B + 8 卡，未实现。
-- **成对样本的图像会被编码两次**。collator 为满足
-  `prepare_inputs_labels_for_multimodal` 的媒体计数断言，
-  给 chosen/rejected 各复制一份图像。虽然共享同一张图，
-  InternViT 仍跑 2 次。
 - **状态 token 未特殊处理**。chosen/rejected 目前带相同的
   `☜`/`☞`/`☟` 前缀（由数据构造保证），若两侧状态不同会让模型
   学到区分状态而非区分质量。
+
+### 8.6 成对样本的图像只编码一次
+
+chosen 和 rejected 看的是同一张图，但两条序列各带一份，
+朴素实现会让 InternViT 把同一张图编码两次。
+
+现在 collator 会算出 `image_group_size`（一半的图块数）并传给
+`prepare_inputs_labels_for_multimodal`，后者调用
+`encode_images_deduped` 只编码一份、再复制特征。
+因为视觉编码器是确定性的，**结果逐位相同**——
+`tools/test_image_dedup.py` 用 `torch.equal` 断言这点，
+而非 `allclose`。
+
+实测收益（H100，一对样本）：
+
+| 每序列图块 | 优化前 | 优化后 | 节省 |
+|---|---|---|---|
+| 5 块 | 22.4 ms | 12.6 ms | 44% |
+| 13 块 | 53.9 ms | 29.2 ms | 46% |
+
+**但在整步里占比很小**：24 步端到端只从 20.8 s 降到 20.5 s，
+因为瓶颈是 7B 的 LLM 前向（每步 4 次）而非视觉编码器。
+
+真正的价值在 GRPO：一组 N 个 rollout 共享同一张图时，
+节省是 `(N-1)/N`——N=8 时省 87.5%。
+`encode_images_deduped` 已支持任意倍数，测试覆盖了 x2/x3/x4。
+
+SFT 路径不受影响：`image_group_size` 默认为 `None`，
+此时走原来的 `encode_images`。
 
 ## 9. 本机资源现状
 

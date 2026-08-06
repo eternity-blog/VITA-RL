@@ -119,9 +119,12 @@ class DPODataCollator:
     halves into a single batch means one forward instead of two, and lets the
     existing SFT collator handle all the padding and media stacking.
 
-    Media tensors are duplicated across the two halves because the model
-    consumes one image per sequence, but each pair still only decodes its
-    image once, in the dataset.
+    Media is duplicated across the two halves because vita_arch asserts one
+    image feature per <image> token and has no way to express "these two
+    sequences look at the same picture". The duplicate pixels are never
+    encoded twice though: the batch carries an `image_group_size` that tells
+    prepare_inputs_labels_for_multimodal to encode one half and repeat the
+    features, which is bit-identical and halves the vision-tower cost.
     """
 
     tokenizer: transformers.PreTrainedTokenizer
@@ -146,6 +149,16 @@ class DPODataCollator:
         # Carried through so compute_loss knows where the split is, rather
         # than assuming an even division of the batch.
         batch["num_pairs"] = torch.tensor(len(instances))
+
+        # The two halves carry byte-identical media, so the vision tower only
+        # needs to see the first one. Hand the trainer the size of one half
+        # and let prepare_inputs_labels_for_multimodal encode that much and
+        # repeat the features. The full duplicated tensor still goes through
+        # because vita_arch asserts one image feature per <image> token.
+        images = batch.get("images")
+        n_tiles = images.shape[0] if hasattr(images, "shape") else len(images or ())
+        if n_tiles and n_tiles % 2 == 0:
+            batch["image_group_size"] = torch.tensor(n_tiles // 2)
         return batch
 
 
