@@ -573,6 +573,7 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 | `mm_projector_lr` no longer affects `mm_projector` (`vita_trainer.py:190`) | upstream, unfixed |
 | Tokenization mismatch silently voids a sample's labels | upstream behaviour, [§9.3](#93-label-masking) |
 | `command.sh` is the authors' scratch history, referencing deleted files — not an entry point | — |
+| `Conversation.get_prompt()` is **not idempotent**: it does `self.system = self.system[0]`, replacing the 3-element list with a string, so a second call on the same object indexes into that string and the whole system prompt collapses to one character. Harmless today (the data pipeline copies the template per sample and calls it once) but a live hazard for multi-turn RL rollouts that reuse a conversation object | upstream, unfixed ([PRIMER.md §6.2](./PRIMER.md#62-get_prompt-不幂等未记录的缺陷)) |
 | LoRA / 4-bit paths exist in `train.py` but no shipped script uses them | unverified |
 | README audio examples reference `asset/vita_newlog.png`; the file is `.jpg` | — |
 | **No training data is provided.** The paper's ~20M QA come from ~20 third-party datasets, plus ~5.7M unreleased synthetic samples and 110,000 h of *internal* ASR data | see [§13](#13-where-rl-would-attach) |

@@ -41,6 +41,11 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 | 3. Train on real data | 🔍 Scoped | Upstream provides none; [DATASETS.md](./DATASETS.md) surveys what is still obtainable and gives a plan that fits the disk budget |
 | 4. Add RL | 📋 Planned | Add a preference-optimization / RL stage on top of the SFT model |
 
+**New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
+you need before the other documents make sense: the negative-index placeholder
+mechanism, measured token budgets, the three encoders, and the traps that cost
+the most time.
+
 See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test. See
 [ARCHITECTURE.md](./ARCHITECTURE.md) for how the model and codebase actually
@@ -93,8 +98,9 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
 - Added `tools/localize_config.py`, which rewrites the checkpoint's
   `mm_vision_tower` / `mm_audio_encoder` from HuggingFace repo IDs to local
   paths so that loading does not require network access.
-- Added `REPRODUCE.md` (operational log), `ARCHITECTURE.md` (code walkthrough),
-  `DATASETS.md` (training-data survey) and `requirements-lock.txt`.
+- Added `PRIMER.md` (prerequisite knowledge), `REPRODUCE.md` (operational log),
+  `ARCHITECTURE.md` (code walkthrough), `DATASETS.md` (training-data survey)
+  and `requirements-lock.txt`.
 
 Any further deviation from upstream will be recorded in this section.
 

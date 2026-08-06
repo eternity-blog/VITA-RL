@@ -464,6 +464,7 @@ outputs['loss'] = loss
 | `mm_projector_lr` 已不再影响 `mm_projector`（`vita_trainer.py:190`） | 上游问题，未修 |
 | tokenization 长度不匹配会静默作废该样本的 label | 上游行为，见[§9.3](#93-label-掩码) |
 | `command.sh` 是作者的命令备忘，引用了已删除的文件——不是入口 | —— |
+| `Conversation.get_prompt()` **不幂等**：内部执行 `self.system = self.system[0]`，把三元素列表就地换成字符串，于是同一对象第二次调用时索引到的是字符串首字符，整段 system prompt 塌成一个字母。当前无害（数据管线每样本 copy 一次且只调一次），但多轮 RL rollout 复用 conversation 对象时会触发 | 上游缺陷，未修（[PRIMER.md §6.2](./PRIMER.md#62-get_prompt-不幂等未记录的缺陷)） |
 | `train.py` 中存在 LoRA / 4-bit 路径，但没有任何发布脚本使用 | 未验证 |
 | README 的音频示例引用 `asset/vita_newlog.png`，实际文件是 `.jpg` | —— |
 | **未提供任何训练数据。** 论文中约 2000 万条 QA 来自约 20 个第三方数据集，另有约 570 万条未发布的合成样本和 11 万小时**内部** ASR 数据 | 见[§13](#13-rl-该接在哪里) |

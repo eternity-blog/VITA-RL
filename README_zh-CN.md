@@ -34,6 +34,9 @@
 | 3. 真实数据训练 | 🔍 已调研 | 上游未提供数据；[DATASETS.md](./DATASETS.md) 梳理了今天还能拿到什么，并给出匹配磁盘预算的方案 |
 | 4. 增加 RL | 📋 计划中 | 在 SFT 模型之上增加偏好优化 / RL 阶段 |
 
+**第一次接触这个代码库？** 先看 [PRIMER.md](./PRIMER.md)——读懂其余文档所需的
+前置知识：负数索引占位符机制、实测的 token 预算、三个编码器，以及最费时间的坑。
+
 完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 该接在哪里。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及三档按磁盘容量裁剪的方案。
 
 ### 如何复现
@@ -64,7 +67,7 @@ python tools/localize_config.py \
 - 新增 `tools/make_smoke_data.py` 与 `script/train/smoke_test_qwen.sh`，一套用合成数据验证训练链路的 smoke test。
 - 新增 `tools/test_audio_optional.py`，上述修复的 CPU 单元测试（编码器打桩，无需权重）。
 - 新增 `tools/localize_config.py`，把 checkpoint 的 `mm_vision_tower` / `mm_audio_encoder` 从 HuggingFace repo ID 改写为本地路径，使加载不需要访问网络。
-- 新增 `REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研）和 `requirements-lock.txt`，其中文档均含中文版本。
+- 新增 `PRIMER.md`（前置知识，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
 
 后续任何相对上游的偏离都会记录在本节。
 
