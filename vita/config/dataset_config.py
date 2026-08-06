@@ -35,3 +35,12 @@ if _DPO_DIR:
     DPOSmokeTest = {"chat_path": _os.path.join(_DPO_DIR, "dpo_train.json")}
 else:
     DPOSmokeTest = {"chat_path": ""}
+
+#### GRPO smoke test (see tools/make_grpo_smoke_data.py)
+# Prompt-only records; the policy writes its own completions during
+# training. Enabled by setting VITA_GRPO_DATA_DIR.
+_GRPO_DIR = _os.environ.get("VITA_GRPO_DATA_DIR", "")
+if _GRPO_DIR:
+    GRPOSmokeTest = {"chat_path": _os.path.join(_GRPO_DIR, "grpo_train.json")}
+else:
+    GRPOSmokeTest = {"chat_path": ""}

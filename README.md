@@ -39,7 +39,7 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 | 1. Reproduce inference | ✅ Done | Text, audio and noisy-audio queries all run against the released VITA-1.5 checkpoint |
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
 | 3. Train on real data | 🔍 Scoped | Upstream provides none; [DATASETS.md](./DATASETS.md) surveys what is still obtainable and gives a plan that fits the disk budget |
-| 4. Add RL | 🚧 In progress | Offline DPO implemented and verified on synthetic preference pairs (first-step loss hits the exact `-log(0.5)`, reward margin separates). Needs real preference data next |
+| 4. Add RL | 🚧 In progress | Offline DPO and GRPO both implemented and verified on synthetic data — DPO's first-step loss hits the exact `-log(0.5)`, GRPO's reward mean rises while completions shorten. Needs real preference data and real task rewards next |
 
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
@@ -93,6 +93,12 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   `None` branch existed but was unreachable, so every text-only or image-only
   forward pass had to be fed a dummy waveform and ran the 341M-parameter audio
   encoder for nothing. See [ARCHITECTURE.md](./ARCHITECTURE.md#12-known-defects-and-rough-edges).
+- **Added GRPO** on top of DPO: the policy samples its own completions and a
+  pluggable reward scores them during training, with the group as the
+  baseline instead of a critic. `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`
+  and `train_grpo.py`, plus `tools/test_grpo_loss.py` (39 checks) and
+  `tools/test_rewards.py` (48 checks). Text-only for now. See
+  [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化).
 - **Added offline DPO**, the first RL-family objective in this codebase
   (upstream has only SFT). `vita/train/dpo_{loss,data,trainer}.py` and
   `train_dpo.py`, with `tools/test_dpo_loss.py` (19 CPU checks) and

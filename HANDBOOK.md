@@ -16,7 +16,8 @@
 - [6. 地雷区](#6-地雷区)
 - [7. 故障排查](#7-故障排查)
 - [8. DPO（离线偏好优化）](#8-dpo离线偏好优化)
-- [9. 本机资源现状](#9-本机资源现状)
+- [9. GRPO（组相对策略优化）](#9-grpo组相对策略优化)
+- [10. 本机资源现状](#10-本机资源现状)
 
 ---
 
@@ -123,6 +124,18 @@ bash script/train/dpo_smoke_test.sh /tmp/dpo_out 1
 
 **看首步 loss 是否等于 0.6931** —— 这是判断参考模型接对没有的最强信号，
 见 §8.2。
+
+### 2.4e 单卡 GRPO 训练
+
+```bash
+python tools/make_grpo_smoke_data.py --out-dir $VITA_WEIGHTS/grpo_smoke_data
+export VITA_GRPO_DATA_DIR=$VITA_WEIGHTS/grpo_smoke_data
+bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1
+```
+
+**看首步 `grpo/kl` 是否为 0**（参考模型正确）、
+**`reward/mean` 是否上升**（核心信号）、
+**`groups/degenerate_frac` 是否接近 1.0**（接近则奖励无区分度）。见 §9。
 
 ### 2.4c 视频推理
 
@@ -565,7 +578,112 @@ chosen 和 rejected 看的是同一张图，但两条序列各带一份，
 SFT 路径不受影响：`image_group_size` 默认为 `None`，
 此时走原来的 `encode_images`。
 
-## 9. 本机资源现状
+## 9. GRPO（组相对策略优化）
+
+比 DPO 更进一步：**回答由模型自己生成，奖励在训练中实时计算**。
+
+### 9.1 与 DPO 的区别
+
+| | DPO | GRPO |
+|---|---|---|
+| 数据 | 预标好的 chosen/rejected 对 | **只要 prompt** |
+| 打分 | 数据里给定 | **训练中实时算** |
+| 采样 | 无 | **每 prompt 生成 G 个 rollout** |
+| 优势 | 隐式（两两相减） | **组内归一化** `(r-mean)/std` |
+| critic | 无 | 无（这是 GRPO 相对 PPO 的优势） |
+
+### 9.2 用法
+
+```bash
+python tools/make_grpo_smoke_data.py --out-dir $VITA_WEIGHTS/grpo_smoke_data
+export VITA_GRPO_DATA_DIR=$VITA_WEIGHTS/grpo_smoke_data
+bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1
+```
+
+数据格式只要 prompt + 奖励依据：
+
+```json
+{
+  "set": "grpo_smoke",
+  "conversations": [{"from": "human", "value": "Describe a cat."}],
+  "reward_meta": {"keywords": ["cat"], "target_len": [20, 120], "state": "left"}
+}
+```
+
+### 9.3 奖励函数是可插拔的
+
+`vita/train/rewards.py` 是一个注册表。内置四个规则奖励：
+
+| 名称 | 作用 |
+|---|---|
+| `keyword` | 覆盖了多少个期望关键词（按比例给分，非二值） |
+| `length` | 长度是否落在目标区间，两侧线性衰减 |
+| `no_repeat` | 3-gram 去重率，惩罚复读 |
+| `state_token` | 首字符是否是正确的 `☜`/`☞`/`☟` |
+
+用 `--reward_fns keyword:1.0,length:0.5` 选择并加权。
+加 `--judge_model_path` 可以再挂一个小模型打分
+（如 `Qwen/Qwen2.5-0.5B-Instruct`，3.5 GB，Apache-2.0）——
+它读模型给 "1".."5" 各 token 的概率算加权期望，
+比解析文本稳健，且输出连续。
+
+**写新规则时注意**：奖励必须能**区分同一组内的 rollout**。
+GRPO 的优势是组内归一化，所有 rollout 得分相同的组
+（`degenerate`）优势为 0、不产生梯度。二值规则若 8 个 rollout 全过，
+等于没加。**优先写分级的而非通过/不通过的**。
+
+### 9.4 实测结果
+
+12 步、G=8、单卡，所有指标朝正确方向：
+
+| 指标 | 前半 | 后半 | |
+|---|---|---|---|
+| **`reward/mean`** | 0.7891 | **0.8622** | ↑ 核心信号 |
+| `reward/length` | 0.1816 | **0.4009** | ↑ |
+| `reward/keyword` | 0.8854 | 0.9583 | ↑ |
+| `completion/len` | 75.1 | **67.3** | ↓ |
+
+最有说服力的是 **length 奖励翻倍的同时回答长度真的变短了** ——
+两个数字互相印证，说明模型在响应奖励信号而非随机漂移。
+
+健康指标：首步 `grpo/kl` **= 0**（参考模型正确，作用同 DPO 的 0.6931）、
+`ratio` = 1、`advantage_std` 恒为 1.0、`degenerate_frac` **= 0%**。
+
+### 9.5 三个关键实现点
+
+**rollout 要绕过 `generate()`。** `vita_qwen2.py:209` 显式拒绝外部传入
+`inputs_embeds`，但直接调 `Qwen2ForCausalLM.generate(model, inputs_embeds=...)`
+可行。这样 prompt 只需编码一次，多模态版本还能省下重复的视觉编码。
+
+**log-prob 复用缓存的 prompt embeds 重算。** 把采样 token 的 embedding
+拼到缓存的 prompt embeds 后面再前向。实测与生成时的 scores 一致
+（最大差 0.0042，bf16 正常范围）。这解决了
+[ARCHITECTURE §13](./ARCHITECTURE.md#13-where-rl-would-attach)
+列为主要障碍的「prompt token 序列不复原」。
+
+**采样时必须 `model.eval()`。** 否则 LoRA dropout 会让采样策略与
+计算 log-prob 的策略不一致。冒烟脚本另外把 `lora_dropout` 设为 0。
+
+### 9.6 组内标准差为 0 的陷阱
+
+优势是 `(r - mean) / std`，组内全同时 std=0，`0/0` 得 NaN 并静默污染梯度。
+**规则奖励下这极其常见**（所有 rollout 都满足或都不满足某规则）。
+
+`group_advantages` 在 `std < 1e-6` 时把该组优势置 0 并计数，
+通过 `groups/degenerate_frac` 上报。**这个数接近 1.0 说明奖励没有区分度，
+几乎什么都没在训练**——它看起来像「模型学不动」，实际是数据/奖励的问题。
+
+### 9.7 已知限制
+
+- **首版仅支持纯文本 prompt**。多模态需要把 prompt embeds 缓存与
+  `encode_images_deduped` 结合，后者已支持任意重复倍数。
+- **单步更新**：`old_logps` 取自当前策略，所以 ratio 恒为 1、
+  clip 不起作用。等价于带 KL 约束的策略梯度。
+  多步复用同一批 rollout（PPO 式 inner epochs）未实现。
+- **只支持 LoRA**，同 DPO。
+- 奖励是合成规则，不是真实任务目标。
+
+## 10. 本机资源现状
 
 | 项 | 值 |
 |---|---|
