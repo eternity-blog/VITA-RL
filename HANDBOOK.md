@@ -15,7 +15,8 @@
 - [5. 各条路径的实测状态](#5-各条路径的实测状态)
 - [6. 地雷区](#6-地雷区)
 - [7. 故障排查](#7-故障排查)
-- [8. 本机资源现状](#8-本机资源现状)
+- [8. DPO（离线偏好优化）](#8-dpo离线偏好优化)
+- [9. 本机资源现状](#9-本机资源现状)
 
 ---
 
@@ -111,6 +112,17 @@ bash script/train/smoke_test_lora.sh /tmp/lora_out 1     # 末位是 GPU 编号
 
 实测：24 步 10.4 s，峰值 **23.3 GB**（单卡即可），产出 308 MB adapter。
 详见 §5。
+
+### 2.4d 单卡 DPO 训练
+
+```bash
+python tools/make_dpo_smoke_data.py --out-dir $VITA_WEIGHTS/dpo_smoke_data
+export VITA_DPO_DATA_DIR=$VITA_WEIGHTS/dpo_smoke_data
+bash script/train/dpo_smoke_test.sh /tmp/dpo_out 1
+```
+
+**看首步 loss 是否等于 0.6931** —— 这是判断参考模型接对没有的最强信号，
+见 §8.2。
 
 ### 2.4c 视频推理
 
@@ -427,7 +439,108 @@ if cur_len != total_len:
 | 磁盘满 | 每个 checkpoint 16 GB | `rm -rf /tmp/smoke_out*` |
 | `pip check` 报 decord 平台不支持 | 元数据问题，非真实冲突 | 忽略，decord 能正常用 |
 
-## 8. 本机资源现状
+## 8. DPO（离线偏好优化）
+
+这是本 fork 相对上游**唯一的新增训练能力**——上游只有 SFT。
+
+### 8.1 组成
+
+| 文件 | 作用 |
+|---|---|
+| `vita/train/dpo_loss.py` | DPO 损失 + fp32 log-prob |
+| `vita/train/dpo_data.py` | 偏好对数据集 + 2B 批 collator |
+| `vita/train/dpo_trainer.py` | `VITADPOTrainer`，覆写 `compute_loss` |
+| `vita/train/train_dpo.py` | 入口 |
+| `tools/make_dpo_smoke_data.py` | 合成偏好数据 |
+| `tools/test_dpo_loss.py` | 19 项 CPU 测试 |
+| `script/train/dpo_smoke_test.sh` | 单卡运行 |
+
+数据格式在 SFT 格式上只加一个 `rejected` 字段：
+
+```json
+{
+  "set": "dpo_smoke",
+  "conversations": [
+    {"from": "human", "value": "<image>\nDescribe this image."},
+    {"from": "gpt",   "value": "首选回答"}
+  ],
+  "rejected": "次选回答",
+  "image": "vita_newlog.jpg"
+}
+```
+
+### 8.2 首步 loss 必须等于 0.6931
+
+初始时 LoRA 的 B 矩阵为 0，策略等于参考，DPO logit 为 0，
+loss 恰为 `-log(0.5) = 0.6931`。
+
+**这是最强的正确性检查**：若首步偏离这个值，说明参考模型没接对。
+实测结果：
+
+```
+{'loss': 0.6931, ...}
+{'rewards/chosen': 0.0, 'rewards/rejected': 0.0, 'rewards/margin': 0.0}
+```
+
+24 步实测趋势（batch=1，噪声大，看均值）：
+
+| 指标 | 前半 | 后半 |
+|---|---|---|
+| `rewards/margin` | +0.00200 | **+0.01054** |
+| `rewards/accuracy` | 0.58 | **0.67** |
+| `loss` | 0.6922 | **0.6879** |
+
+### 8.3 三个必须知道的设计点
+
+**参考模型 = 关掉 adapter 的同一份权重**，靠 `disable_adapter()`。
+额外显存为 0，不需要第二份 7B。所以 `--lora_enable True` 是**强制**的。
+
+**`mm_projector` 必须冻结。** 这点极易踩：`train.py:388` 先应用 LoRA，
+`:395` 的 `initialize_vision_modules` 又把 `mm_projector` 的 `requires_grad`
+设回 `True`（`vita_arch.py:59-61`，注释写着 "In case it is frozen by LoRA"）。
+而 `disable_adapter()` **管不到它** —— 它一更新，参考模型就不再是基座，
+`-log(0.5)` 只在第 1 步成立，之后静默漂移而 loss 看起来毫无异常。
+
+`train_dpo.py` 会显式冻结所有非 adapter 参数并打印：
+
+```
+[DPO] froze 27.5M non-adapter parameters so the reference policy stays fixed
+```
+
+产出的 `non_lora_trainables.bin` 应为 **0 参数**，可用来验证。
+
+**log-prob 必须在 fp32 下算。** `vita_qwen2.py:96` 的
+`logits = logits.float()` 被注释掉了，forward 返回 bf16。实测在
+152k 词表、200 token 上：
+
+| 计算方式 | 误差 |
+|---|---|
+| bf16 全程 | **6.29 nats** |
+| bf16 输入 + fp32 内部 | **0.0061 nats** |
+
+差 1000 倍。DPO 的 β 典型取 0.1，bf16 那点噪声会完全淹没偏好信号。
+`batch_sequence_logps` 内部已做上转，不要绕过它。
+
+### 8.4 冒烟测试为什么把 lora_dropout 设为 0
+
+dropout 在 `model.train()` 下对 policy 生效，而参考模型关了 adapter
+因此没有 dropout —— 两侧不对称，首步就不等于 0.6931，那条检查会失效。
+真实训练想要正则化时再打开。
+
+### 8.5 已知限制
+
+- **没有真实偏好数据**。合成数据只验证链路，不产出有意义的模型。
+  真实数据可考虑 RLAIF-V、VLFeedback 等（未调研）。
+- **只支持 LoRA**。全参 DPO 需要第二份 7B + 8 卡，未实现。
+- **成对样本的图像会被编码两次**。collator 为满足
+  `prepare_inputs_labels_for_multimodal` 的媒体计数断言，
+  给 chosen/rejected 各复制一份图像。虽然共享同一张图，
+  InternViT 仍跑 2 次。
+- **状态 token 未特殊处理**。chosen/rejected 目前带相同的
+  `☜`/`☞`/`☟` 前缀（由数据构造保证），若两侧状态不同会让模型
+  学到区分状态而非区分质量。
+
+## 9. 本机资源现状
 
 | 项 | 值 |
 |---|---|

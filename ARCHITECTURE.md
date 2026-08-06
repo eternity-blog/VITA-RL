@@ -583,7 +583,15 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 
 Upstream contains **only supervised fine-tuning** — no reward model, no
 preference optimization, no rollout loop (`grep -rE 'reward|ppo|dpo|grpo|rlhf'`
-returns nothing). Adding RL is the goal of this fork.
+over the upstream tree returns nothing). Adding RL is the goal of this fork.
+
+> **Status: offline DPO is implemented** (`vita/train/dpo_*.py`) and verified
+> on synthetic preference pairs — the first-step loss lands on the exact
+> `-log(0.5)` that proves the reference policy is wired up correctly, and the
+> reward margin separates over 24 steps. What follows is the original analysis
+> of the obstacles; the DPO-specific ones are annotated with how they were
+> resolved. See [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化) for the
+> operational side.
 
 **What helps:**
 
@@ -607,6 +615,10 @@ returns nothing). Adding RL is the goal of this fork.
    encoders. With PPO that is ~3 encoder passes per step (policy, ref, critic).
    Mitigation: cache `inputs_embeds` from rollout and reuse it — `forward`
    already accepts `inputs_embeds` (`vita_qwen2.py:160`).
+   **Resolved for DPO**: `dpo_trainer.py` calls
+   `prepare_inputs_labels_for_multimodal` once per step and feeds the result
+   to both the policy and the reference, so the encoders run once rather than
+   four times.
 
 3. **The monkey patch** ([§11](#11-model-variants)) makes wrappers like TRL's
    `AutoModelForCausalLMWithValueHead` risky. Writing the loss directly is
@@ -625,6 +637,18 @@ returns nothing). Adding RL is the goal of this fork.
    every model copy on every step. LoRA is now a working option too — one
    adapted 7B fits in 23.3 GB on a single card (161.5M trainable, 2.12%),
    so a policy/reference pair sharing frozen base weights is realistic.
+   **Resolved for DPO**: the reference is the same weights under
+   `disable_adapter()`, costing no extra memory at all.
+
+6. **`mm_projector` escapes the adapter.** `train.py` applies LoRA at line 388
+   but calls `initialize_vision_modules` at 395, and that method force-enables
+   `mm_projector`'s gradients (`vita_arch.py:59-61`, comment: "In case it is
+   frozen by LoRA"). `disable_adapter()` does not revert it, so any
+   reference-model scheme built on adapter toggling silently stops matching
+   the base policy once `mm_projector` updates — while the loss keeps looking
+   reasonable. `train_dpo.py` freezes all non-adapter parameters explicitly
+   (27.5M) and prints what it froze; the saved `non_lora_trainables.bin`
+   should contain zero parameters.
 
 **Suggested order:** offline DPO first — no rollout, so obstacles 1 and 2 vanish
 and only obstacles 4 and 5 remain, both manageable. The reference model can be

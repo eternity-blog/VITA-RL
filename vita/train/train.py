@@ -229,11 +229,34 @@ def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: st
         trainer._save(output_dir, state_dict=cpu_state_dict)  # noqa
 
 
-def train():
+def train(
+    extra_arg_classes=(),
+    data_module_factory=None,
+    trainer_factory=None,
+):
+    """Build the model and run training.
+
+    The three optional arguments exist so alternative objectives (currently
+    DPO, see train_dpo.py) can reuse the ~230 lines of model construction and
+    freeze handling below instead of copying them. Called with no arguments
+    this behaves exactly as before.
+
+    Args:
+        extra_arg_classes: additional dataclasses to append to the argument
+            parser. Their parsed values are passed to the two factories.
+        data_module_factory: fn(tokenizer, data_args, extras) -> dict, in
+            place of make_supervised_data_module.
+        trainer_factory: fn(model, tokenizer, training_args, data_module,
+            extras) -> Trainer, in place of VITATrainer.
+    """
     global local_rank
 
-    parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
-    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    parser = transformers.HfArgumentParser(
+        (ModelArguments, DataArguments, TrainingArguments) + tuple(extra_arg_classes)
+    )
+    parsed = parser.parse_args_into_dataclasses()
+    model_args, data_args, training_args = parsed[:3]
+    extras = parsed[3:]
     local_rank = training_args.local_rank
     compute_dtype = (
         torch.float16
@@ -458,8 +481,17 @@ def train():
                     if training_args.bf16 and module.weight.dtype == torch.float32:
                         module = module.to(torch.bfloat16)
 
-    data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)
-    trainer = VITATrainer(model=model, tokenizer=tokenizer, args=training_args, **data_module)
+    if data_module_factory is None:
+        data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)
+    else:
+        data_module = data_module_factory(tokenizer, data_args, extras)
+
+    if trainer_factory is None:
+        trainer = VITATrainer(
+            model=model, tokenizer=tokenizer, args=training_args, **data_module
+        )
+    else:
+        trainer = trainer_factory(model, tokenizer, training_args, data_module, extras)
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)

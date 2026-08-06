@@ -13,6 +13,8 @@ DataConfig = {
     "Pretrain_audio": NaturalCap0,
     # Synthetic pipeline smoke test -- see tools/make_smoke_data.py.
     "SmokeTest": [SmokeTest],
+    # Synthetic preference pairs for DPO -- see tools/make_dpo_smoke_data.py.
+    "DPOSmokeTest": [DPOSmokeTest],
 }
 
 NoPatchSets = ["khair", "jester"]
