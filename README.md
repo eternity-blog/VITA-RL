@@ -97,7 +97,7 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   pluggable reward scores them during training, with the group as the
   baseline instead of a critic. `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`
   and `train_grpo.py`, plus `tools/test_grpo_loss.py` (39 checks) and
-  `tools/test_rewards.py` (48 checks). Text-only for now. See
+  `tools/test_rewards.py` (44 checks). Text-only for now. See
   [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化).
 - **Added offline DPO**, the first RL-family objective in this codebase
   (upstream has only SFT). `vita/train/dpo_{loss,data,trainer}.py` and

@@ -23,6 +23,7 @@
 - [11. 模型变体](#11-模型变体)
 - [12. 已知缺陷与粗糙之处](#12-已知缺陷与粗糙之处)
 - [13. RL 该接在哪里](#13-rl-该接在哪里)
+- [14. RL 栈：DPO 与 GRPO](#14-rl-栈dpo-与-grpo)
 
 ---
 
@@ -72,8 +73,14 @@ vita/
 │   │   └── builder.py           # mlp2x_gelu 等
 │   └── vita_tts/                # 端到端语音合成
 ├── train/
-│   ├── train.py                 # ★ 唯一的训练入口
-│   └── vita_trainer.py          # HF Trainer 子类
+│   ├── train.py                 # ★ 唯一的训练入口（SFT；同时承载被 RL
+│   │                            #   入口复用的模型构建逻辑）
+│   ├── vita_trainer.py          # HF Trainer 子类
+│   ├── dpo_{loss,data,trainer}.py    # 离线 DPO —— 本 fork 新增
+│   ├── train_dpo.py             # DPO 入口
+│   ├── grpo_{loss,data,trainer}.py   # GRPO —— 本 fork 新增
+│   ├── train_grpo.py            # GRPO 入口
+│   └── rewards.py               # 可插拔奖励注册表（GRPO）
 ├── util/
 │   ├── data_utils_video_audio_neg_patch.py   # ★ 当前启用的数据管线
 │   ├── data_utils_*.py          # 另外 6 个变体，通过改 import 切换
@@ -82,12 +89,17 @@ vita/
     ├── dataset_config.py        # 数据集路径（发布时为空）
     └── __init__.py              # DataConfig 注册表
 
-script/train/*.sh                # 18 个启动脚本（阶段 × 骨干 × 单机/多机）
+script/train/*.sh                # 18 个上游启动脚本，外加本 fork 的
+                                 # 三个冒烟测试（SFT-LoRA / DPO / GRPO）
 web_demo/                        # Flask + SocketIO 实时 demo，vLLM 加速
 videomme/                        # Video-MME 基准
 VLMEvalKit/                      # OpenCompass 评测套件的内嵌副本
-tools/                           # 本 fork 新增
+tools/                           # 本 fork 新增：数据生成器、五套 CPU 测试、
+                                 # 配置本地化工具
 ```
+
+上游到 `vita_trainer.py` 为止。从 `dpo_loss.py` 往下都是本 fork 的 RL 工作，
+走读见 [§14](#14-rl-栈dpo-与-grpo)。
 
 标 ★ 的四个文件是真正逻辑所在。仅 `vita_arch.py` 一个文件就承载了这个模型大部分不直观的地方。
 
@@ -497,3 +509,202 @@ outputs['loss'] = loss
 **建议顺序：** 先做离线 DPO——不需要 rollout，因此障碍 1 和 2 直接消失，只剩障碍 4 和 5，两者都可控。参考模型可以用冻结的基础权重或禁用的 LoRA adapter，避免在显存里放第二个 7B。等在那里验证过 log-prob 计算，GRPO 可以复用它，只需再加 rollout 循环。
 
 注意 RL **不需要**那份缺失的 SFT 数据集：已发布的 VITA-1.5 checkpoint 本身就是训练好的，而偏好数据无论如何都得自己构造。如果确实想先用真实数据跑一遍 SFT，见 [DATASETS.md](./DATASETS.md)——论文 2213 万条里约三分之一未发布，但公开的部分已经够用，文档给了三档匹配磁盘预算的方案。
+
+## 14. RL 栈：DPO 与 GRPO
+
+第 13 节写于这些代码存在之前，是一份障碍调研。本节走读**实际建成的东西**，
+以及那些障碍里哪些是真的。
+
+以下全部是本 fork 的内容，上游没有任何 RL 代码。
+
+### 14.1 两者共用的部分
+
+DPO 和 GRPO 复用同三样东西，而不是各写一份：
+
+| 部分 | 位置 | 为何共用 |
+|---|---|---|
+| 模型构建 | `train.py:232` | 约 230 行加载、冻结开关、LoRA 设置。复制一份必然漂移。 |
+| 参考策略 | peft 的 `disable_adapter()` | 同一份权重关掉 adapter，额外显存为 0。 |
+| 非 adapter 冻结 | `train_dpo.py`、`train_grpo.py` | 见 §14.5——不冻结的话参考模型会静默地不再是基座。 |
+
+为此 `train()` 增加了三个可选参数：
+
+```python
+def train(extra_arg_classes=(), data_module_factory=None, trainer_factory=None):
+```
+
+不传时行为与之前完全一致——SFT 路径未受影响，改完后重跑冒烟测试确认过。
+`train_dpo.py` 和 `train_grpo.py` 各自提供一个额外参数类、一个数据模块、
+一个 trainer，其余全部继承。
+
+### 14.2 DPO
+
+```
+带 rejected 字段的记录
+  → DPODataset            每条记录编码两次：chosen 与 rejected
+  → DPODataCollator       拼成 [chosen…, rejected…] 一个 2B 的批
+  → VITADPOTrainer.compute_loss
+        融合一次  →  policy 前向  →  参考前向（关 adapter）
+        → batch_sequence_logps（fp32）  →  dpo_loss
+```
+
+**`dpo_data.py`** 包装 `LazySupervisedDataset` 而非重写。`_encode` 临时替换
+`list_data_dict` 里的记录、调用未改动的管线、再还原——这样 chosen 和 rejected
+走的是完全相同的图像切块、prompt 组装、label 掩码，只有最后一轮 assistant
+回复不同。这个「改了再还原」在 DataLoader worker 下安全（各有一份副本），
+但不是线程安全的。
+
+**`dpo_loss.py`** 拆成两个函数，使数学部分不依赖 checkpoint 即可测试。
+`batch_sequence_logps` 在 log-softmax 前上转 fp32（§14.6），并且对被监督
+token 求**和**而非平均——由此带来的长度偏置是 DPO 本身的性质，不是疏漏。
+
+**`dpo_trainer.py`** 只覆写 `compute_loss`。把目标函数放在 trainer 而非模型里
+（`vita_fo_qwen2.py:102` 的状态头就是放在模型里的），使
+`VITAQwen2ForCausalLM` 不沾任何 RL 逻辑——正因如此，后来加 GRPO 完全没动模型。
+
+`-log(0.5)` 恒等式是关键检查：未训练的 LoRA adapter 让策略恒等于参考，
+DPO logit 为 0，首步 loss 必然是 0.6931。实测：0.6931。
+
+### 14.3 GRPO
+
+```
+只含 prompt 的记录
+  → GRPOPromptDataset     tokenize 到 "<|im_start|>assistant\n" 为止
+  → GRPOPromptCollator    左 padding（生成是往右追加的）
+  → VITAGRPOTrainer.compute_loss
+        rollout：每 prompt 采样 G 个，关掉 adapter dropout
+        → RewardCombiner 给每个回答打分
+        → group_advantages：组内 (r - mean) / std
+        → policy log-prob（缓存的 prompt embeds + 采样 token 的 embeds）
+        → 参考 log-prob（关 adapter）
+        → grpo_loss
+```
+
+rollout 有两处是本代码库特有的，都在 `grpo_trainer.py` 里。
+
+**采样要绕过 `generate()`。** `vita_qwen2.py:209` 对 `inputs_embeds` 参数抛
+`NotImplementedError`。直接调 `Qwen2ForCausalLM.generate(unwrapped, inputs_embeds=…)`
+可以接受——这正是让 prompt 只编码一次、被整组共享的前提。
+
+**采样时把模型切到 `eval()`。** 否则 LoRA dropout 会让采样策略与被计算
+log-prob 的策略成为两个不同的函数。冒烟脚本另外把 `lora_dropout` 设为 0。
+
+**log-prob 是重算的，不是从生成结果里读的。** 带梯度的那次前向无论如何都要跑，
+所以 `old_logps` 取自同一次——这让首个 inner step 的 ratio 精确为 1，
+而不是在两次前向之间引入 bf16 抖动。这是单步范式：clip 不会生效。
+跨 inner epoch 复用 rollout（那时 ratio 会移动、clip 才有意义）未实现。
+
+`grpo_data.py` **没有**复用 `LazySupervisedDataset`。那个类是为构造监督目标而生的，
+其中每条路径都假设存在一轮最终的 assistant 回复用来算 label；而这里没有任何
+东西需要监督。collator 采用左 padding（与 SFT 的右 padding 相反），
+因为批量生成是往右追加的，每个 prompt 必须末位对齐到生成边界。
+
+### 14.4 奖励
+
+`rewards.py` 是一个注册表，使分数可以现在来自规则、以后来自学习到的模型，
+而 trainer 不必改动：
+
+```python
+@register_reward("keyword")
+def keyword_reward(prompt, response, meta) -> float: ...
+```
+
+内置四条规则：`keyword`、`length`、`no_repeat`、`state_token`。全部返回
+`[0, 1]`，这才使 `--reward_fns keyword:1.0,length:0.5` 里的权重具有可比性。
+
+`JudgeReward` 可选加载一个小的 instruct 模型，读取它赋予 `"1"`–`"5"`
+各 token 的概率并取加权均值。读分布而非解析生成文本，给出的是连续信号
+——这正是组内排序所需要的——且不可能解析失败。
+
+**真正要紧的性质**：奖励必须能区分同一 prompt 的各个 rollout。一条二值规则
+若 G 个样本全部通过，该组方差为 0、优势为 0、没有梯度——等价于没加这条规则。
+**优先写分级的，而不是通过/不通过的。**
+
+### 14.5 两个会产出「看起来正常的错误运行」的陷阱
+
+**`mm_projector` 逃逸 adapter 控制。** `train.py` 在 388 行应用 LoRA，
+395 行的 `initialize_vision_modules` 又强制打开 `mm_projector` 的梯度
+——`vita_arch.py:59-61`，注释写着 *"In case it is frozen by LoRA"*。
+`disable_adapter()` 撤销不了这个。放着不管的话，「参考模型」会继续训练，
+第 1 步之后它就不再是基座策略，KL 项衡量的是对一个移动目标的漂移，
+而日志里没有任何异常。两个入口都会显式冻结所有非 adapter 参数并打印总量
+（27.5M）；保存出来的 `non_lora_trainables.bin` 应当为空。
+
+**退化的组会除以 0。** GRPO 的优势是 `(r - mean) / std`。当组内每个 rollout
+得分相同时，这是 `0/0` → NaN，并会流进梯度。**规则奖励下这是训练早期的常态，
+不是边界情况。** `group_advantages` 把这类组置 0 并计数，trainer 通过
+`groups/degenerate_frac` 上报。这个值接近 1.0 意味着奖励无法区分样本、
+几乎什么都没在训练——而它表现出来的样子是「模型学不动」。
+
+另外注意 `group_advantages` 用的是**总体**标准差。无偏标准差在
+`group_size == 1` 时本身就是 NaN，会让这道防线失效。
+
+### 14.6 为什么 log-prob 要在 fp32 下算
+
+`vita_qwen2.py:96` 的 `logits = logits.float()` 被注释掉了，所以
+`custom_forward` 返回 bf16 logits。在 152k 词表上对 bf16 log-prob 求和损失很大；
+而两个目标函数随后都要做「差的差」再乘以 β ≈ 0.1。
+
+200 token 序列上的实测：
+
+| | 相对 fp32 的误差 |
+|---|---|
+| bf16 全程 | 6.29 nats |
+| bf16 输入、fp32 内部 | 0.0061 nats |
+
+差三个数量级。`batch_sequence_logps` 和 `VITAGRPOTrainer._sequence_logps`
+都在 log-softmax 前做了上转，不要绕过它们。
+
+### 14.7 共享的媒体只编码一次
+
+一个 DPO 对看的是同一张图，一个 GRPO 组也是，但每条序列都带着自己的一份，
+因为 `vita_arch.py:391-395` 断言「每个 `<image>` token 对应一份图像特征」，
+而且无法表达「共享」这件事。
+
+`encode_images_deduped(images, group_size)` 只编码第一份、再复制特征。
+视觉编码器是确定性的，所以这是精确的——`tools/test_image_dedup.py` 用
+`torch.equal` 而非 `allclose` 断言，因为这里的微小漂移会直接进入 LLM，
+表现为训练噪声。
+
+通过 `prepare_inputs_labels_for_multimodal` 的 `image_group_size` 显式开启，
+默认 `None`，SFT 不受影响。一对样本可省下 44–46% 的视觉前向；
+收益随 `(N-1)/N` 增长——这正是它接受任意重复倍数的原因，
+GRPO 的 8 个 rollout 一组可省 87.5%。
+
+### 14.8 验证
+
+五套 CPU 测试，不需要 checkpoint，秒级完成：
+
+| 测试 | 覆盖内容 |
+|---|---|
+| `test_dpo_loss.py` | 19 项：`-log(0.5)` 恒等式、梯度流向、fp32 vs bf16 |
+| `test_grpo_loss.py` | 39 项：退化组、`group_size=1`、KL 非负性、clip |
+| `test_rewards.py` | 44 项：每条规则的边界、`[0, 1]` 界限、组内区分度 |
+| `test_image_dedup.py` | 11 项：×2/×3/×4 下逐位相等、顺序保持 |
+| `test_audio_optional.py` | `audios=None` 路径及其回归 |
+
+在动用任何 GPU 之前，这些测试抓到了两个真实 bug，形态相同：常量项没有从
+计算图上摘掉——DPO 里的 `ref_delta`，GRPO 里的 `old_logps`。在 trainer 中
+无害（两者都在 `no_grad` 下产生），但损失函数不该依赖调用方来保证正确性。
+
+单卡 H100 上的端到端信号：
+
+| | 信号 | 实测 |
+|---|---|---|
+| DPO | 首步 loss = `-log(0.5)` | 0.6931 |
+| DPO | reward margin 分离 | +0.0020 → +0.0105 |
+| GRPO | 首步 KL = 0 | 0.0 |
+| GRPO | reward 均值上升 | 0.7891 → 0.8622 |
+| GRPO | length 奖励上升的同时回答变短 | 75.1 → 67.3 token |
+
+最后一行信息量最大：两个独立数字朝一致方向移动，比单看 loss 下降更难碰巧发生。
+
+### 14.9 尚未实现
+
+- **多模态 GRPO**。目前仅纯文本；prompt embedding 缓存需要接到
+  `encode_images_deduped`，后者已经支持这需要的任意重复倍数。
+- **多步复用 rollout**。`old_logps` 取自当前策略，因此 ratio 为 1、clip 不生效。
+  这实质是带 KL 约束的单步策略梯度。
+- **全参数 DPO/GRPO**。两者都要求 LoRA，缺少时直接拒绝启动而非半可用：
+  参考策略的定义就是「adapter 可被关掉」。
+- **真实数据**。偏好对和任务奖励都是合成的，验证的是机制而非模型。

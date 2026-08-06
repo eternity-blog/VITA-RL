@@ -27,6 +27,7 @@ writing; they may drift as the code changes.
 - [11. Model variants](#11-model-variants)
 - [12. Known defects and rough edges](#12-known-defects-and-rough-edges)
 - [13. Where RL would attach](#13-where-rl-would-attach)
+- [14. The RL stack (DPO and GRPO)](#14-the-rl-stack-dpo-and-grpo)
 
 ---
 
@@ -81,8 +82,15 @@ vita/
 │   │   └── builder.py           # mlp2x_gelu and friends
 │   └── vita_tts/                # end-to-end speech synthesis
 ├── train/
-│   ├── train.py                 # ★ single training entry point
-│   └── vita_trainer.py          # HF Trainer subclass
+│   ├── train.py                 # ★ single training entry point (SFT; also
+│   │                            #   hosts the shared model construction that
+│   │                            #   the RL entry points reuse)
+│   ├── vita_trainer.py          # HF Trainer subclass
+│   ├── dpo_{loss,data,trainer}.py    # offline DPO — added by this fork
+│   ├── train_dpo.py             # DPO entry point
+│   ├── grpo_{loss,data,trainer}.py   # GRPO — added by this fork
+│   ├── train_grpo.py            # GRPO entry point
+│   └── rewards.py               # pluggable reward registry (GRPO)
 ├── util/
 │   ├── data_utils_video_audio_neg_patch.py   # ★ the active data pipeline
 │   ├── data_utils_*.py          # six more variants, selected by editing imports
@@ -91,15 +99,20 @@ vita/
     ├── dataset_config.py        # dataset paths (ships empty)
     └── __init__.py              # DataConfig registry
 
-script/train/*.sh                # 18 launch scripts (stage × backbone × single/multi-node)
+script/train/*.sh                # 18 upstream launch scripts, plus this fork's
+                                 # smoke tests (SFT-LoRA, DPO, GRPO)
 web_demo/                        # Flask + SocketIO real-time demo, vLLM-accelerated
 videomme/                        # Video-MME benchmark
 VLMEvalKit/                      # vendored copy of OpenCompass's eval kit
-tools/                           # added by this fork
+tools/                           # added by this fork: data generators, five
+                                 # CPU test suites, config localisation
 ```
 
 The four files marked ★ are where the real logic lives. `vita_arch.py` alone
 accounts for most of what makes this model non-obvious.
+
+Upstream ends at `vita_trainer.py`. Everything from `dpo_loss.py` down is
+this fork's RL work, walked through in [§14](#14-the-rl-stack-dpo-and-grpo).
 
 ## 3. The central idea: negative-index placeholder tokens
 
@@ -662,3 +675,232 @@ regardless. If you do want to run the SFT stage on real data first, see
 [DATASETS.md](./DATASETS.md) — about a third of the paper's 22M samples is
 unreleased, but the public remainder is enough, and the survey gives three
 plans sized to available disk.
+
+## 14. The RL stack (DPO and GRPO)
+
+Section 13 was written before any of this existed and reads as a survey of
+obstacles. This section is the walkthrough of what was actually built, and
+which of those obstacles turned out to be real.
+
+Everything here is this fork's; upstream has no RL code at all.
+
+### 14.1 What is shared
+
+Both objectives reuse the same three pieces rather than duplicating them:
+
+| Piece | Where | Why it is shared |
+|---|---|---|
+| Model construction | `train.py:232` | ~230 lines of loading, freeze switches and LoRA setup. A second copy would drift. |
+| Reference policy | `peft`'s `disable_adapter()` | Same weights with the adapter off. Costs no extra memory. |
+| Non-adapter freeze | `train_dpo.py`, `train_grpo.py` | See §14.5 — without it the reference silently stops being the base model. |
+
+`train()` grew three optional parameters for this:
+
+```python
+def train(extra_arg_classes=(), data_module_factory=None, trainer_factory=None):
+```
+
+Called with none, it behaves exactly as it did before — the SFT path is
+untouched, and the smoke test was re-run after the change to confirm.
+`train_dpo.py` and `train_grpo.py` each supply a dataclass of extra
+arguments, a data module and a trainer, and inherit everything else.
+
+### 14.2 DPO
+
+```
+records with a `rejected` field
+  → DPODataset            encodes each record twice, chosen and rejected
+  → DPODataCollator       stacks them as [chosen…, rejected…], one batch of 2B
+  → VITADPOTrainer.compute_loss
+        fuse once  →  policy forward  →  reference forward (adapter off)
+        → batch_sequence_logps (fp32)  →  dpo_loss
+```
+
+**`dpo_data.py`** wraps `LazySupervisedDataset` instead of reimplementing it.
+`_encode` temporarily swaps the record in `list_data_dict`, calls the
+untouched pipeline, and restores it — so chosen and rejected go through
+exactly the same image tiling, prompt assembly and label masking, differing
+only in the final assistant turn. That mutate-and-restore is safe under
+DataLoader workers (each has its own copy) but is not thread-safe in
+general.
+
+**`dpo_loss.py`** holds two functions so the maths is testable without a
+checkpoint. `batch_sequence_logps` casts to fp32 before the log-softmax
+(§14.6) and sums, rather than averages, over supervised tokens — the length
+bias that introduces is a property of DPO, not an oversight.
+
+**`dpo_trainer.py`** overrides `compute_loss` only. Putting the objective in
+the trainer rather than the model — which is what `vita_fo_qwen2.py:102`
+does for its state head — keeps `VITAQwen2ForCausalLM` free of RL concerns,
+which is why GRPO could be added later without touching the model at all.
+
+The `-log(0.5)` identity is the load-bearing check: an untrained LoRA
+adapter makes the policy identical to the reference, so the DPO logit is
+zero and the first step's loss must be exactly 0.6931. Measured: 0.6931.
+
+### 14.3 GRPO
+
+```
+prompt-only records
+  → GRPOPromptDataset     tokenizes up to "<|im_start|>assistant\n"
+  → GRPOPromptCollator    LEFT-pads (generation appends on the right)
+  → VITAGRPOTrainer.compute_loss
+        rollout: G samples per prompt, adapter dropout off
+        → RewardCombiner scores each completion
+        → group_advantages: (r - mean) / std within each group
+        → policy log-probs (cached prompt embeds + sampled token embeds)
+        → reference log-probs (adapter off)
+        → grpo_loss
+```
+
+Two details of the rollout are specific to this codebase. Both live in
+`grpo_trainer.py`.
+
+**Sampling routes around `generate()`.** `vita_qwen2.py:209` raises
+`NotImplementedError` on an `inputs_embeds` kwarg. Calling
+`Qwen2ForCausalLM.generate(unwrapped, inputs_embeds=…)` directly accepts it,
+which is what lets the prompt be encoded once and shared by the whole group.
+
+**The model is put in `eval()` for sampling.** LoRA dropout would otherwise
+make the sampling policy a different function from the one whose log-probs
+are scored. The smoke script additionally sets `lora_dropout 0`.
+
+**Log-probs are recomputed, not read off generation.** The gradient-carrying
+pass has to happen anyway, so `old_logps` is taken from it — which pins the
+ratio at exactly 1 on the first inner step instead of introducing bf16 drift
+between two passes. This is the single-step regime: clipping never engages.
+Reusing a rollout batch across inner epochs, where the ratio would move and
+clipping would matter, is not implemented.
+
+`grpo_data.py` does **not** reuse `LazySupervisedDataset`. That class exists
+to build supervised targets and every path in it assumes a final assistant
+turn to compute labels for; here there is nothing to supervise. The collator
+left-pads, unlike the SFT one, because batched generation appends to the
+right and every prompt must end flush against the generation boundary.
+
+### 14.4 Rewards
+
+`rewards.py` is a registry so the score can come from a rule now and a
+learned model later without the trainer changing:
+
+```python
+@register_reward("keyword")
+def keyword_reward(prompt, response, meta) -> float: ...
+```
+
+Four rules ship: `keyword`, `length`, `no_repeat`, `state_token`. All return
+`[0, 1]`, which is what makes the weights in
+`--reward_fns keyword:1.0,length:0.5` comparable.
+
+`JudgeReward` optionally loads a small instruct model and reads the
+probability it assigns to each of the tokens `"1"`–`"5"`, returning their
+weighted mean. Reading the distribution rather than parsing generated text
+gives a continuous signal — which is what a group needs in order to be
+ranked — and cannot fail to parse.
+
+**The property that matters:** a reward must separate the rollouts of one
+prompt. A binary rule that all G samples pass produces a group with zero
+variance, zero advantage and no gradient — worth exactly as much as no
+reward at all. Prefer graded output over pass/fail.
+
+### 14.5 Two traps that produce plausible-looking wrong runs
+
+**`mm_projector` escapes the adapter.** `train.py` applies LoRA at line 388,
+then `initialize_vision_modules` at 395 force-enables `mm_projector`'s
+gradients — `vita_arch.py:59-61`, comment: *"In case it is frozen by LoRA"*.
+`disable_adapter()` cannot undo that. Left alone, the "reference" keeps
+training, so after step 1 it is no longer the base policy, the KL term
+measures drift against a moving target, and nothing in the logs looks wrong.
+Both entry points freeze every non-adapter parameter explicitly and print
+the total (27.5M); the saved `non_lora_trainables.bin` should be empty.
+
+**A degenerate group divides by zero.** GRPO's advantage is
+`(r - mean) / std`. When every rollout in a group scores the same, that is
+`0/0` → NaN, which flows into the gradients. With rule-based rewards this is
+the common case early on, not an edge case. `group_advantages` zeroes those
+groups and counts them; the trainer logs `groups/degenerate_frac`. A value
+near 1.0 means the reward cannot tell the samples apart and almost nothing
+is training — a failure that otherwise presents as "the model won't learn".
+
+Note also that `group_advantages` uses the **population** standard
+deviation. The unbiased one is NaN at `group_size == 1`, which would defeat
+the guard.
+
+### 14.6 Why log-probs are computed in fp32
+
+`vita_qwen2.py:96` has `logits = logits.float()` commented out, so
+`custom_forward` returns bf16 logits. Summing bf16 log-probs across a
+152k-entry vocabulary loses a lot; both objectives then take a difference of
+differences and scale it by beta ≈ 0.1.
+
+Measured on a 200-token sequence:
+
+| | error vs fp32 |
+|---|---|
+| bf16 throughout | 6.29 nats |
+| bf16 input, fp32 inside | 0.0061 nats |
+
+Three orders of magnitude. `batch_sequence_logps` and
+`VITAGRPOTrainer._sequence_logps` both upcast before the log-softmax; do not
+bypass them.
+
+### 14.7 Shared media is encoded once
+
+A DPO pair looks at one image, and a GRPO group looks at one image, but each
+sequence carries its own copy because `vita_arch.py:391-395` asserts one
+image feature per `<image>` token and has no way to express sharing.
+
+`encode_images_deduped(images, group_size)` encodes the first repetition and
+tiles the features. The vision tower is deterministic, so this is exact —
+`tools/test_image_dedup.py` asserts it with `torch.equal`, not `allclose`,
+because a small drift here would feed the LLM and read as training noise.
+
+Opt-in via `image_group_size` on `prepare_inputs_labels_for_multimodal`,
+defaulting to `None`, so SFT is unaffected. Saves 44–46% of the vision
+forward for a pair; the gain scales as `(N-1)/N`, which is why it takes an
+arbitrary repeat count — a GRPO group of 8 would save 87.5%.
+
+### 14.8 Verification
+
+Five CPU suites, no checkpoint needed, seconds to run:
+
+| Suite | Covers |
+|---|---|
+| `test_dpo_loss.py` | 19 checks: the `-log(0.5)` identity, gradient routing, fp32 vs bf16 |
+| `test_grpo_loss.py` | 39 checks: degenerate groups, `group_size=1`, KL non-negativity, clipping |
+| `test_rewards.py` | 44 checks: each rule's edges, `[0, 1]` bounds, group separation |
+| `test_image_dedup.py` | 11 checks: bitwise equality at ×2/×3/×4, order preservation |
+| `test_audio_optional.py` | the `audios=None` path and its regressions |
+
+Two real bugs were caught by these before any GPU time was spent, both the
+same shape: a constant term left attached to the graph — `ref_delta` in DPO,
+`old_logps` in GRPO. Harmless in the trainers, which produce both under
+`no_grad`, but a loss function should not depend on its caller for
+correctness.
+
+End-to-end signals, measured on one H100:
+
+| | Signal | Measured |
+|---|---|---|
+| DPO | first-step loss = `-log(0.5)` | 0.6931 |
+| DPO | reward margin separates | +0.0020 → +0.0105 |
+| GRPO | first-step KL = 0 | 0.0 |
+| GRPO | reward mean rises | 0.7891 → 0.8622 |
+| GRPO | completions shorten as the length reward rises | 75.1 → 67.3 tokens |
+
+The last row is the most informative: two independent numbers moving in
+agreement is much harder to get by accident than a loss curve going down.
+
+### 14.9 What is not implemented
+
+- **Multimodal GRPO.** Text-only for now; the prompt-embedding cache needs
+  wiring to `encode_images_deduped`, which already accepts the arbitrary
+  repeat count this would require.
+- **Multi-step rollout reuse.** `old_logps` comes from the current policy,
+  so the ratio is 1 and clipping is inert. This is a single-step policy
+  gradient with a KL leash.
+- **Full-parameter DPO/GRPO.** Both require LoRA and refuse to start without
+  it, rather than half-working: the reference policy is defined as the
+  adapter being switchable off.
+- **Real data.** Preference pairs and task rewards are synthetic. They
+  verify the machinery, not the model.

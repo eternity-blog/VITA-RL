@@ -421,13 +421,31 @@ any upstream script.
 
 ## Status
 
+Upstream reproduction:
+
 - [x] conda environment + all dependencies
 - [x] flash-attn working on GPU
 - [x] `vita.model` imports cleanly
 - [x] Weights downloaded (VITA-1.5 19.6 GB + InternViT 0.3 GB)
 - [x] Inference reproduced — text, audio, and noisy-audio queries
-- [x] Training pipeline verified end to end on synthetic data (8 × H800)
-- [ ] Training on real data (requires a dataset upstream does not provide)
+- [x] Video inference (1 fps, capped at `MAX_IMAGE_LENGTH=16` frames)
+- [x] Training pipeline verified end to end on synthetic data (8 GPUs)
+- [x] Single-GPU LoRA training — 23.3 GB peak, after fixing the upstream
+      crash described in [HANDBOOK.md §5](./HANDBOOK.md#5-各条路径的实测状态)
+- [ ] Training on real data — upstream provides none; see
+      [DATASETS.md](./DATASETS.md) for what is still obtainable
+
+This fork's RL work (all verified on synthetic data, see
+[ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)):
+
+- [x] Offline DPO — first-step loss lands on the exact `-log(0.5)`
+- [x] GRPO with a pluggable reward registry — reward mean rises while
+      completions shorten
+- [x] Five CPU test suites (118 checks across them), no checkpoint required
+- [ ] Real preference data / real task rewards
+- [ ] Multimodal GRPO (text-only for now)
+- [ ] VLMEvalKit baseline — configured but blocked on an omegaconf/antlr4
+      version conflict, see [HANDBOOK.md §5](./HANDBOOK.md#5-各条路径的实测状态)
 
 ## Reproducing on another machine
 
