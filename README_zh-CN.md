@@ -36,8 +36,24 @@
 
 **第一次接触这个代码库？** 先看 [PRIMER.md](./PRIMER.md)——读懂其余文档所需的
 前置知识：负数索引占位符机制、实测的 token 预算、三个编码器，以及最费时间的坑。
-再看 [HANDBOOK.md](./HANDBOOK.md)——动手部分：可直接复制的命令、改代码时的自检
-流程、各条路径的实测状态，以及上游遗留的 `pdb.set_trace()` 地雷。
+它的[建议阅读顺序](./PRIMER.md#12-建议的阅读顺序)给出了一条四阶段的代码通读路径，
+标注了每段耗时和是否需要 GPU。
+
+### 什么时候看哪份文档
+
+| 文档 | 什么时候看 | 语言 |
+|---|---|---|
+| [PRIMER.md](./PRIMER.md) | **最先看。** 其余文档的前置知识 | 中文 |
+| [HANDBOOK.md](./HANDBOOK.md) | 动手时：命令、地雷区、故障排查 | 中文 |
+| [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md) | 想弄清某段代码为什么这么写 | 中英双版 |
+| [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md) | 装环境时 | 中英双版 |
+| [DATASETS.md](./DATASETS.md) | 要接真实数据时 | 中文 |
+| [MIGRATION_zh-CN.md](./MIGRATION_zh-CN.md) | 换机器时 | 中英双版 |
+
+两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
+§5](./ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)
+拆解了让这个模型成立的那个函数，[§14](./ARCHITECTURE_zh-CN.md#14-rl-栈dpo-与-grpo)
+走读本 fork 新增的 RL 栈。
 
 完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 该接在哪里。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及三档按磁盘容量裁剪的方案。
 

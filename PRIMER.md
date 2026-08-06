@@ -50,9 +50,10 @@ VITA-1.5 是一个**全模态 LLM**：一个语言模型同时吃图像、视频
 这套思路来自 LLaVA。VITA 的独特之处有三：端到端语音输出、负样本拒答训练、
 渐进式三阶段训练。
 
-**本仓库（VITA-RL）是 fork**，目标是复现后加 RL 阶段。截至目前，
+**本仓库（VITA-RL）是 fork**，目标是复现后加 RL 阶段。
 上游代码里 `grep -rniE 'reward|ppo|dpo|grpo|rlhf'` **命中数为 0** ——
-RL 部分还没开始写。
+RL 是这个 fork 自己加的。目前**离线 DPO 和 GRPO 都已实现并在合成数据上验证**
+（约 1400 行，见 §12 阶段四），缺的是真实偏好数据和真实任务奖励。
 
 ## 1. 必备背景概念
 
@@ -94,11 +95,16 @@ LLM 完全不用改。它看到的只是一串向量，不关心其中哪些来�
 | **RLHF** | 用人类偏好做强化学习的统称 | 偏好数据 |
 | **PPO** | 经典 RL 算法，需要 policy/ref/reward/critic 四个模型 | 偏好数据 + 大量显存 |
 | **DPO** | 直接偏好优化，跳过 reward model，只要 policy + ref | 偏好数据，显存友好 |
-| **GRPO** | 组相对策略优化，有 rollout 但无 critic | 偏好数据 + rollout |
+| **GRPO** | 组相对策略优化，有 rollout 但无 critic | **只要 prompt** + 奖励函数 + rollout |
 
-上游只有 SFT。本 fork 想加的是后面几种之一。
-[ARCHITECTURE.md §13](./ARCHITECTURE.md#13-where-rl-would-attach) 分析了
-为什么建议从 DPO 起步。
+上游只有 SFT。**本 fork 实现了 DPO 和 GRPO**，PPO 没做
+（要多带一个 critic，显存代价大而收益不明显）。
+
+两者的关键区别：**DPO 的偏好由数据给定，GRPO 的奖励在训练中实时算**。
+所以 GRPO 只需要 prompt——回答由模型自己采样，再由奖励函数打分。
+走读见 [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)；
+[§13](./ARCHITECTURE.md#13-where-rl-would-attach) 是动手前写的障碍分析，
+可以对照看哪些障碍是真的。
 
 ### 1.4 语音处理最小知识
 
@@ -150,7 +156,7 @@ for chunk in re.split(r"(<audio>|<image>)", prompt):
 
 ### 2.2 替换发生在哪
 
-`vita/model/vita_arch.py:308` 的 `prepare_inputs_labels_for_multimodal`。
+`vita/model/vita_arch.py:333` 的 `prepare_inputs_labels_for_multimodal`。
 这是全库最重要的函数，做四件事：
 
 1. 按负数 id 把序列**切成若干段**
@@ -158,7 +164,7 @@ for chunk in re.split(r"(<audio>|<image>)", prompt):
 3. 在切口处**插入**视觉/音频特征
 4. 重新 padding 对齐
 
-**最关键的一行**（`vita_arch.py:613`）：
+**最关键的一行**（`vita_arch.py:651`）：
 
 ```python
 return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
@@ -580,40 +586,110 @@ vita_tts_ckpt/
 | **`inserted_id`** | 样本里标记哪一轮 gpt 回复是负样本 |
 | **fo（full-duplex）** | 全双工变体，`vita_fo_qwen2.py` |
 | **sf（slow-fast）** | 视频抽帧策略，关键帧多 token、其余少 token |
+| **LoRA** | 低秩适配，只训练一小组矩阵。本项目 161.5M 可训练（占 2.12%） |
+| **adapter（peft）** | LoRA 插入的那组矩阵。关掉它就还原基座——这是参考模型的实现方式 |
+| **参考模型 / ref** | RL 里作为「不要偏离太远」基准的固定策略 |
+| **rollout** | GRPO 中模型自己采样出的回答。每个 prompt 采 G 个为一组 |
+| **优势 / advantage** | 某个回答比同组平均好多少。GRPO 用 `(r-mean)/std` |
+| **退化组 / degenerate group** | 组内奖励全同，优势为 0、无梯度。规则奖励下很常见 |
+| **KL 惩罚** | 限制策略偏离参考的程度。GRPO 用 k3 估计量，恒非负 |
 
 ## 12. 建议的阅读顺序
 
-想真正读懂，按这个顺序：
+按这个顺序，四个阶段。每段都标了大致耗时和是否需要 GPU，
+可以按你手头的条件挑。
 
-**第一步——理解机制（约 1 小时）**
+### 阶段一：理解机制（约 1 小时，纯阅读）
 
-1. `vita/constants.py`（14 行）——先看负数索引
-2. 本文 §2 和 §3——占位符机制 + token 预算
-3. `vita/model/vita_arch.py:308-613` 的
-   `prepare_inputs_labels_for_multimodal`——**全库最重要的函数**
+这一步不碰环境，目的是让后面的代码读得懂。
 
-**第二步——跑一遍（约 2 小时，需要 GPU）**
+1. `vita/constants.py`（14 行）——先看负数索引，全库的地基
+2. **本文 §2 和 §3**——占位符机制 + token 预算
+3. `vita/model/vita_arch.py:333-651` 的
+   `prepare_inputs_labels_for_multimodal`——**全库最重要的函数**。
+   配合 [ARCHITECTURE.md §5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
+   的分步走读一起读
+
+读完应该能回答：为什么模型收到的是 `inputs_embeds` 而不是 `input_ids`？
+
+### 阶段二：跑起来（约 2 小时，需要 GPU）
+
+**看懂和跑通是两回事**，这一步能消掉大量误解。
 
 4. 按 [REPRODUCE.md](./REPRODUCE.md) 装环境、下权重
+   （分阶段安装，顺序敏感）
 5. 跑三条推理，观察 `☜`/`☞`/`☟` 的区别
-6. 跑 `tools/test_audio_optional.py`（CPU 几秒，不用权重）
+   —— 命令在 [HANDBOOK.md §2.1](./HANDBOOK.md#2-常用命令速查)
+6. `python tools/test_audio_optional.py`（CPU 几秒，不用权重）
+7. `python tools/inspect_dataset.py --dataset-use SmokeTest`
+   —— 看清一条样本从 JSON 变成张量的全过程
 
-**第三步——理解训练（约 2 小时）**
+### 阶段三：理解训练（约 2 小时）
 
-7. `vita/train/train.py`（468 行）——重点看 377-425 的冻结开关
-8. `script/train/smoke_test_qwen.sh`——唯一路径无关的训练脚本
-9. `vita/util/data_utils_video_audio_neg_patch.py` 的
-   `__getitem__`（:882）和 `DataCollatorForSupervisedDataset`（:1390）
+8. `vita/train/train.py`（520 行）——重点看 §7 讲的冻结开关
+   （`:420` 起的那几段「先全冻再解冻」）
+9. `script/train/smoke_test_qwen.sh`——唯一路径无关的训练脚本
+10. `vita/util/data_utils_video_audio_neg_patch.py` 的
+    `__getitem__`（`:882`）和 `DataCollatorForSupervisedDataset`（`:1390`）
+11. 有 8 卡的话跑一次 `smoke_test_qwen.sh`；只有单卡就跑
+    `smoke_test_lora.sh`（峰值 23.3 GB）
 
-**第四步——深入（按需）**
+### 阶段四：本 fork 的 RL 部分（约 2 小时）
 
-10. [ARCHITECTURE.md](./ARCHITECTURE.md)——完整代码走读
-11. [DATASETS.md](./DATASETS.md)——要训真实数据时看
-12. `vita/model/language_model/vita_qwen2.py`——注意 `:125` 的
-    全局 monkey patch `Qwen2ForCausalLM.forward = custom_forward`，
-    这是 import 即生效、进程内不可逆的副作用，给 TRL 之类的封装带来风险
+**这是上游没有的东西，也是这个 fork 存在的理由。**
+先读 [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
+的整体走读，再按下面顺序看代码：
 
-**不建议读**：`command.sh`（作者的命令历史）、
-`data_utils_*` 的其余六个变体（近似拷贝）、
-`vita/model/language_model/vita_mixtral.py` 和 `vita_nemo.py`
-（VITA-1.0 遗留和其他变体，与 1.5 无关）。
+12. `vita/train/dpo_loss.py`（114 行）——最简单的入口，
+    纯数学，配 `tools/test_dpo_loss.py` 一起读
+13. `vita/train/dpo_trainer.py`（139 行）——看 `compute_loss`
+    怎么用 `disable_adapter()` 当参考模型
+14. `vita/train/rewards.py`（222 行）——GRPO 的奖励注册表
+15. `vita/train/grpo_loss.py`（135 行）——组内归一化 + KL
+16. `vita/train/grpo_trainer.py`（228 行）——最复杂的一个，
+    rollout → 打分 → 优势 → 损失
+
+**建议配合跑**（都是单卡）：
+
+```bash
+python tools/test_dpo_loss.py     # 19 项，秒级，不用权重
+python tools/test_grpo_loss.py    # 39 项，同上
+bash script/train/dpo_smoke_test.sh /tmp/dpo_out 1    # 看首步 loss = 0.6931
+bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1  # 看 reward 上升
+```
+
+那两个数字（DPO 的 `0.6931`、GRPO 的首步 KL `0`）是**数学恒等式**，
+不是经验值——看到它们就说明参考模型接对了。
+详见 [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化) 和
+[§9](./HANDBOOK.md#9-grpo组相对策略优化)。
+
+### 各文档什么时候看
+
+| 文档 | 用途 |
+|---|---|
+| **PRIMER.md**（本文） | 最先看，其余文档的前置知识 |
+| **HANDBOOK.md** | 动手时看：命令、地雷、排查表 |
+| **ARCHITECTURE.md** | 想弄清某段代码为什么这么写时看 |
+| REPRODUCE.md | 装环境时看 |
+| DATASETS.md | 要接真实数据时看 |
+| MIGRATION.md | 换机器时看 |
+
+### 不建议读
+
+- `command.sh` —— 原作者的命令历史，引用的文件很多已不存在
+- `data_utils_*` 的其余六个变体 —— 与启用的那个是近似拷贝
+  （`neg_patch_fo` 只差 58 行）
+- `vita_mixtral.py` / `vita_nemo.py` —— VITA-1.0 遗留和其他变体，与 1.5 无关
+- `vita/model/vita_tts/` —— 除非专门研究语音输出，
+  且注意 §9 说的代码与论文不一致
+
+### 读到 `vita_qwen2.py` 时注意
+
+`:125` 有一行全局 monkey patch：
+
+```python
+Qwen2ForCausalLM.forward = custom_forward
+```
+
+**import 即生效、进程内不可逆。** 这解释了为什么这个项目与
+`transformers==4.41.1` 死绑，也是给它套 TRL 之类封装时的主要风险来源。

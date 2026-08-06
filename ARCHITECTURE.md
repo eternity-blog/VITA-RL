@@ -210,7 +210,7 @@ encoder directory (`train.yaml`, `global_cmvn`, `final.pt`), fetched with
 `get_file_from_repo`, so it resolves either a local path or a HuggingFace repo
 ID (`multimodal_encoder/builder.py:46-49`).
 
-The adapter (`adpter`, note upstream's spelling — `train.py:390` and
+The adapter (`adpter`, note upstream's spelling — `train.py:433` and
 `vita_trainer.py:321` both string-match on it) is the only audio component
 trained in stage 1.
 
@@ -223,7 +223,7 @@ are unused by the shipped configs.
 
 ## 5. `prepare_inputs_labels_for_multimodal`: the heart of the model
 
-`vita/model/vita_arch.py:308`. Everything else is plumbing; this function is
+`vita/model/vita_arch.py:333`. Everything else is plumbing; this function is
 where the modalities actually merge. It is ~290 lines. The logic:
 
 **Step 1 — early exit for cached decoding** (line 312). If `input_ids.shape[1] == 1`
@@ -847,7 +847,7 @@ bypass them.
 ### 14.7 Shared media is encoded once
 
 A DPO pair looks at one image, and a GRPO group looks at one image, but each
-sequence carries its own copy because `vita_arch.py:391-395` asserts one
+sequence carries its own copy because `vita_arch.py:429-432` asserts one
 image feature per `<image>` token and has no way to express sharing.
 
 `encode_images_deduped(images, group_size)` encodes the first repetition and

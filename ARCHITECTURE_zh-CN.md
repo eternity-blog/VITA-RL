@@ -176,7 +176,7 @@ attn_mask = attn_mask[2::2][2::2][0::2]   # 三次 stride-2 => 除以 8
 
 注意其配置**不在本仓库内**——而是运行时从音频编码器目录加载（`train.yaml`、`global_cmvn`、`final.pt`），通过 `get_file_from_repo` 获取，因此既能解析本地路径也能解析 HuggingFace repo ID（`multimodal_encoder/builder.py:46-49`）。
 
-adapter（拼写为 `adpter`，注意这是上游的拼写——`train.py:390` 和 `vita_trainer.py:321` 都靠这个字符串做匹配）是阶段 1 中唯一被训练的音频组件。
+adapter（拼写为 `adpter`，注意这是上游的拼写——`train.py:433` 和 `vita_trainer.py:321` 都靠这个字符串做匹配）是阶段 1 中唯一被训练的音频组件。
 
 ### 4.3 Projector
 
@@ -184,7 +184,7 @@ adapter（拼写为 `adpter`，注意这是上游的拼写——`train.py:390` �
 
 ## 5. `prepare_inputs_labels_for_multimodal`：模型的心脏
 
-`vita/model/vita_arch.py:308`。其余都是管道工程；这个函数才是模态真正融合的地方。全长约 290 行。逻辑如下：
+`vita/model/vita_arch.py:333`。其余都是管道工程；这个函数才是模态真正融合的地方。全长约 290 行。逻辑如下：
 
 **第 1 步 —— 缓存解码的提前返回**（第 312 行）。若 `input_ids.shape[1] == 1`，说明正在用 KV cache 逐 token 生成，没有东西需要拼接，于是只扩展 attention mask 后返回。
 
@@ -658,7 +658,7 @@ def keyword_reward(prompt, response, meta) -> float: ...
 ### 14.7 共享的媒体只编码一次
 
 一个 DPO 对看的是同一张图，一个 GRPO 组也是，但每条序列都带着自己的一份，
-因为 `vita_arch.py:391-395` 断言「每个 `<image>` token 对应一份图像特征」，
+因为 `vita_arch.py:429-432` 断言「每个 `<image>` token 对应一份图像特征」，
 而且无法表达「共享」这件事。
 
 `encode_images_deduped(images, group_size)` 只编码第一份、再复制特征。

@@ -44,9 +44,24 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
 mechanism, measured token budgets, the three encoders, and the traps that cost
-the most time. Then [HANDBOOK.md](./HANDBOOK.md) for the hands-on side:
-copy-pasteable commands, the check-before-you-train workflow, which code paths
-are actually verified, and the live `pdb.set_trace()` landmines upstream left in.
+the most time. Its [reading order](./PRIMER.md#12-建议的阅读顺序) lays out a
+four-stage path through the code, with timings and which parts need a GPU.
+
+### Which document to read when
+
+| Document | Read it when | Language |
+|---|---|---|
+| [PRIMER.md](./PRIMER.md) | **First.** Prerequisites for everything else | 中文 |
+| [HANDBOOK.md](./HANDBOOK.md) | You are at a terminal: commands, landmines, troubleshooting | 中文 |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | You want to know why a piece of code is the way it is | EN + [中文](./ARCHITECTURE_zh-CN.md) |
+| [REPRODUCE.md](./REPRODUCE.md) | Setting up the environment | EN + [中文](./REPRODUCE_zh-CN.md) |
+| [DATASETS.md](./DATASETS.md) | Ready to train on real data | 中文 |
+| [MIGRATION.md](./MIGRATION.md) | Moving to another machine | EN + [中文](./MIGRATION_zh-CN.md) |
+
+The two walkthroughs worth knowing about: [ARCHITECTURE.md
+§5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
+dissects the function that makes this model work, and [§14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
+covers the RL stack this fork added.
 
 See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test. See
