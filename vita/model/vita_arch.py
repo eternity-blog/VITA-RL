@@ -393,26 +393,35 @@ class VITAMetaForCausalLM(ABC):
             + sum([(IMAGE_TOKEN_INDEX not in cur) for cur in input_ids])
             == len(image_features)
         ), input_ids
-        assert (
-            sum([(cur == AUDIO_TOKEN_INDEX).sum() for cur in input_ids])
-            + sum([(AUDIO_TOKEN_INDEX not in cur) for cur in input_ids])
-            == audio_features["inputs_embeds"].shape[0]
-        ), input_ids
+        if audio_features is not None:
+            assert (
+                sum([(cur == AUDIO_TOKEN_INDEX).sum() for cur in input_ids])
+                + sum([(AUDIO_TOKEN_INDEX not in cur) for cur in input_ids])
+                == audio_features["inputs_embeds"].shape[0]
+            ), input_ids
+        else:
+            assert all(
+                (cur != AUDIO_TOKEN_INDEX).all() for cur in input_ids
+            ), "audios is None but the input contains <audio> placeholder tokens"
 
         for batch_idx, cur_input_ids in enumerate(input_ids):
             num_images = (cur_input_ids == IMAGE_TOKEN_INDEX).sum()
             num_audio_frames = (cur_input_ids == AUDIO_TOKEN_INDEX).sum()
             if num_images == 0 and num_audio_frames == 0:
                 cur_image_features = image_features[cur_image_idx]
-                cur_audio_features = audio_features["inputs_embeds"][cur_audio_idx]
                 cur_input_embeds_1 = self.get_model().embed_tokens(cur_input_ids)
-                cur_input_embeds = torch.cat(
-                    [cur_input_embeds_1, cur_image_features[0:0], cur_audio_features[0:0]], dim=0
-                )
+                # The zero-length slices keep the encoders attached to the
+                # autograd graph, so DDP/ZeRO do not flag their parameters as
+                # unused on batches that contain no image or audio.
+                cur_input_embeds_parts = [cur_input_embeds_1, cur_image_features[0:0]]
+                if audio_features is not None:
+                    cur_audio_features = audio_features["inputs_embeds"][cur_audio_idx]
+                    cur_input_embeds_parts.append(cur_audio_features[0:0])
+                    cur_audio_idx += 1
+                cur_input_embeds = torch.cat(cur_input_embeds_parts, dim=0)
                 new_input_embeds.append(cur_input_embeds)
                 new_labels.append(labels[batch_idx])
                 cur_image_idx += 1
-                cur_audio_idx += 1
                 continue
 
             image_audio_token_indices = (
@@ -485,9 +494,10 @@ class VITAMetaForCausalLM(ABC):
                         raise ValueError
 
             if num_images != 0 and num_audio_frames == 0:
-                cur_audio_features = audio_features["inputs_embeds"][cur_audio_idx]
-                cur_audio_idx += 1
-                cur_new_input_embeds.append(cur_audio_features[0:0])
+                if audio_features is not None:
+                    cur_audio_features = audio_features["inputs_embeds"][cur_audio_idx]
+                    cur_audio_idx += 1
+                    cur_new_input_embeds.append(cur_audio_features[0:0])
             elif num_images == 0 and num_audio_frames != 0:
                 cur_image_features = image_features[cur_image_idx]
                 cur_image_idx += 1
@@ -503,7 +513,8 @@ class VITAMetaForCausalLM(ABC):
                 v_start_end.append(cur_v_start_end)
 
         assert cur_image_idx == len(image_features)
-        assert cur_audio_idx == audio_features["inputs_embeds"].shape[0]
+        if audio_features is not None:
+            assert cur_audio_idx == audio_features["inputs_embeds"].shape[0]
         if state_labels is not None:
             assert cur_audio_idx == len(state_labels)
         if state_labels is not None:
