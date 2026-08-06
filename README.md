@@ -44,7 +44,9 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
 mechanism, measured token budgets, the three encoders, and the traps that cost
-the most time.
+the most time. Then [HANDBOOK.md](./HANDBOOK.md) for the hands-on side:
+copy-pasteable commands, the check-before-you-train workflow, which code paths
+are actually verified, and the live `pdb.set_trace()` landmines upstream left in.
 
 See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test. See
@@ -95,10 +97,15 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   synthetic-data smoke test for the training pipeline.
 - Added `tools/test_audio_optional.py`, a CPU unit test for the fix above
   (stubbed encoders, no weights needed).
+- Added `tools/inspect_dataset.py`, which loads a configured dataset on CPU
+  and reports sequence lengths, which span is supervised, collated shapes,
+  and how many samples had their labels silently voided — run it after
+  wiring up a dataset and before spending GPUs on it.
 - Added `tools/localize_config.py`, which rewrites the checkpoint's
   `mm_vision_tower` / `mm_audio_encoder` from HuggingFace repo IDs to local
   paths so that loading does not require network access.
-- Added `PRIMER.md` (prerequisite knowledge), `REPRODUCE.md` (operational log),
+- Added `PRIMER.md` (prerequisite knowledge), `HANDBOOK.md` (hands-on guide),
+  `REPRODUCE.md` (operational log),
   `ARCHITECTURE.md` (code walkthrough), `DATASETS.md` (training-data survey)
   and `requirements-lock.txt`.
 

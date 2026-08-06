@@ -36,6 +36,8 @@
 
 **第一次接触这个代码库？** 先看 [PRIMER.md](./PRIMER.md)——读懂其余文档所需的
 前置知识：负数索引占位符机制、实测的 token 预算、三个编码器，以及最费时间的坑。
+再看 [HANDBOOK.md](./HANDBOOK.md)——动手部分：可直接复制的命令、改代码时的自检
+流程、各条路径的实测状态，以及上游遗留的 `pdb.set_trace()` 地雷。
 
 完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 该接在哪里。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及三档按磁盘容量裁剪的方案。
 
@@ -66,8 +68,9 @@ python tools/localize_config.py \
 - **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
 - 新增 `tools/make_smoke_data.py` 与 `script/train/smoke_test_qwen.sh`，一套用合成数据验证训练链路的 smoke test。
 - 新增 `tools/test_audio_optional.py`，上述修复的 CPU 单元测试（编码器打桩，无需权重）。
+- 新增 `tools/inspect_dataset.py`，在 CPU 上加载已配置的数据集，报告序列长度、被监督的文本片段、collate 后的张量形状，以及有多少样本的 label 被静默作废——接入数据集后、开 GPU 前先跑它。
 - 新增 `tools/localize_config.py`，把 checkpoint 的 `mm_vision_tower` / `mm_audio_encoder` 从 HuggingFace repo ID 改写为本地路径，使加载不需要访问网络。
-- 新增 `PRIMER.md`（前置知识，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
+- 新增 `PRIMER.md`（前置知识，仅中文）、`HANDBOOK.md`（上手手册，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
 
 后续任何相对上游的偏离都会记录在本节。
 
