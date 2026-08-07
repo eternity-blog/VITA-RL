@@ -25,6 +25,10 @@ checkpoint-*/
 runs/
 logs/
 *.log
+# Exception: measured-run excerpts kept on purpose as a baseline record.
+# The machine they came from is not permanent; see BENCHMARKS.md.
+!logs/
+!logs/*.log
 wandb/
 mm_projector.bin
 audio_adpter.bin

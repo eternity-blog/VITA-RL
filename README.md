@@ -57,6 +57,7 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [REPRODUCE.md](./REPRODUCE.md) | Setting up the environment | EN + [中文](./REPRODUCE_zh-CN.md) |
 | [DATASETS.md](./DATASETS.md) | Ready to train on real data | 中文 |
 | [MIGRATION.md](./MIGRATION.md) | Moving to another machine | EN + [中文](./MIGRATION_zh-CN.md) |
+| [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
 §5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)

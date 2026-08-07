@@ -142,7 +142,22 @@ python tools/localize_config.py \
 - [ ] `python -c "import json;print(json.load(open('$VITA_WEIGHTS/VITA-1.5/config.json'))['mm_vision_tower'])"` shows the **new** machine's path
 - [ ] text inference works
 - [ ] audio inference works (`q1.wav` replies start with `☞`, `q2.wav` with `☟`)
+- [ ] the five CPU test suites pass (no GPU, no weights, seconds):
+      `for t in dpo_loss grpo_loss rewards image_dedup audio_optional; do python tools/test_$t.py; done`
 - [ ] if training: `bash script/train/smoke_test_qwen.sh /tmp/smoke_out 8` completes
+
+Then check the numbers against [BENCHMARKS.md](./BENCHMARKS.md), which records
+what this all measured on the original 8×H100 box. Two of those are identities
+rather than measurements and **must** reproduce anywhere:
+
+| Check | Expected |
+|---|---|
+| DPO first-step loss | exactly `0.6931` (`-log(0.5)`) |
+| GRPO first-step `grpo/kl` | exactly `0.0` |
+
+If the CPU suites pass but either of those is off, the problem is the
+reference policy or the `mm_projector` freeze, not the port. Timings and peak
+memory will differ on different hardware; those two will not.
 
 ## 6. Where to pick up
 

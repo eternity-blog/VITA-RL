@@ -49,6 +49,7 @@
 | [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md) | 装环境时 | 中英双版 |
 | [DATASETS.md](./DATASETS.md) | 要接真实数据时 | 中文 |
 | [MIGRATION_zh-CN.md](./MIGRATION_zh-CN.md) | 换机器时 | 中英双版 |
+| [BENCHMARKS.md](./BENCHMARKS.md) | 要实测数字时：耗时、显存、以及判断改动是否等价的可复现 loss | 中文 |
 
 两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
 §5](./ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)
