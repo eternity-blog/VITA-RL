@@ -668,6 +668,7 @@ bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1  # 看 reward 上升
 | 文档 | 用途 |
 |---|---|
 | **PRIMER.md**（本文） | 最先看，其余文档的前置知识 |
+| **CODEMAP.md** | 在 GitHub 上读代码时的跳转表，配合本节的顺序用 |
 | **HANDBOOK.md** | 动手时看：命令、地雷、排查表 |
 | **ARCHITECTURE.md** | 想弄清某段代码为什么这么写时看 |
 | REPRODUCE.md | 装环境时看 |

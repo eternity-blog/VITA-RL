@@ -25,6 +25,10 @@
 
 新开终端后，这段直接粘贴：
 
+> ⚠️ **下面的路径是原机器（8×H100）的。** 换机器后把
+> `VITA_REPO` 和 `VITA_WEIGHTS` 改成你自己的位置，其余不变。
+> 重建步骤见 [MIGRATION.md](./MIGRATION.md)。
+
 ```bash
 export VITA_REPO=/usr/local/kai/lx/VITA-RL
 export VITA_WEIGHTS=/usr/local/kai/lx/vita_weights
