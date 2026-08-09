@@ -40,14 +40,17 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
 | 3. Benchmark baseline | ✅ Done | **MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper.** See [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
 | 4. Train on real data | ✅ Done | 3000 RLAIF-V preference pairs, one epoch of LoRA DPO, first-step loss exactly `-log(0.5)` |
-| 5. Add RL | ✅ Implemented | Offline DPO and GRPO. DPO now measured end to end on real data — see [RESULTS.md](./RESULTS.md) for the outcome and why it is what it is |
+| 5. Add RL | ✅ Implemented | Offline DPO and GRPO. DPO measured end to end on real data across three runs — see [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) |
 
-**Read [RESULTS.md](./RESULTS.md) for the honest version of stage 4-5**: DPO
-on RLAIF-V moved the benchmarks very little, and the reason is measured
-rather than guessed — the base model separates those preference pairs at
-55.2% (95% CI [50.4%, 60.1%]), a signal-to-noise ratio of 0.11.
-`tools/probe_preference_separability.py` reports that in four minutes, before
-you spend an hour on the run.
+**Read [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) for the whole story of stages 3-5**:
+three rounds of DPO on RLAIF-V, none of which moved the benchmarks beyond
+noise, with the reason measured rather than guessed — the base model separates
+those preference pairs at 53.6% (95% CI [50.3%, 56.8%], n=900), a
+signal-to-noise ratio of 0.055–0.11. Raising the effective batch from 16 to 63
+made DPO genuinely learn on this data (loss below 0.69, 18x the reward margin)
+and the benchmarks still did not improve — POPE changed 24 of 5127 answers,
+12 fixed against 12 broken. `tools/probe_preference_separability.py` predicts
+this in eight minutes, before the four hours behind it.
 
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
@@ -67,7 +70,8 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [MIGRATION.md](./MIGRATION.md) | Moving to another machine | EN + [中文](./MIGRATION_zh-CN.md) |
 | [CODEMAP.md](./CODEMAP.md) | Reading on GitHub and want to jump straight to a function | 中文 |
 | [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
-| [RESULTS.md](./RESULTS.md) | You want the outcome of the baseline + DPO experiment, and what it established | 中文 |
+| [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **The DPO experiment end to end**: design, every number, why it came out the way it did, and the wrong turns | 中文 |
+| [RESULTS.md](./RESULTS.md) | An earlier, narrower write-up of the same experiment; superseded by the above | 中文 |
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
 §5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
