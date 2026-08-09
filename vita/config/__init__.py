@@ -15,6 +15,8 @@ DataConfig = {
     "SmokeTest": [SmokeTest],
     # Synthetic preference pairs for DPO -- see tools/make_dpo_smoke_data.py.
     "DPOSmokeTest": [DPOSmokeTest],
+    # Real preference pairs from RLAIF-V -- see tools/make_rlaif_v_data.py.
+    "RLAIFV": [RLAIFV],
     # Prompt-only records for GRPO -- see tools/make_grpo_smoke_data.py.
     "GRPOSmokeTest": [GRPOSmokeTest],
 }

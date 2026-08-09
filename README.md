@@ -38,8 +38,9 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 |---|---|---|
 | 1. Reproduce inference | ✅ Done | Text, audio and noisy-audio queries all run against the released VITA-1.5 checkpoint |
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
-| 3. Train on real data | 🔍 Scoped | Upstream provides none; [DATASETS.md](./DATASETS.md) surveys what is still obtainable and gives a plan that fits the disk budget |
-| 4. Add RL | 🚧 In progress | Offline DPO and GRPO both implemented and verified on synthetic data — DPO's first-step loss hits the exact `-log(0.5)`, GRPO's reward mean rises while completions shorten. Needs real preference data and real task rewards next |
+| 3. Benchmark baseline | ✅ Done | VLMEvalKit runs; **MME 2353.5 against the paper's 2362.0, a 0.36% gap**. See [BENCHMARKS.md §2.6](./BENCHMARKS.md#26-vlmevalkit-baselinevita-15-原始权重) |
+| 4. Train on real data | 🚧 In progress | RLAIF-V preference pairs converted to the DPO format by [tools/make_rlaif_v_data.py](./tools/make_rlaif_v_data.py) |
+| 5. Add RL | 🚧 In progress | Offline DPO and GRPO both implemented and verified on synthetic data — DPO's first-step loss hits the exact `-log(0.5)`, GRPO's reward mean rises while completions shorten. DPO now running on real preference data |
 
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder

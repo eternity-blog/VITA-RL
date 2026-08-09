@@ -36,6 +36,18 @@ if _DPO_DIR:
 else:
     DPOSmokeTest = {"chat_path": ""}
 
+#### RLAIF-V (see tools/make_rlaif_v_data.py)
+# Real preference pairs, unlike the smoke sets above: one image, one question,
+# and two responses ranked by AI feedback. Enabled by VITA_RLAIF_DATA_DIR.
+_RLAIF_DIR = _os.environ.get("VITA_RLAIF_DATA_DIR", "")
+if _RLAIF_DIR:
+    # Same AudioFolder convention as above: parent of audio/, not audio/.
+    AudioFolder = _RLAIF_DIR
+    FolderDict["rlaif_v"] = _os.path.join(_RLAIF_DIR, "images")
+    RLAIFV = {"chat_path": _os.path.join(_RLAIF_DIR, "rlaif_v_train.json")}
+else:
+    RLAIFV = {"chat_path": ""}
+
 #### GRPO smoke test (see tools/make_grpo_smoke_data.py)
 # Prompt-only records; the policy writes its own completions during
 # training. Enabled by setting VITA_GRPO_DATA_DIR.

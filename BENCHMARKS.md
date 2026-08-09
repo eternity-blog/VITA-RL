@@ -92,6 +92,78 @@ AdamW 两个动量 56）。实测在分配 `exp_avg_sq` 时 OOM。8 卡是下限
 
 G 从 4 到 8 显存几乎不变，说明瓶颈不在批大小——可以放心加大 G。
 
+### 2.5 MME 评测吞吐
+
+| 项 | 值 |
+|---|---|
+| 题目数 | 2374 |
+| 单卡 H100 耗时 | **7 分 10 秒** |
+| 吞吐 | 5.5 题/秒 |
+| 峰值显存 | 18.4 GB |
+
+单卡 18 GB 意味着 8 卡可以并行跑 8 个 benchmark，或者用
+`--nproc` 切分同一个。**这也是 before/after 对比可行的前提**：
+一轮完整评测是分钟级，不是小时级。
+
+## 2.6 VLMEvalKit baseline（VITA-1.5 原始权重）
+
+**采集于 2026-08-09，1×H100，`vita_qwen2` wrapper，无 LoRA。**
+
+这是 DPO 前的对照基线——本仓库此前一直缺的东西。
+
+### MME
+
+| 指标 | 实测 | 官方论文 | 差 |
+|---|---|---|---|
+| **perception** | **1728.86** | 1721.3 | +7.6 |
+| **reasoning** | **624.64** | 640.7 | −16.1 |
+| **total** | **2353.51** | 2362.0 | −8.5 (−0.36%) |
+
+**总分与论文差 0.36%，落在采样噪声内——这是评测链路正确的最强证据。**
+如果差 5% 以上，先怀疑 prompt 模板或图像预处理接错了，而不是急着解释。
+
+细分项（满分：感知类每项 200，认知类每项 200）：
+
+| 子项 | 分数 | | 子项 | 分数 |
+|---|---|---|---|---|
+| existence | 195.0 | | code_reasoning | 155.0 |
+| OCR | 192.5 | | numerical_calculation | 147.5 |
+| landmark | 187.25 | | position | 138.33 |
+| color | 185.0 | | commonsense_reasoning | 137.14 |
+| text_translation | 185.0 | | artwork | 122.5 |
+| celebrity | 181.47 | | | |
+| scene | 178.0 | | | |
+| posters | 173.81 | | | |
+| count | 175.0 | | | |
+
+**读这张表**：`existence` 195 接近满分而 `artwork` 122.5 垫底，
+是 MME 的普遍形状，不是这个 checkpoint 的毛病。做 DPO 前后对比时，
+**看 total 和 hallucination 相关子项（existence/count/position）**——
+偏好数据（RLAIF-V 就是为降幻觉设计的）最可能在这几项上动，
+而 OCR/celebrity 这类靠预训练知识的项预期不变。
+
+### MMStar
+
+| 指标 | 实测 | 官方论文 | 差 |
+|---|---|---|---|
+| **Overall** | **59.8** | 60.2 | −0.4 |
+
+细分：
+
+| 子项 | 分数 |
+|---|---|
+| instance reasoning | 73.2 |
+| logical reasoning | 66.4 |
+| coarse perception | 66.0 |
+| math | 63.6 |
+| fine-grained perception | 46.8 |
+| science & technology | 42.8 |
+
+**两个 benchmark 都落在论文 ±0.5% 内**，可以认为评测链路没有系统性偏差。
+MMStar 是「去掉了能靠文本先验蒙对的题」的 benchmark，所以它比 MME
+更能反映真实的视觉依赖——DPO 若真降了幻觉，这里的
+`fine-grained perception` 应当有反应。
+
 ## 3. 训练指标基线
 
 **这些数字可复现，是判断改动是否等价的标尺。**
@@ -257,15 +329,63 @@ bdb.BdbQuit
 我写数据检视脚本时真踩到的——忘记设 `default_conversation` 就会走进
 mixtral 分支，那里有 4 处活跃的 `pdb.set_trace()`。多卡下表现为**无输出的挂起**。
 
-### 6.5 omegaconf / antlr4 冲突（未解决）
+### 6.5 omegaconf / antlr4 冲突（已解决，2026-08-09）
 
 ```
 Exception: Could not deserialize ATN with version 3 (expected 4).
 ```
 
-`omegaconf 2.3.1` 需要 `antlr4-python3-runtime 4.9.x`，企业镜像最低 4.11。
-这是 VLMEvalKit 基线至今没跑出来的原因。**解法应该是从源码装 4.9.3
-（纯 Python 包，无需编译）**，但我没来得及验证。
+`omegaconf 2.3.1` 生成的语法文件是 antlr4 4.9 系列的产物，而企业镜像最低
+只有 4.11/4.13。装上去 `import vlmeval` 直接炸在 `ATNDeserializer`。
+
+**解法**（已验证）：从上游 PyPI 装 4.9.3，纯 Python 包，不需要编译器——
+这台机器 gcc 4.8.5 编译不了任何东西，所以「无需编译」是关键条件。
+
+```bash
+pip install --index-url https://pypi.org/simple/ "antlr4-python3-runtime==4.9.3"
+```
+
+装完 `import vlmeval` 通过。**降级不影响其他包**：装完复查
+`torch 2.3.1+cu121`、`transformers 4.41.1` 均未被动过。
+
+### 6.5.1 评测链路的另外三个坑（同日一并解决）
+
+按踩到的顺序：
+
+**LMUData 路径被硬编码成上游作者的机器。** `vlmeval/smp/file.py:71`
+写死 `/mnt/cfs/lhj`，本机没有这个目录，于是它无视已下载的数据集、
+每次都想重新下载。设环境变量 `LMUData=/root/LMUData` 即可，
+`LMUDataRoot()` 会优先读它。
+
+**opencompass 的数据集服务器证书已过期。**
+
+```
+NSS error -8181 (SEC_ERROR_EXPIRED_CERTIFICATE)
+[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired
+```
+
+`openssl s_client` 查得 `*.openxlab.space` 的叶证书 `NotAfter: Apr 16 2026`，
+而当天是 8 月 9 日——**是服务端过期，不是本机 CA 库的问题**（换 certifi
+的 bundle 一样失败）。
+
+绕过方式是 `curl -k` 下载后**用 VLMEvalKit 源码里存的 MD5 校验**，
+而不是信任那张过期证书：MD5 来自 git 仓库，是独立于传输通道的可信来源，
+篡改会被检出。四个数据集全部校验通过：
+
+| 数据集 | 大小 | MD5（源码 `image_mcq.py` / `image_yorn.py`） |
+|---|---|---|
+| MME | 46 MB | `b36b43c3f09801f5d368627fb92187c3` |
+| MMStar | 57 MB | `e1ecd2140806c1b1bbf54b43372efb9e` |
+| AI2D_TEST | 160 MB | `0f593e0d1c7df9a3d69bf1f947e71975` |
+| MMBench_DEV_EN_V11 | 36 MB | `30c05be8f2f347a50be25aa067248184` |
+
+VLMEvalKit 自己也会在 `prepare_tsv` 里比对同一份 MD5（`image_base.py:83`），
+所以校验通过的文件放进 `$LMUData` 后它会直接复用，不再尝试联网。
+
+**pyarrow 在这台机器上必须走预编译 wheel。** `pip install pyarrow` 会
+尝试源码编译并失败在 gcc 4.8.5 上。`pip install --only-binary=:all:
+"pyarrow==16.1.0"` 直接装 wheel，秒过。这和 REPRODUCE.md 里
+flash-attn 用 wheel 是同一个原因。
 
 ### 6.6 moviepy 模块路径变更（已用垫片绕过）
 
