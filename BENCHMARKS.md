@@ -471,6 +471,30 @@ until [ "$(md5sum $LMUData/POPE.tsv | cut -d' ' -f1)" = "c12f5acb142f2ef1f85a26b
 这个坑的隐蔽之处在于**失败信号指向了错误的方向**：报错是
 `Failed to download`，看起来像网络问题，实际是并发写冲突。
 
+### 6.5.3 HF 的 resolve/ 是重定向，`curl -I` 量不到真实大小
+
+分段并行下载要先知道文件多大。但 HuggingFace 的
+`.../resolve/main/xxx.parquet` 会 302 到 CDN，
+**`curl -sI` 不加 `-L` 时返回的是重定向响应本身的
+`Content-Length: 1034`**，不是文件的 1 GB。
+
+拿这个数去切分片，每段都是几百字节的错误页，
+`cat` 起来得到一个 1.1 KB 的「parquet」——而且脚本不会报错。
+
+两个解法，用后者：
+
+```bash
+# 能用但多一次请求
+curl -sIL "$URL" | awk '/content-length/{print $2}' | tail -1
+
+# 更好：直接问 API，一次拿到所有分片的准确大小
+curl -s "https://huggingface.co/api/datasets/<repo>/tree/main" \
+  | python3 -c "import json,sys; [print(f['path'], f['size']) for f in json.load(sys.stdin)]"
+```
+
+**下载完一定校验大小**（`stat -c%s` 对比预期），
+这是唯一能在几秒内发现「下了一堆错误页」的办法。
+
 ### 6.6 moviepy 模块路径变更（已用垫片绕过）
 
 ```
