@@ -57,7 +57,19 @@ BETA=${BETA:-0.1}
 EPOCHS=${EPOCHS:-1}
 PORT=${MASTER_PORT:-29677}
 
+# Dataloader workers are shared-memory hungry: each one ships decoded 448x448
+# tiles back through /dev/shm. One rank with 4 workers is fine; N ranks with 4
+# each is not, and on this box /dev/shm is 512 MB and cannot be remounted
+# without privileges. The failure is "DataLoader worker killed by signal: Bus
+# error" partway into the first step.
+#
+# 0 means load in the training process, using no shared memory at all. It
+# costs some throughput, but the step here is four 7B forwards -- data loading
+# is not the bottleneck. Raise WORKERS if your /dev/shm is large.
+WORKERS=${WORKERS:-0}
+
 echo "effective batch = ${NGPU} GPUs x 1 x ${GRAD_ACC} accum = $((NGPU * GRAD_ACC))"
+echo "/dev/shm: $(df -h /dev/shm | awk 'NR==2{print $2}'), dataloader workers: ${WORKERS}"
 
 OUTPUT_DIR_DPO=${OUTPUT_DIR}/dpo-rlaif-v-8gpu
 mkdir -p "${OUTPUT_DIR_DPO}"
@@ -105,7 +117,7 @@ deepspeed --include "localhost:${GPUS}" --master_port "${PORT}" vita/train/train
     --tf32 True \
     --model_max_length 6200 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 4 \
+    --dataloader_num_workers "${WORKERS}" \
     --lazy_preprocess True \
     --report_to none \
     2>&1 | tee -a "${OUTPUT_DIR_DPO}/log.txt"
