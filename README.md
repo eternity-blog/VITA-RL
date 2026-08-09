@@ -38,9 +38,16 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 |---|---|---|
 | 1. Reproduce inference | ✅ Done | Text, audio and noisy-audio queries all run against the released VITA-1.5 checkpoint |
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
-| 3. Benchmark baseline | ✅ Done | VLMEvalKit runs; **MME 2353.5 against the paper's 2362.0, a 0.36% gap**. See [BENCHMARKS.md §2.6](./BENCHMARKS.md#26-vlmevalkit-baselinevita-15-原始权重) |
-| 4. Train on real data | 🚧 In progress | RLAIF-V preference pairs converted to the DPO format by [tools/make_rlaif_v_data.py](./tools/make_rlaif_v_data.py) |
-| 5. Add RL | 🚧 In progress | Offline DPO and GRPO both implemented and verified on synthetic data — DPO's first-step loss hits the exact `-log(0.5)`, GRPO's reward mean rises while completions shorten. DPO now running on real preference data |
+| 3. Benchmark baseline | ✅ Done | **MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper.** See [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
+| 4. Train on real data | ✅ Done | 3000 RLAIF-V preference pairs, one epoch of LoRA DPO, first-step loss exactly `-log(0.5)` |
+| 5. Add RL | ✅ Implemented | Offline DPO and GRPO. DPO now measured end to end on real data — see [RESULTS.md](./RESULTS.md) for the outcome and why it is what it is |
+
+**Read [RESULTS.md](./RESULTS.md) for the honest version of stage 4-5**: DPO
+on RLAIF-V moved the benchmarks very little, and the reason is measured
+rather than guessed — the base model separates those preference pairs at
+55.2% (95% CI [50.4%, 60.1%]), a signal-to-noise ratio of 0.11.
+`tools/probe_preference_separability.py` reports that in four minutes, before
+you spend an hour on the run.
 
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
@@ -60,6 +67,7 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [MIGRATION.md](./MIGRATION.md) | Moving to another machine | EN + [中文](./MIGRATION_zh-CN.md) |
 | [CODEMAP.md](./CODEMAP.md) | Reading on GitHub and want to jump straight to a function | 中文 |
 | [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
+| [RESULTS.md](./RESULTS.md) | You want the outcome of the baseline + DPO experiment, and what it established | 中文 |
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
 §5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
