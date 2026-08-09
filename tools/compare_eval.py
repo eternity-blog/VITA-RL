@@ -128,8 +128,8 @@ def main():
             print(f"  [1.96-sigma on Overall: +/-{band:.4f}]")
 
         if ds == "POPE" and "precision" in b and "recall" in b:
-            # POPE asks "is object X in the image?", and 70% of its questions
-            # are about objects that are absent. A model that hallucinates
+            # POPE asks "is object X in the image?", and 71% of its 5127
+            # questions are about objects that are not. A hallucinating model
             # says Yes too often: that is a false positive, so it costs
             # precision while leaving recall alone. Less hallucination should
             # therefore show up as precision rising -- possibly with recall
