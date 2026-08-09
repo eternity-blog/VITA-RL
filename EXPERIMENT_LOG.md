@@ -438,9 +438,12 @@ $VITA_WEIGHTS/rlaif_v/shard00{0,1,3,4}.parquet   原始分片，约 4 GB
 $VITA_WEIGHTS/rlaif_v_dpo/                        3000 对（旧）
 $VITA_WEIGHTS/rlaif_v_dpo_large/                  15000 对 + 8821 张图，1.3 GB
 $VITA_WEIGHTS/VITA-1.5-dpo{,-lr2e5,-large}/       三个合并后的 checkpoint，各 19 GB
-/usr/local/kai/lx/eval_out/{baseline,dpo,dpo_lr2e5,dpo_large*}/  全部评测结果
-/usr/local/kai/lx/dpo_out{,_lr2e5,_large}/        三轮训练日志与 adapter
+$EVAL_OUT/{baseline,dpo,dpo_lr2e5,dpo_large*}/    全部评测结果
+$DPO_OUT{,_lr2e5,_large}/                         三轮训练日志与 adapter
 ```
+
+> 这些是**本机产物，不在 git 里**（`.gitignore` 已排除权重与数据）。
+> 换机器后按 §9 重新生成。
 
 ### 10.3 相关文档
 
