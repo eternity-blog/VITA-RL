@@ -180,6 +180,51 @@ grep -c "tokenization mismatch" /tmp/smoke_run.log
 grep -nE "Traceback|OutOfMemory|unused parameter|did not receive grad" /tmp/smoke_run.log
 ```
 
+### 2.7 跑 benchmark 评测
+
+四个必需的环境变量，缺一个都会以难懂的方式失败：
+
+```bash
+export PATH=/root/anaconda3/envs/vita/bin:$PATH
+export PYTHONPATH=$VITA_REPO          # 否则 vlmeval 找不到 vita 包
+export VITA_CKPT=$VITA_WEIGHTS/VITA-1.5   # config.py 读它来定位权重
+export LMUData=/root/LMUData          # 见下：不设会重新下载数据集
+
+cd $VITA_REPO/VLMEvalKit
+CUDA_VISIBLE_DEVICES=0 python run.py --data MME --model vita_qwen2 \
+    --work-dir /path/to/eval_out/baseline
+```
+
+**`LMUData` 是最坑的一个**。`vlmeval/smp/file.py:71` 把数据集根目录
+硬编码成上游作者的 `/mnt/cfs/lhj`，本机没有，于是它**无视你已经
+下好的 tsv、每次都试图重新下载**——而 opencompass 的证书又是过期的，
+最后你看到的是一个 SSL 报错，跟真正的原因隔了三层。
+
+**不需要 GPT judge 的 benchmark**（规则判分，能离线跑完）：
+`MME`、`MMStar`、`MMBench_DEV_EN_V11`、`AI2D_TEST`、`OCRBench`。
+`MMVet`、`MathVista`、`LLaVABench` 需要配 `.env` 里的 judge model。
+
+对比两次评测：
+
+```bash
+python tools/compare_eval.py \
+    --before /path/to/eval_out/baseline/vita_qwen2 \
+    --after  /path/to/eval_out/dpo/vita_qwen2
+```
+
+它会在 Overall 旁边打印 1.96σ 噪声带。**MMStar 上这个带是 ±2.5 个点**——
+比它小的变化不要当成提升。
+
+评测一个 LoRA adapter 需要先合并，因为 VLMEvalKit 的 wrapper
+只接受一个模型路径、没有 adapter 参数：
+
+```bash
+python tools/merge_and_eval.py \
+    --base $VITA_WEIGHTS/VITA-1.5 \
+    --adapter /path/to/dpo-rlaif-v \
+    --out $VITA_WEIGHTS/VITA-1.5-dpo
+```
+
 ## 3. 改代码时的自检流程
 
 按代价从低到高，能在前面发现的问题就别拖到后面。
@@ -544,14 +589,57 @@ dropout 在 `model.train()` 下对 policy 生效，而参考模型关了 adapter
 因此没有 dropout —— 两侧不对称，首步就不等于 0.6931，那条检查会失效。
 真实训练想要正则化时再打开。
 
-### 8.5 已知限制
+### 8.5 用真实偏好数据训练（RLAIF-V）
 
-- **没有真实偏好数据**。合成数据只验证链路，不产出有意义的模型。
-  真实数据可考虑 RLAIF-V、VLFeedback 等（未调研）。
+合成数据只验证链路。真正能训出东西的是 **RLAIF-V**——每条是
+一张图 + 一个问题 + 强模型判过优劣的两个回答，正好是 DPO 的
+一对偏好样本。
+
+```bash
+# 1. 取一个分片（约 1.1 GB，6814 对）。HF 单流慢，分 8 段并行快 4 倍
+URL=https://huggingface.co/datasets/openbmb/RLAIF-V-Dataset/resolve/main/RLAIF-V-Dataset_000.parquet
+SIZE=1109434826; N=8; CHUNK=$(( (SIZE + N - 1) / N ))
+for i in $(seq 0 $((N-1))); do
+  s=$((i*CHUNK)); e=$((s+CHUNK-1)); [ $e -ge $SIZE ] && e=$((SIZE-1))
+  curl -sL -r ${s}-${e} -o part_$i "$URL" &
+done; wait; cat part_* > shard000.parquet && rm part_*
+
+# 2. 转成 DPO 记录格式
+python tools/make_rlaif_v_data.py \
+    --parquet shard000.parquet \
+    --out-dir $VITA_WEIGHTS/rlaif_v_dpo --limit 3000
+
+# 3. 训练
+export VITA_RLAIF_DATA_DIR=$VITA_WEIGHTS/rlaif_v_dpo
+bash script/train/dpo_rlaif_v.sh /path/to/output 0
+```
+
+**转换脚本处理的三件事**，每一件不做都会静默出错：
+
+1. **图像按内容寻址**。parquet 里图是内嵌字节且跨行重复，
+   逐行写文件会存一堆副本。用 SHA-1 做文件名后
+   3000 对只占 2408 张图。
+2. **补 `<image>` token**。`LazySupervisedDataset` 靠这个字面量
+   决定往哪儿插视觉特征，缺了就**静默退化成纯文本训练**——
+   loss 照常下降，你不会发现。
+3. **丢掉两侧相同的样本**。这种 pair 的 DPO logit 恒为 0，
+   loss 永远是 `-log(0.5)`，白跑前向。实测 3082 条里有 2 条。
+
+**首步 loss 仍然必须是 0.6931**。实测在真实数据上精确命中，
+和合成数据一致——这说明参考模型在真实多模态输入下也接对了。
+
+**数据本身值得看一眼**：chosen 平均 299 字符，rejected 298 字符。
+**几乎相等是好事**——若 chosen 系统性更长，模型会学到「长 = 好」
+这个捷径，而不是学质量判别。换数据集时先量这个数。
+
+### 8.5.1 已知限制
+
 - **只支持 LoRA**。全参 DPO 需要第二份 7B + 8 卡，未实现。
 - **状态 token 未特殊处理**。chosen/rejected 目前带相同的
   `☜`/`☞`/`☟` 前缀（由数据构造保证），若两侧状态不同会让模型
   学到区分状态而非区分质量。
+- **RLAIF-V 的图来自 COCO/OK-VQA 等**，与 MME/MMStar 的图像分布
+  不完全一致，跨分布的提升本来就比同分布难。
 
 ### 8.6 成对样本的图像只编码一次
 
