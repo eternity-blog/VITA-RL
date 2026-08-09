@@ -74,6 +74,9 @@ def _noise_floor(dataset, metrics):
     1292 base questions, and circular eval scores a question correct only if
     every rotation is -- so the sample size is 1292 and using 4876 would
     understate the band by a factor of ~2.
+
+    POPE is excluded on purpose: its Overall is an F1 percentage, not a
+    proportion in [0,1], so this formula would not apply to it.
     """
     n = {"MMStar": 1500, "MMBench_DEV_EN_V11": 1292, "AI2D_TEST": 3088}.get(dataset)
     if not n:
@@ -123,6 +126,28 @@ def main():
             print(f"  {k:<24} {b[k]:>9.4f} -> {a[k]:>9.4f}   {delta:+.4f}{flag}")
         if band is not None:
             print(f"  [1.96-sigma on Overall: +/-{band:.4f}]")
+
+        if ds == "POPE" and "precision" in b and "recall" in b:
+            # POPE asks "is object X in the image?", and 70% of its questions
+            # are about objects that are absent. A model that hallucinates
+            # says Yes too often: that is a false positive, so it costs
+            # precision while leaving recall alone. Less hallucination should
+            # therefore show up as precision rising -- possibly with recall
+            # falling, if the model has merely become more reluctant to say
+            # Yes at all. Reading only F1 hides that trade entirely.
+            dp = a["precision"] - b["precision"]
+            dr = a["recall"] - b["recall"]
+            print(f"\n  hallucination read: precision {dp:+.2f}, recall {dr:+.2f}")
+            if dp > 0.5 and dr >= -0.5:
+                print("    -> fewer false Yes at no cost to coverage: less hallucination")
+            elif dp > 0.5 and dr < -0.5:
+                print("    -> precision bought with recall: more conservative, not "
+                      "necessarily more accurate")
+            elif abs(dp) <= 0.5 and abs(dr) <= 0.5:
+                print("    -> neither moved: the intervention did not change "
+                      "object-existence judgements")
+            else:
+                print("    -> precision down: more false Yes, i.e. more hallucination")
 
 
 if __name__ == "__main__":
