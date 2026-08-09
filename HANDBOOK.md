@@ -500,6 +500,21 @@ if cur_len != total_len:
 | `NameError: name '_C' is not defined` | 脚本命名为 `inspect.py` 遮蔽了标准库 | 换个文件名 |
 | 磁盘满 | 每个 checkpoint 16 GB | `rm -rf /tmp/smoke_out*` |
 | `pip check` 报 decord 平台不支持 | 元数据问题，非真实冲突 | 忽略，decord 能正常用 |
+| `Address already in use ... 29500` | 同机跑第二个 deepspeed 任务 | 加 `--master_port 29555`，见下 |
+| `Could not deserialize ATN with version 3` | omegaconf 需要 antlr4 4.9.x | `pip install antlr4-python3-runtime==4.9.3`，见 BENCHMARKS §6.5 |
+| 评测时 SSL 证书报错 | 上游数据集服务器证书过期 + `LMUData` 未设 | 见 §2.7 与 BENCHMARKS §6.5.1 |
+
+**同机并行多个训练任务**：deepspeed 默认监听 29500，第二个任务会
+以 `DistNetworkError` 失败，而报错栈有 18 层深、最后才提到端口。
+每个任务给一个不同的 `--master_port`：
+
+```bash
+deepspeed --include localhost:2 --master_port 29500 ... &
+deepspeed --include localhost:3 --master_port 29555 ... &
+```
+
+`--include localhost:N` 只管分配哪张卡，不管通信端口——这两件事
+容易混为一谈。
 
 ## 8. DPO（离线偏好优化）
 
