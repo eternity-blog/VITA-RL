@@ -302,12 +302,15 @@ logp gap: mean=+1.84 sd=33.51   信噪比 0.055
 | MME (total) | 2353.51 | 2346.25 | **−7.26** | — |
 | MMStar | 59.80 | 60.07 | +0.27 | ±2.48 |
 | MMBench_DEV_EN_V11 | 77.79 | 78.02 | +0.23 | ±2.27 |
-| AI2D_TEST | 79.24 | （见下） | — | ±1.43 |
+| AI2D_TEST | 79.24 | 79.44 | +0.19 | ±1.43 |
 | **POPE 幻觉率** | **10.97%** | **10.97%** | **±0.00** | — |
 | HallusionBench aAcc | 61.93 | 61.83 | −0.10 | — |
 | HallusionBench fAcc | 37.57 | 37.28 | −0.29 | — |
 
-**三升三降，全部在噪声量级。**
+**七个数字里三升三降一个持平，全部在噪声量级。**
+唯一超出噪声带的是 MME 的 −7.26，而它对应的 11 道题
+里有 6 道来自 `artwork` 这一个子项——集中在一处，
+不是全面退化。
 
 **POPE 那一行是整个实验最干净的证据。**
 
@@ -348,53 +351,103 @@ MME 降 7.3 分和 POPE 的 12:12 对称，是同一件事的两个侧面。
 
 ## 8. 这次实验真正的产出
 
-不是一个 delta，而是一套能拿来做实验的基础设施 + 一个明确的下一步：
+不是一个 delta，而是**三轮排除法收敛出的一个确定结论** +
+一套能继续做实验的基础设施。
 
-1. **评测链路可用**：四项 baseline 对齐，40 分钟一轮。
-2. **数据链路可用**：RLAIF-V → DPO 格式，首步 loss 校验通过。
-3. **训练链路可用**：LoRA DPO 跑满 187 步，adapter 正常保存，
-   merge 后能被 VLMEvalKit 直接加载推理（已验证）。
-4. **诊断工具**：`probe_preference_separability.py` 能在**训练前
-   几分钟内**判断一批偏好数据值不值得跑。
+### 8.1 结论：瓶颈被定位到唯一一个变量上
 
-**下一步的三个方向**（按性价比排序）：
+| 候选原因 | 用什么排除的 | 结果 |
+|---|---|---|
+| 学习率不够 | B 组：LR × 4 | 训练更好，评测持平 → 排除 |
+| benchmark 不对口 | POPE（5127 题）+ HallusionBench | 5 题变化、p=1.000 → 排除 |
+| 规模不够 | C 组：数据 × 5、batch × 4 | **模型真的动了，但没变好** → 排除 |
+| 梯度消失 | grad_norm 0.20–0.45 全程健康 | 排除 |
+| 参考模型接错 | 首步 loss 精确 = 0.6931 | 排除 |
+| 数据格式错 | `<image>` token / 图像 / pair 结构校验 | 排除 |
+| **数据可分性不足** | 探针：53.6%、信噪比 0.055–0.11 | **← 唯一剩下的** |
 
-- **换更可分的偏好数据**。探针跑一遍就知道值不值得。
-  基座 accuracy 65%+ 的数据才有足够信号。
+### 8.2 最有价值的单条发现
+
+**「训得起来」和「训得更好」在弱信号下是两件事。**
+
+C 组把有效 batch 从 16 提到 63，DPO 在这批数据上第一次
+真正学起来了（loss 跌破 0.69、margin 18×、漂移 6×）。
+但同一批权重在六个 benchmark 上三升三降，
+POPE 更是给出 12 改对 / 12 改错的**完美对称**。
+
+信噪比 0.055 意味着学到的方向里 95% 是噪声。
+**加大 batch 让模型更坚定地沿着一个大部分是噪声的方向前进**——
+位移变大了，期望收益仍然是零。
+
+这条对任何 RLHF/DPO 项目都适用：**先量数据可分性，
+再决定要不要投入算力**。反过来做，很容易把
+「数据不行」误判成「调参不到位」，然后在超参上浪费几天。
+
+### 8.3 可复用的基础设施
+
+1. **评测链路**：六个 benchmark，单卡 40 分钟一轮，四项对齐论文。
+2. **数据链路**：RLAIF-V parquet → DPO 格式，图像内容寻址去重。
+3. **训练链路**：LoRA DPO，单卡到 8 卡，adapter 保存/合并/评测全通。
+4. **诊断工具**：
+   - `probe_preference_separability.py` —— 训练前 4 分钟判断值不值得跑
+   - `compare_eval.py` —— 带噪声带的 before/after 对比
+   - `compare_pope.py` —— 幻觉率 + McNemar 检验
+   - `summarize_dpo_log.py` —— 把日志压成趋势
+
+### 8.4 下一步（按性价比排序）
+
+- **自建偏好对**（推荐）。用基座自己采样多个回答、
+  用规则或更强模型判优劣。pair 天然落在基座的能力边界上，
+  **可分性有保证**——这正是 RLAIF-V 缺的东西。
+  GRPO 的 rollout 代码可以直接复用。
+- **换更可分的公开数据**。跑一遍探针即可判断，
+  基座 accuracy 65%+ 才值得投入。
 - **先 SFT 再 DPO**。基座在 RLAIF-V 分布上本来就弱，
-  先用 chosen 回答做 SFT 提升分布内能力，再做偏好优化。
-- **自建偏好对**。用基座自己采样多个回答、用规则或更强模型判优劣，
-  这样 pair 天然落在基座的能力边界上——可分性有保证。
-  GRPO 那条路已经有 rollout 代码可复用。
+  先用 chosen 回答做 SFT 把分布内能力提上来，再做偏好优化。
+
+**不推荐**：继续加数据或加 batch。C 组已经证明这条路
+在这批数据上「有效但无益」。
 
 ## 9. 怎么复现
 
 ```bash
-# 环境（一次性）
+# 环境（一次性；两个都必须，见 BENCHMARKS 6.5）
 pip install --index-url https://pypi.org/simple/ "antlr4-python3-runtime==4.9.3"
 pip install --only-binary=:all: "pyarrow==16.1.0"
 
-# baseline
-export PYTHONPATH=$VITA_REPO VITA_CKPT=$VITA_WEIGHTS/VITA-1.5 LMUData=/root/LMUData
+export PYTHONPATH=$VITA_REPO LMUData=/root/LMUData
+export WEIGHTS_ROOT=$VITA_WEIGHTS
+
+# 1. baseline（六项，单卡约 1.5 小时）
 cd $VITA_REPO/VLMEvalKit
-python run.py --data MME MMStar MMBench_DEV_EN_V11 AI2D_TEST \
+VITA_CKPT=$WEIGHTS_ROOT/VITA-1.5 python run.py \
+    --data MME MMStar MMBench_DEV_EN_V11 AI2D_TEST POPE HallusionBench \
     --model vita_qwen2 --work-dir /path/eval_out/baseline
 
-# 数据
-python tools/make_rlaif_v_data.py --parquet shard000.parquet \
-    --out-dir $VITA_WEIGHTS/rlaif_v_dpo --limit 3000
+# 2. 数据：HF 的 resolve/ 是重定向，大小要问 API（见 BENCHMARKS 6.5.3）
+python tools/make_rlaif_v_data.py --parquet shard000.parquet shard001.parquet \
+    --out-dir $WEIGHTS_ROOT/rlaif_v_dpo --limit 15000
 
-# 训练前先探针！
-VITA_RLAIF_DATA_DIR=$VITA_WEIGHTS/rlaif_v_dpo \
-python tools/probe_preference_separability.py --n 100
+# 3. 【关键】训练前先跑探针，至少 300-400 对
+VITA_RLAIF_DATA_DIR=$WEIGHTS_ROOT/rlaif_v_dpo VITA_CKPT=$WEIGHTS_ROOT/VITA-1.5 \
+    python tools/probe_preference_separability.py --n 400
+#   CI 跨过 50%      -> 换数据，别训
+#   显著但 SNR < 0.2 -> 训得起来但不会变好（本项目就是这种）
+#   65%+             -> 可以训
 
-# 训练
-VITA_RLAIF_DATA_DIR=$VITA_WEIGHTS/rlaif_v_dpo \
-bash script/train/dpo_rlaif_v.sh /path/dpo_out 0
+# 4. 训练（8 卡；/dev/shm 小的机器必须 WORKERS=0）
+VITA_RLAIF_DATA_DIR=$WEIGHTS_ROOT/rlaif_v_dpo WORKERS=0 GRAD_ACC=9 LR=2e-5 \
+    bash script/train/dpo_rlaif_v_8gpu.sh /path/dpo_out
 
-# 评测与对比
-python tools/merge_and_eval.py --base $VITA_WEIGHTS/VITA-1.5 \
-    --adapter /path/dpo_out/dpo-rlaif-v --out $VITA_WEIGHTS/VITA-1.5-dpo
+# 5. 合并 + 评测 + 对比
+python tools/merge_and_eval.py --base $WEIGHTS_ROOT/VITA-1.5 \
+    --adapter /path/dpo_out/dpo-rlaif-v-8gpu --out $WEIGHTS_ROOT/VITA-1.5-dpo
 python tools/compare_eval.py --before /path/eval_out/baseline/vita_qwen2 \
     --after /path/eval_out/dpo/vita_qwen2
+python tools/compare_pope.py --before /path/eval_out/baseline/vita_qwen2 \
+    --after /path/eval_out/dpo/vita_qwen2
 ```
+
+**时间成本参考**（8×H100）：baseline 六项 1.5 小时，
+探针 400 对 8 分钟，15000 对训练 2.4 小时，评测六项 1.5 小时。
+**探针那 8 分钟能省掉后面 4 小时**——这是本项目最划算的一步。
