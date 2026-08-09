@@ -454,6 +454,23 @@ VLMEvalKit 自己也会在 `prepare_tsv` 里比对同一份 MD5（`image_base.py
 "pyarrow==16.1.0"` 直接装 wheel，秒过。这和 REPRODUCE.md 里
 flash-attn 用 wheel 是同一个原因。
 
+### 6.5.2 数据集没下完就起评测 = 文件被下坏
+
+自己踩的。POPE.tsv 有 1.1 GB，我在它下到 204 MB 时就起了三个评测任务。
+VLMEvalKit 校验 MD5 不匹配 → **三个任务各自开始重新下载同一个文件** →
+和还在跑的原始下载一起写同一个路径 → 文件彻底损坏
+（最终 1.1 GB 但 MD5 是错的，看大小完全正常）。
+
+**教训**：起评测前先确认 MD5 通过，别只看文件存在或大小对了。
+
+```bash
+# 正确的等待方式
+until [ "$(md5sum $LMUData/POPE.tsv | cut -d' ' -f1)" = "c12f5acb142f2ef1f85a26ba2fbe41d5" ]; do sleep 15; done
+```
+
+这个坑的隐蔽之处在于**失败信号指向了错误的方向**：报错是
+`Failed to download`，看起来像网络问题，实际是并发写冲突。
+
 ### 6.6 moviepy 模块路径变更（已用垫片绕过）
 
 ```
