@@ -68,8 +68,14 @@ def _noise_floor(dataset, metrics):
     variable number of questions per category, so no meaningful floor is
     printed for it. This is deliberately crude -- it exists to stop a delta
     smaller than sampling noise being reported as a win, not to be a test.
+
+    The counts are independent questions, which is not the same as rows.
+    MMBench_DEV_EN_V11 ships 4876 rows that are option-order rotations of
+    1292 base questions, and circular eval scores a question correct only if
+    every rotation is -- so the sample size is 1292 and using 4876 would
+    understate the band by a factor of ~2.
     """
-    n = {"MMStar": 1500, "MMBench_DEV_EN_V11": 1784, "AI2D_TEST": 3088}.get(dataset)
+    n = {"MMStar": 1500, "MMBench_DEV_EN_V11": 1292, "AI2D_TEST": 3088}.get(dataset)
     if not n:
         return None
     p = metrics.get("Overall")
