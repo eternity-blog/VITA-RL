@@ -736,7 +736,21 @@ which is why GRPO could be added later without touching the model at all.
 
 The `-log(0.5)` identity is the load-bearing check: an untrained LoRA
 adapter makes the policy identical to the reference, so the DPO logit is
-zero and the first step's loss must be exactly 0.6931. Measured: 0.6931.
+zero and the first step's loss must be exactly 0.6931. Measured: 0.6931 on
+the synthetic set, and 0.6931 again on 3000 real RLAIF-V pairs — the second
+one matters more, because it exercises real images through the fusion path
+rather than the same synthetic tile 24 times.
+
+**Real data behaves differently from the smoke set, and the difference is
+the point.** On synthetic pairs `rewards/accuracy` is 1.0 from the first
+step: the preferred response answers the question and the dispreferred one
+is generic filler, so the model separates them immediately. On RLAIF-V both
+responses are fluent, on-topic, and differ mainly in whether a detail is
+hallucinated — accuracy starts at chance and climbs slowly. A run that looks
+like the smoke test on real preference data has almost certainly got a
+length or format artefact to exploit, which is why
+`tools/make_rlaif_v_data.py` reports mean response lengths (299 chosen
+against 298 rejected here) rather than leaving that to be discovered later.
 
 ### 14.3 GRPO
 
