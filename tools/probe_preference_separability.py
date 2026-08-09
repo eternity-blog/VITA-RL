@@ -167,14 +167,33 @@ def main():
     if not usable:
         sys.exit("no pairs could be scored")
 
+    import math
     import statistics as st
+    p = wins / usable
+    # Wald CI on the estimate, and a two-sided test against chance using the
+    # null's own variance (0.25/n), which is the right denominator here.
+    ci = 1.96 * math.sqrt(p * (1 - p) / usable)
+    z = (p - 0.5) / math.sqrt(0.25 / usable)
+    pv = math.erfc(abs(z) / math.sqrt(2))
+
     print(f"\npairs scored: {usable}")
-    print(f"base accuracy: {wins/usable:.1%}   ({wins}/{usable})")
-    print(f"logp gap chosen-rejected: mean={st.mean(gaps):+.2f} "
-          f"median={st.median(gaps):+.2f} sd={st.pstdev(gaps):.2f}")
-    print(f"\nDPO's first-step reward margin is beta * (this gap's movement).")
-    print("Near 50% means the base model cannot separate these pairs, so a flat")
-    print("rewards/margin during training reflects the data, not the trainer.")
+    print(f"base accuracy: {p:.1%}   ({wins}/{usable})")
+    print(f"  95% CI: [{max(0.0, p-ci):.1%}, {min(1.0, p+ci):.1%}]")
+    print(f"  vs chance: z={z:.2f}, two-sided p={pv:.3f}"
+          f"  -> {'above chance' if pv < 0.05 else 'NOT distinguishable from chance'}")
+    mean_gap, sd_gap = st.mean(gaps), st.pstdev(gaps)
+    print(f"logp gap chosen-rejected: mean={mean_gap:+.2f} "
+          f"median={st.median(gaps):+.2f} sd={sd_gap:.2f}")
+    if sd_gap > 0:
+        print(f"  signal-to-noise: {abs(mean_gap)/sd_gap:.3f}")
+
+    print("\nHow to read this:")
+    print("  ~50% and CI spanning it -> the base cannot separate these pairs;")
+    print("     a flat rewards/margin is the data, not the trainer.")
+    print("  Above chance but SNR below ~0.2 -> real but weak. Expect little")
+    print("     movement at a few hundred steps; budget more data or pick")
+    print("     pairs closer to the base's own decision boundary.")
+    print("  65%+ -> plenty of signal. A flat margin then IS a training bug.")
 
 
 if __name__ == "__main__":
