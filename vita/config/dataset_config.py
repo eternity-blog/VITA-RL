@@ -39,11 +39,20 @@ else:
 #### RLAIF-V (see tools/make_rlaif_v_data.py)
 # Real preference pairs, unlike the smoke sets above: one image, one question,
 # and two responses ranked by AI feedback. Enabled by VITA_RLAIF_DATA_DIR.
+#
+# tools/make_selfsample_data.py writes the same filename and record shape, so
+# on-policy self-sampled data loads through this same variable -- point
+# VITA_RLAIF_DATA_DIR at its output directory instead. The two differ in who
+# wrote the responses (OmniLMM-12B vs VITA itself), which is the whole point
+# of the comparison, but not in format.
 _RLAIF_DIR = _os.environ.get("VITA_RLAIF_DATA_DIR", "")
 if _RLAIF_DIR:
     # Same AudioFolder convention as above: parent of audio/, not audio/.
     AudioFolder = _RLAIF_DIR
     FolderDict["rlaif_v"] = _os.path.join(_RLAIF_DIR, "images")
+    # make_selfsample_data.py tags its records set="selfsample"; register the
+    # same image folder under that name so either source resolves.
+    FolderDict["selfsample"] = _os.path.join(_RLAIF_DIR, "images")
     RLAIFV = {"chat_path": _os.path.join(_RLAIF_DIR, "rlaif_v_train.json")}
 else:
     RLAIFV = {"chat_path": ""}
