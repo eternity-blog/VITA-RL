@@ -38,7 +38,17 @@ if [ -z "${WEIGHTS_ROOT}" ] && [ -z "${MODEL_PATH:-}" ]; then
 fi
 MODEL_PATH=${MODEL_PATH:-${WEIGHTS_ROOT}/VITA-1.5}
 VISION_TOWER=${VISION_TOWER:-${WEIGHTS_ROOT}/InternViT-300M-448px}
-AUDIO_ENCODER=${AUDIO_ENCODER:-${MODEL_PATH}/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning}
+# Default to the audio encoder shipped inside MODEL_PATH, but fall back to the
+# released base's copy. A checkpoint produced by our own SFT keeps the frozen
+# encoders as absolute paths in its config rather than as subdirectories, so
+# deriving this from MODEL_PATH fails for exactly the SFT -> DPO chain this
+# script exists to support.
+if [ -z "${AUDIO_ENCODER:-}" ]; then
+    AUDIO_ENCODER=${MODEL_PATH}/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning
+    if [ ! -d "${AUDIO_ENCODER}" ]; then
+        AUDIO_ENCODER=${WEIGHTS_ROOT}/VITA-1.5/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning
+    fi
+fi
 
 for p in "${MODEL_PATH}" "${VISION_TOWER}" "${AUDIO_ENCODER}"; do
     [ -d "${p}" ] || { echo "error: not a directory: ${p}" >&2; exit 1; }
