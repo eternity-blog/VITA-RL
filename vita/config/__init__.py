@@ -17,6 +17,8 @@ DataConfig = {
     "DPOSmokeTest": [DPOSmokeTest],
     # Real preference pairs from RLAIF-V -- see tools/make_rlaif_v_data.py.
     "RLAIFV": [RLAIFV],
+    # The same source used as plain SFT on the chosen responses.
+    "RLAIFVSFT": [RLAIFVSFT],
     # Prompt-only records for GRPO -- see tools/make_grpo_smoke_data.py.
     "GRPOSmokeTest": [GRPOSmokeTest],
 }

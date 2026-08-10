@@ -57,6 +57,19 @@ if _RLAIF_DIR:
 else:
     RLAIFV = {"chat_path": ""}
 
+#### RLAIF-V as SFT (see tools/make_rlaif_v_sft_data.py)
+# The same source as RLAIFV above, but keeping only the `chosen` response and
+# discarding `rejected`. SFT needs no ranking -- only good answers -- so this
+# sidesteps the judge problem that stalled four rounds of DPO. Enabled by
+# VITA_SFT_DATA_DIR.
+_SFT_DIR = _os.environ.get("VITA_SFT_DATA_DIR", "")
+if _SFT_DIR:
+    AudioFolder = _SFT_DIR
+    FolderDict["rlaif_v_sft"] = _os.path.join(_SFT_DIR, "images")
+    RLAIFVSFT = {"chat_path": _os.path.join(_SFT_DIR, "rlaif_v_sft_train.json")}
+else:
+    RLAIFVSFT = {"chat_path": ""}
+
 #### GRPO smoke test (see tools/make_grpo_smoke_data.py)
 # Prompt-only records; the policy writes its own completions during
 # training. Enabled by setting VITA_GRPO_DATA_DIR.
