@@ -62,7 +62,16 @@ def main():
     # The wrapper loads the vision tower and audio encoder by the paths
     # recorded in the base config, and reads a few non-weight files straight
     # from the checkpoint directory. Copy anything the merge did not write.
+    #
+    # Skip training artefacts. When the base is itself an SFT output rather
+    # than a released checkpoint, it contains checkpoint-NNN/ directories
+    # holding optimizer state -- ~100 GB that the merged model has no use for,
+    # and which cost more disk than the model itself.
+    SKIP_PREFIXES = ("checkpoint-", "runs", ".ipynb_checkpoints")
     for name in os.listdir(args.base):
+        if name.startswith(SKIP_PREFIXES):
+            print(f"  skipping training artefact {name}")
+            continue
         src = os.path.join(args.base, name)
         dst = os.path.join(args.out, name)
         if os.path.exists(dst):
