@@ -925,10 +925,20 @@ $EVAL_OUT/{baseline,dpo,dpo_lr2e5,dpo_large*,sft*,sftdpo*}/   全部评测结果
 
 | 项 | 状态 |
 |---|---|
-| **GRPO 在真实数据上** | 仅在 12 条合成数据上验证过代码路径。**且当前只支持纯文本 prompt**，多模态需把 prompt embeds 缓存与 `encode_images_deduped` 结合 |
+| **GRPO 在真实数据上** | 仅在 12 条合成数据上验证过代码路径。多模态扩展已写完（见下方"多模态 GRPO 扩展"），但尚未跑真实规模数据 |
 | 语义判据（NLI / LLM 评分） | 第 4 轮的天花板在此，未实现 |
 | SFT 混入通用数据 | 可能同时保住 OCR 与 HallusionBench，未验证 |
 | SFT 早停 | `save_total_limit 1` 删掉了中间 checkpoint，验证需重训 |
+
+#### 多模态 GRPO 扩展（image+text）
+
+上游 GRPO 只支持纯文本 prompt。本 fork 把它扩到图像：
+
+- **数据**（`vita/train/grpo_data.py`）：`GRPOPromptDataset` 新增图像路径——`_load_image_tiles` 用与 SFT 相同的 `dynamic_preprocess` + `image_processor` 切瓦片，`_build_image_prompt` 用 `preprocess_multimodal(patch_num=[n_tiles])` 把单个 `<image>` 展开成 n_tiles 份，`tokenizer_image_token` 每份发一个 `IMAGE_TOKEN_INDEX` 占位符。文本路径**不走** `preprocess_multimodal`（它会对每条 sentence 做 `"\n\n"→"\n"` 归一化、改变 tokenization、破坏首步 `grpo/kl==0` 恒等），直接 `conv.append_message` + `get_prompt("lang")`，与原版字节一致。
+- **训练器**（`vita/train/grpo_trainer.py`）：加 `_fuse`——仿 `VITADPOTrainer._fuse` 但**不传** `image_group_size`。GRPO 每个 prompt 自带图，G 倍复制在 fusion 之后的 embedding 上做纯 repeat，所以 vision tower 每 batch 只跑一次（按 distinct image），无需像 DPO 那样对 chosen/rejected 共享图去重。`compute_loss` 用 `any(has_image)` 分流：图像走 `_fuse` 得到 `inputs_embeds` 当 `prompt_embeds`，文本走原 `embed_tokens(input_ids)`。后续 `_rollout`/`_sequence_logps`/`grpo_loss` 全不变。
+- **smoke**（`script/train/grpo_mm_smoke_test.sh` + `tools/make_grpo_mm_smoke_data.py`）：8 条带图记录，`reward_meta` 的 keywords 取图里真实可见的词，让 `keyword_reward` 能给分组排序梯度。
+
+状态：**代码完成、`py_compile` 通过、设计逐条对照源码核实**（`prepare_inputs_labels_for_multimodal` 容忍 `labels=None`；图像占位符断言成立；fusion 在 expand 之前跑）。运行时 smoke 验证待环境重建后进行——首步 `grpo/kl≈0` 是通过条件。
 
 ---
 

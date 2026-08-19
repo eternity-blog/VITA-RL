@@ -21,6 +21,20 @@ DataConfig = {
     "RLAIFVSFT": [RLAIFVSFT],
     # Prompt-only records for GRPO -- see tools/make_grpo_smoke_data.py.
     "GRPOSmokeTest": [GRPOSmokeTest],
+    # Image+text prompt-only records for GRPO -- see
+    # tools/make_grpo_mm_smoke_data.py. Same idea as GRPOSmokeTest but each
+    # record carries an image, so the trainer exercises the vision-fusion
+    # path (encode_images -> mm_projector -> prepare_inputs_labels_for_
+    # multimodal splices tile features into the token embeddings once per
+    # batch, then _rollout / _sequence_logps reuse them for all G
+    # completions). Enabled by VITA_GRPO_MM_DATA_DIR.
+    "GRPOMMSmoke": [GRPOMMSmoke],
+    # Prompt-only image+text records from RLAIF-V for GRPO -- see
+    # tools/make_rlaif_v_grpo_data.py. Same source as RLAIFV/RLAIFVSFT but
+    # the policy writes its own completions; the gold answer is mined for
+    # keywords and shipped in reward_meta for the `keyword` reward.
+    # Enabled by VITA_RLAIF_GRPO_DATA_DIR.
+    "RLAIFVGRPO": [RLAIFVGRPO],
 }
 
 NoPatchSets = ["khair", "jester"]

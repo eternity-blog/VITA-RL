@@ -78,3 +78,37 @@ if _GRPO_DIR:
     GRPOSmokeTest = {"chat_path": _os.path.join(_GRPO_DIR, "grpo_train.json")}
 else:
     GRPOSmokeTest = {"chat_path": ""}
+
+#### GRPO multimodal smoke test (see tools/make_grpo_mm_smoke_data.py)
+# Same idea as GRPOSmokeTest but each record carries an image, so the
+# trainer exercises the vision-fusion path (encode_images -> mm_projector ->
+# prepare_inputs_labels_for_multimodal splices tile features into the token
+# embeddings once per batch, then _rollout / _sequence_logps reuse them for
+# all G completions). Enabled by VITA_GRPO_MM_DATA_DIR.
+#
+# The FolderDict entry is what lets GRPOPromptDataset._load_image_tiles resolve
+# each record's `image` filename against <dir>/images -- the text smoke needs
+# no such entry because it has no images to look up.
+_GRPO_MM_DIR = _os.environ.get("VITA_GRPO_MM_DATA_DIR", "")
+if _GRPO_MM_DIR:
+    FolderDict["grpo_mm_smoke"] = _os.path.join(_GRPO_MM_DIR, "images")
+    GRPOMMSmoke = {"chat_path": _os.path.join(_GRPO_MM_DIR, "grpo_mm_train.json")}
+else:
+    GRPOMMSmoke = {"chat_path": ""}
+
+#### RLAIF-V for GRPO (see tools/make_rlaif_v_grpo_data.py)
+# The same RLAIF-V source as RLAIFV/RLAIFVSFT, but prompt-only: GRPO writes
+# its own completions and scores them, so only the image + question are kept.
+# The chosen answer is mined for keywords and shipped in reward_meta for the
+# `keyword` reward -- a proxy for groundedness, not a judge (see the script's
+# docstring for the tradeoff). Enabled by VITA_RLAIF_GRPO_DATA_DIR.
+#
+# Records carry set="rlaif_v_grpo", so FolderDict is keyed the same way as the
+# smoke set -- GRPOPromptDataset._load_image_tiles resolves each record's
+# `image` filename against <dir>/images through this entry.
+_RLAIF_GRPO_DIR = _os.environ.get("VITA_RLAIF_GRPO_DATA_DIR", "")
+if _RLAIF_GRPO_DIR:
+    FolderDict["rlaif_v_grpo"] = _os.path.join(_RLAIF_GRPO_DIR, "images")
+    RLAIFVGRPO = {"chat_path": _os.path.join(_RLAIF_GRPO_DIR, "rlaif_v_grpo_train.json")}
+else:
+    RLAIFVGRPO = {"chat_path": ""}

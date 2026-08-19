@@ -61,6 +61,48 @@ class VITAGRPOTrainer(VITATrainer):
         self._degenerate = 0
         self._groups = 0
 
+    # -- multimodal fusion -----------------------------------------------
+
+    def _fuse(self, model, inputs):
+        """Splice vision features into the token embeddings once per batch.
+
+        Mirrors VITADPOTrainer._fuse but takes no ``image_group_size``: each
+        prompt in a GRPO batch carries its own image, and the G-fold expansion
+        of the prompt happens AFTER this splice (on the embeddings, as a pure
+        tensor repeat in _rollout), so the vision tower already runs once per
+        distinct image per batch. DPO dedupes because its chosen/rejected pair
+        share one image; GRPO has nothing to dedupe.
+
+        Returns the fused ``inputs_embeds`` and the re-aligned
+        ``attention_mask``. Labels are dropped on the floor -- GRPO supervises
+        nothing -- and fusion tolerates ``labels=None`` (it builds dummy
+        IGNORE_INDEX labels internally and returns ``new_labels=None``).
+
+        The result is left-padded (see the ``tokenizer_padding_side`` override
+        below) so every sequence ends flush against the generation boundary,
+        which is what _rollout's batched ``generate`` needs.
+        """
+        unwrapped = self.accelerator.unwrap_model(model)
+        # Generation appends to the right, so the fused embeddings must be
+        # left-padded. train.py set this to the tokenizer's "right" (correct
+        # for teacher forcing); only the image path reads it, so override
+        # here, idempotently, before the splice.
+        unwrapped.config.tokenizer_padding_side = "left"
+        _, _, attention_mask, _, inputs_embeds, _ = (
+            unwrapped.prepare_inputs_labels_for_multimodal(
+                inputs["input_ids"],
+                None,  # position_ids -- derived from the mask inside
+                inputs["attention_mask"],
+                None,  # past_key_values
+                None,  # labels -- GRPO supervises nothing
+                inputs.get("images"),
+                inputs.get("audios") or None,
+                inputs.get("sf_masks"),
+                # image_group_size omitted: see docstring.
+            )
+        )
+        return inputs_embeds, attention_mask
+
     # -- rollout ---------------------------------------------------------
 
     @torch.no_grad()
@@ -155,8 +197,21 @@ class VITAGRPOTrainer(VITATrainer):
         metas = inputs["reward_metas"]
         unwrapped = self.accelerator.unwrap_model(model)
 
-        prompt_embeds = unwrapped.get_model().embed_tokens(inputs["input_ids"])
-        prompt_mask = inputs["attention_mask"]
+        if any(inputs.get("has_image", [])):
+            # Multimodal: splice the vision features into the token embeddings
+            # once per batch. The vision tower therefore runs once per distinct
+            # image, not once per rollout -- the G-fold expansion happens after
+            # this, on the embeddings, as a pure tensor repeat in _rollout.
+            prompt_embeds, prompt_mask = self._fuse(model, inputs)
+        else:
+            # Text-only: the collator already left-padded input_ids, so a plain
+            # embedding lookup is the fused prompt. Keeping this path separate
+            # from _fuse (which returns None for inputs_embeds when there are
+            # no images, via the early return in prepare_inputs_labels_for_
+            # multimodal) preserves byte-identity with the text-only GRPO the
+            # step-1 grpo/kl == 0 check was written against.
+            prompt_embeds = unwrapped.get_model().embed_tokens(inputs["input_ids"])
+            prompt_mask = inputs["attention_mask"]
 
         sampled_ids, completion_mask = self._rollout(model, prompt_embeds, prompt_mask)
 
