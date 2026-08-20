@@ -29,10 +29,51 @@ from typing import Any, Dict, List, Union
 
 import torch
 from torch import nn
+from torch.utils.data import Sampler
 from transformers import Qwen2ForCausalLM
 
 from vita.train.grpo_loss import grpo_loss, group_advantages
 from vita.train.vita_trainer import VITATrainer
+
+
+class _ChunkRepeatSampler(Sampler):
+    """Random order, but each chunk of ``chunk_size`` indices is emitted
+    ``repeat`` times consecutively (tail that does not fill a chunk is
+    dropped).
+
+    ``chunk_size`` is the number of prompts one optimizer step consumes
+    across all ranks (grad_accum x world_size x per_device_batch), and
+    accelerate hands batches to ranks round-robin, so repeating a chunk
+    means: the exact same prompt lands on the exact same rank at the same
+    accumulation slot for ``repeat`` consecutive optimizer steps. That is
+    the contract VITAGRPOTrainer's rollout cache relies on for sample
+    reuse -- and it must be consecutive *optimizer steps*, not adjacent
+    micro-batches: within one accumulation window the policy has not moved,
+    so a repeat there would just duplicate the same gradient.
+    """
+
+    def __init__(self, n: int, chunk_size: int, repeat: int, seed: int = 42):
+        self.n = n
+        self.chunk_size = chunk_size
+        self.repeat = repeat
+        self.seed = seed
+        self.epoch = 0
+        self._chunks = n // chunk_size
+
+    def set_epoch(self, epoch: int):
+        self.epoch = epoch
+
+    def __iter__(self):
+        g = torch.Generator()
+        g.manual_seed(self.seed + self.epoch)
+        perm = torch.randperm(self.n, generator=g).tolist()
+        for c in range(self._chunks):
+            chunk = perm[c * self.chunk_size : (c + 1) * self.chunk_size]
+            for _ in range(self.repeat):
+                yield from chunk
+
+    def __len__(self):
+        return self._chunks * self.chunk_size * self.repeat
 
 
 class VITAGRPOTrainer(VITATrainer):
@@ -46,6 +87,7 @@ class VITAGRPOTrainer(VITATrainer):
         max_new_tokens: int = 128,
         temperature: float = 1.0,
         top_p: float = 0.95,
+        num_iterations: int = 1,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -60,6 +102,28 @@ class VITAGRPOTrainer(VITATrainer):
         self.top_p = top_p
         self._degenerate = 0
         self._groups = 0
+        # PPO-style sample reuse: each rollout batch is used for
+        # num_iterations consecutive optimizer steps. Iteration 0 pays for
+        # generation, reward scoring and the reference forward; iterations
+        # 1..mu-1 only recompute the policy log-probs under the updated
+        # weights, which is when the ratio departs from 1 and the clip
+        # actually engages. mu=1 keeps the original strictly on-policy path
+        # byte-identical.
+        self.num_iterations = num_iterations
+        self._micro_idx = 0
+        self._rollout_cache: Dict[int, Dict[str, Any]] = {}
+
+    def _get_train_sampler(self):
+        if self.num_iterations <= 1:
+            return super()._get_train_sampler()
+        chunk = (
+            self.args.gradient_accumulation_steps
+            * self.args.world_size
+            * self._train_batch_size
+        )
+        return _ChunkRepeatSampler(
+            len(self.train_dataset), chunk, self.num_iterations, seed=self.args.seed
+        )
 
     # -- multimodal fusion -----------------------------------------------
 
@@ -192,7 +256,54 @@ class VITAGRPOTrainer(VITATrainer):
 
     # -- loss ------------------------------------------------------------
 
+    def _reuse_loss(self, model, slot: int, inputs, return_outputs: bool):
+        """Optimizer steps 2..mu on a cached rollout batch.
+
+        Everything policy-independent (completions, rewards, advantages,
+        old and reference log-probs, the fused prompt embeddings -- vision
+        tower and embed_tokens are both frozen, so those are constants) is
+        reused; only the policy log-probs are recomputed under the updated
+        weights. This is the step where ratio != 1 and grpo/clip_frac stops
+        being decorative.
+        """
+        c = self._rollout_cache[slot]
+        if c["prompts"] != inputs["prompt_texts"]:
+            raise RuntimeError(
+                "GRPO sample-reuse cache misaligned with the incoming batch: "
+                "expected the _ChunkRepeatSampler to replay the same prompts "
+                "on consecutive optimizer steps. Check sampler/accelerate "
+                "batch dispatch assumptions."
+            )
+        B, P, D = c["prompt_embeds"].shape
+        G = self.group_size
+        rep_embeds = c["prompt_embeds"].unsqueeze(1).expand(B, G, P, D).reshape(B * G, P, D)
+        rep_mask = c["prompt_mask"].unsqueeze(1).expand(B, G, P).reshape(B * G, P)
+
+        policy_logps = self._sequence_logps(model, rep_embeds, rep_mask, c["sampled_ids"])
+        loss, metrics = grpo_loss(
+            policy_logps,
+            c["old_logps"],
+            c["ref_logps"],
+            c["advantages"],
+            c["completion_mask"],
+            beta=self.grpo_beta,
+            clip_eps=self.clip_eps,
+        )
+        self.log({f"grpo/{k}": v for k, v in metrics.items()})
+        if return_outputs:
+            return loss, {"rewards": c["rewards"], "advantages": c["advantages"]}
+        return loss
+
     def compute_loss(self, model, inputs, return_outputs=False):
+        cache_slot = None
+        if self.num_iterations > 1:
+            acc = self.args.gradient_accumulation_steps
+            cache_slot = self._micro_idx % acc
+            iteration = (self._micro_idx // acc) % self.num_iterations
+            self._micro_idx += 1
+            if iteration > 0:
+                return self._reuse_loss(model, cache_slot, inputs, return_outputs)
+
         prompts = inputs["prompt_texts"]
         metas = inputs["reward_metas"]
         unwrapped = self.accelerator.unwrap_model(model)
@@ -246,6 +357,22 @@ class VITAGRPOTrainer(VITATrainer):
             )
         with torch.no_grad(), unwrapped.disable_adapter():
             ref_logps = self._sequence_logps(model, rep_embeds, rep_mask, sampled_ids).detach()
+
+        if cache_slot is not None:
+            # prompt_embeds depends only on frozen modules (vision tower,
+            # projector, embed_tokens), so it is a constant across the mu
+            # inner steps and safe to cache detached.
+            self._rollout_cache[cache_slot] = {
+                "prompts": prompts,
+                "prompt_embeds": prompt_embeds.detach(),
+                "prompt_mask": prompt_mask,
+                "sampled_ids": sampled_ids,
+                "completion_mask": completion_mask,
+                "old_logps": old_logps,
+                "ref_logps": ref_logps,
+                "advantages": advantages,
+                "rewards": rewards,
+            }
 
         loss, metrics = grpo_loss(
             policy_logps,

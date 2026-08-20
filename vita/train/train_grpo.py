@@ -37,6 +37,16 @@ class GRPOArguments:
         default=0.2, metadata={"help": "PPO-style trust region on the importance ratio."}
     )
     grpo_max_new_tokens: int = field(default=128, metadata={"help": "Rollout length cap."})
+    grpo_num_iterations: int = field(
+        default=1,
+        metadata={
+            "help": "PPO-style sample reuse: optimizer steps per rollout "
+            "batch. 1 is strictly on-policy; 2-4 amortises generation, "
+            "reward scoring and the reference forward over several updates "
+            "at the cost of the later updates being slightly off-policy "
+            "(watch grpo/clip_frac)."
+        },
+    )
     grpo_temperature: float = field(default=1.0, metadata={"help": "Sampling temperature."})
     grpo_top_p: float = field(default=0.95, metadata={"help": "Nucleus sampling cutoff."})
     reward_fns: str = field(
@@ -109,6 +119,7 @@ def _trainer(model, tokenizer, training_args, data_module, extras):
         max_new_tokens=grpo_args.grpo_max_new_tokens,
         temperature=grpo_args.grpo_temperature,
         top_p=grpo_args.grpo_top_p,
+        num_iterations=grpo_args.grpo_num_iterations,
         **data_module,
     )
 

@@ -112,3 +112,17 @@ if _RLAIF_GRPO_DIR:
     RLAIFVGRPO = {"chat_path": _os.path.join(_RLAIF_GRPO_DIR, "rlaif_v_grpo_train.json")}
 else:
     RLAIFVGRPO = {"chat_path": ""}
+
+#### CLEVR counting for GRPO (see tools/make_clevr_grpo_data.py)
+# R1-V's recipe (CLEVR-70k counting) adapted to this trainer: a *verifiable*
+# reward. Each record carries reward_meta={"answer": "3"} and is scored by
+# the binary `answer` reward plus the R1-style `format` reward -- no proxy
+# (keyword/judge) in the loop, which is the point: RLAIF-V's proxy rewards
+# rank stylistic variation, this ranks right against wrong.
+# Enabled by VITA_CLEVR_GRPO_DATA_DIR.
+_CLEVR_GRPO_DIR = _os.environ.get("VITA_CLEVR_GRPO_DATA_DIR", "")
+if _CLEVR_GRPO_DIR:
+    FolderDict["clevr_grpo"] = _os.path.join(_CLEVR_GRPO_DIR, "images")
+    CLEVRGRPO = {"chat_path": _os.path.join(_CLEVR_GRPO_DIR, "clevr_grpo_train.json")}
+else:
+    CLEVRGRPO = {"chat_path": ""}

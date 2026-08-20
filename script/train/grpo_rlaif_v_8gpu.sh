@@ -94,8 +94,14 @@ BETA=${BETA:-0.04}
 GROUP_SIZE=${GROUP_SIZE:-8}
 MAX_NEW=${MAX_NEW:-96}
 EPOCHS=${EPOCHS:-1}
+# >0 overrides EPOCHS; used for short probe runs before committing GPU-days.
+MAX_STEPS=${MAX_STEPS:--1}
+# PPO-style sample reuse (optimizer steps per rollout batch); 1 = on-policy.
+NUM_ITER=${NUM_ITER:-1}
 PORT=${MASTER_PORT:-29755}
 WORKERS=${WORKERS:-0}
+# tensorboard 等指标后端；trainer 里 self.log 的 reward/grpo 指标会一并写入
+REPORT_TO=${REPORT_TO:-none}
 
 echo "effective batch = ${NGPU} GPUs x 1 x ${GRAD_ACC} accum = $((NGPU * GRAD_ACC)) prompts/step"
 echo "group_size = ${GROUP_SIZE} -> $((NGPU * GROUP_SIZE)) rollouts/step (vision tower runs once per distinct image)"
@@ -128,6 +134,7 @@ deepspeed --include "localhost:${GPUS}" --master_port "${PORT}" vita/train/train
     --grpo_beta "${BETA}" \
     --grpo_clip_eps 0.2 \
     --grpo_max_new_tokens "${MAX_NEW}" \
+    --grpo_num_iterations "${NUM_ITER}" \
     --grpo_temperature 1.0 \
     --grpo_top_p 0.95 \
     --reward_fns "${REWARD_FNS}" \
@@ -146,6 +153,7 @@ deepspeed --include "localhost:${GPUS}" --master_port "${PORT}" vita/train/train
     --bf16 True \
     --output_dir "${OUTPUT_DIR_GRPO}" \
     --num_train_epochs "${EPOCHS}" \
+    --max_steps "${MAX_STEPS}" \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps "${GRAD_ACC}" \
@@ -163,7 +171,8 @@ deepspeed --include "localhost:${GPUS}" --master_port "${PORT}" vita/train/train
     --gradient_checkpointing True \
     --dataloader_num_workers "${WORKERS}" \
     --lazy_preprocess True \
-    --report_to none \
+    --report_to "${REPORT_TO}" \
+    --run_name "${WANDB_NAME:-grpo-rlaif-v}" \
     2>&1 | tee -a "${OUTPUT_DIR_GRPO}/log.txt"
 
 echo "Done. Adapter in ${OUTPUT_DIR_GRPO}"

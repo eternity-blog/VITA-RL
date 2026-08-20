@@ -208,6 +208,10 @@ def main():
                             "keywords": kws,
                             "target_len": [lo, hi],
                             "state": "left",
+                            # Full gold answer for model-based rewards: the
+                            # judge scores against the reference instead of
+                            # guessing what a good answer looks like.
+                            "gold": chosen,
                         },
                     }
                 )

@@ -101,6 +101,63 @@ def no_repeat_reward(prompt: str, response: str, meta: dict) -> float:
     return len(set(grams)) / len(grams)
 
 
+_ANSWER_TAG = re.compile(r"<answer>\s*(.*?)\s*</answer>", re.S | re.I)
+_NUMBER = re.compile(r"-?\d+(?:\.\d+)?")
+
+
+def _extract_answer(response: str) -> str:
+    """The <answer> tag contents, falling back to the last number in the text.
+
+    The fallback keeps the reward from being all-zero before the policy has
+    learned the tag format -- otherwise the answer and format rewards would
+    be perfectly correlated early on and the group would be degenerate.
+    """
+    body = _strip_state_token(response)
+    m = _ANSWER_TAG.search(body)
+    if m:
+        return m.group(1).strip()
+    nums = _NUMBER.findall(body)
+    return nums[-1] if nums else ""
+
+
+@register_reward("answer")
+def answer_reward(prompt: str, response: str, meta: dict) -> float:
+    """Exact match against a verifiable gold answer (R1-style binary reward).
+
+    meta: {"answer": "3"}
+
+    Binary is fine for GRPO: the signal is the *within-group* variance of
+    pass/fail across the G rollouts, not the smoothness of any single score.
+    Numeric answers compare as numbers ("3" == "3.0"); anything else
+    compares as case-insensitive text.
+    """
+    gold = str(meta.get("answer", "")).strip()
+    if not gold:
+        return 0.0
+    pred = _extract_answer(response)
+    if not pred:
+        return 0.0
+    try:
+        return 1.0 if float(pred) == float(gold) else 0.0
+    except ValueError:
+        return 1.0 if pred.lower() == gold.lower() else 0.0
+
+
+@register_reward("format")
+def format_reward(prompt: str, response: str, meta: dict) -> float:
+    """R1-style structure check: <think>...</think> then <answer>...</answer>.
+
+    Graded (1.0 full structure / 0.5 answer tag only / 0.0 neither) so early
+    groups where nobody has the full format can still rank rollouts.
+    """
+    body = _strip_state_token(response).strip()
+    if re.search(r"<think>.*?</think>\s*<answer>.*?</answer>", body, re.S | re.I):
+        return 1.0
+    if _ANSWER_TAG.search(body):
+        return 0.5
+    return 0.0
+
+
 @register_reward("state_token")
 def state_token_reward(prompt: str, response: str, meta: dict) -> float:
     """1.0 when the reply opens with the expected state token.
@@ -140,6 +197,18 @@ class JudgeReward:
         "Question: {prompt}\n\nResponse: {response}\n\nRating:"
     )
 
+    # When the sample carries the gold answer (reward_meta["gold"]), grade
+    # against it. A text-only judge cannot see the image, so without the
+    # reference it can only rate fluency/relevance; with it, agreement with
+    # the reference is a groundedness check.
+    TEMPLATE_WITH_REF = (
+        "Rate how well the response agrees with the reference answer to the "
+        "question, from 1 (contradicts or fabricates) to 5 (matches its "
+        "content). Reply with a single digit.\n\n"
+        "Question: {prompt}\n\nReference answer: {gold}\n\n"
+        "Response: {response}\n\nRating:"
+    )
+
     def __init__(self, model_path: str, device: str = "cuda", dtype=None):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -163,9 +232,18 @@ class JudgeReward:
 
     def __call__(self, prompt: str, response: str, meta: dict) -> float:
         torch = self.torch
-        text = self.TEMPLATE.format(
-            prompt=prompt.strip()[:1000], response=_strip_state_token(response).strip()[:1000]
-        )
+        gold = (meta or {}).get("gold", "")
+        if gold:
+            text = self.TEMPLATE_WITH_REF.format(
+                prompt=prompt.strip()[:1000],
+                gold=gold.strip()[:1000],
+                response=_strip_state_token(response).strip()[:1000],
+            )
+        else:
+            text = self.TEMPLATE.format(
+                prompt=prompt.strip()[:1000],
+                response=_strip_state_token(response).strip()[:1000],
+            )
         enc = self.tokenizer(text, return_tensors="pt").to(self.device)
         with torch.no_grad():
             logits = self.model(**enc).logits[0, -1]

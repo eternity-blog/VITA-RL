@@ -35,6 +35,10 @@ DataConfig = {
     # keywords and shipped in reward_meta for the `keyword` reward.
     # Enabled by VITA_RLAIF_GRPO_DATA_DIR.
     "RLAIFVGRPO": [RLAIFVGRPO],
+    # CLEVR counting with a verifiable exact-match answer reward (R1-V's
+    # recipe) -- see tools/make_clevr_grpo_data.py. Enabled by
+    # VITA_CLEVR_GRPO_DATA_DIR.
+    "CLEVRGRPO": [CLEVRGRPO],
 }
 
 NoPatchSets = ["khair", "jester"]

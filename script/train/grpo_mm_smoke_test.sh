@@ -39,7 +39,7 @@ OUTPUT_DIR=${1:?"usage: $0 <output_dir> [gpu_id]"}
 GPU_ID=${2:-0}
 
 WEIGHTS_ROOT=${WEIGHTS_ROOT:-${VITA_WEIGHTS:-}}
-if [ -z "${WEIGHTS_ROOT}" } && [ -z "${MODEL_PATH:-}" ]; then
+if [ -z "${WEIGHTS_ROOT}" ] && [ -z "${MODEL_PATH:-}" ]; then
     echo "error: set WEIGHTS_ROOT (or VITA_WEIGHTS) to the directory holding" >&2
     echo "       VITA-1.5/ and InternViT-300M-448px/" >&2
     exit 1
