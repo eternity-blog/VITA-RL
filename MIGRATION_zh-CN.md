@@ -18,7 +18,7 @@ cd VITA-RL
 
 | | 内容 | 体积 | 新机器如何获得 |
 |---|---|---|---|
-| ✅ 在 git 里 | 全部代码、6 份文档、工具脚本、`requirements-lock.txt` | ~11 MB | `git clone` |
+| ✅ 在 git 里 | 全部代码、整套文档（见 README 文档导览表）、工具脚本、`requirements-lock.txt` | ~11 MB | `git clone` |
 | ❌ 不在 git 里 | VITA-1.5 权重 | 19.6 GB | 从 HuggingFace 重新下载 |
 | ❌ 不在 git 里 | InternViT-300M-448px | 0.65 GB | 从 HuggingFace 重新下载 |
 | ❌ 不在 git 里 | conda 环境 `vita` | 6.6 GB | 按文档重装（约 10-20 分钟） |
@@ -140,6 +140,9 @@ python tools/localize_config.py \
 
 ## 六、后续工作的起点
 
-项目当前进度见 [README_zh-CN.md 的路线图](./README_zh-CN.md#路线图)：推理与训练链路均已验证，
-下一步是 RL。技术路径和 5 个具体障碍写在
-[ARCHITECTURE_zh-CN.md 第 13 章](./ARCHITECTURE_zh-CN.md#13-rl-该接在哪里)。
+项目当前进度见 [README_zh-CN.md 的路线图](./README_zh-CN.md#路线图)：推理、训练链路
+与两条 RL 线均已完成——DPO 端到端测量（POPE 幻觉率 10.97% → 8.82%，见
+[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)），多模态 GRPO 在可验证奖励任务上
+训练成功（held-out 准确率 44.6% → 77.4%，见
+[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。RL 栈代码走读见
+[ARCHITECTURE_zh-CN.md 第 14 章](./ARCHITECTURE_zh-CN.md)。

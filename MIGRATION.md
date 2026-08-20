@@ -20,7 +20,7 @@ cd VITA-RL
 
 | | Content | Size | How to get it on the new host |
 |---|---|---|---|
-| ✅ in git | All code, 6 documents, tool scripts, `requirements-lock.txt` | ~11 MB | `git clone` |
+| ✅ in git | All code, the documentation set (see the README table), tool scripts, `requirements-lock.txt` | ~11 MB | `git clone` |
 | ❌ not in git | VITA-1.5 weights | 19.6 GB | re-download from HuggingFace |
 | ❌ not in git | InternViT-300M-448px | 0.65 GB | re-download from HuggingFace |
 | ❌ not in git | conda env `vita` | 6.6 GB | reinstall per the docs (~10–20 min) |
@@ -161,7 +161,10 @@ memory will differ on different hardware; those two will not.
 
 ## 6. Where to pick up
 
-Current progress is in the [README roadmap](./README.md#roadmap): inference and
-the training pipeline are both verified; RL is next. The technical path and its
-five concrete obstacles are in
-[ARCHITECTURE.md §13](./ARCHITECTURE.md#13-where-rl-would-attach).
+Current progress is in the [README roadmap](./README.md#roadmap): inference,
+the training pipeline, and both RL lines are done — DPO measured end to end
+(POPE hallucination 10.97% → 8.82%, see
+[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)) and multimodal GRPO trained on a
+verifiable-reward task (held-out accuracy 44.6% → 77.4%, see
+[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)). The RL stack's code walkthrough is
+in [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo).

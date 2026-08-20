@@ -484,7 +484,16 @@ outputs['loss'] = loss
 
 ## 13. RL 该接在哪里
 
-上游**只有监督微调**——没有 reward model、没有偏好优化、没有 rollout 循环（`grep -rE 'reward|ppo|dpo|grpo|rlhf'` 零命中）。增加 RL 是本 fork 的目标。
+上游**只有监督微调**——没有 reward model、没有偏好优化、没有 rollout 循环（`grep -rE 'reward|ppo|dpo|grpo|rlhf'` 零命中）。增加 RL 曾是本 fork 的目标，现已完成：两条线都在真实数据上跑到了实测结果。
+
+> **状态（2026-08-20）：两条 RL 线均已完成。** DPO（`vita/train/dpo_*.py`）：
+> 首步 loss 精确命中 `-log(0.5)`，SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%——
+> 全记录见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO
+> （`vita/train/grpo_*.py`，多模态）：在 CLEVR 计数 + 可验证奖励上训练，
+> 400 步 held-out 准确率 44.6% → 77.4%——全记录见
+> [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。下文保留最初的障碍分析，
+> 因为它解释了设计；已解决的条目附有说明。操作层面见
+> [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)。
 
 **有利条件：**
 
@@ -506,7 +515,7 @@ outputs['loss'] = loss
 
 5. **显存。** PPO 需要 policy + ref + reward + critic，每一份都带着 InternViT 和 whale。在 8 卡上不用 LoRA 共享是不现实的。DPO（policy + ref）和 GRPO（无 critic）要可行得多。已部分缓解：自 `audios` 变为可选（[§12](#12-已知缺陷与粗糙之处)）后，纯文本+图像的 rollout 不再需要在每个模型副本、每一步都跑一遍 341M 的音频编码器。
 
-**建议顺序：** 先做离线 DPO——不需要 rollout，因此障碍 1 和 2 直接消失，只剩障碍 4 和 5，两者都可控。参考模型可以用冻结的基础权重或禁用的 LoRA adapter，避免在显存里放第二个 7B。等在那里验证过 log-prob 计算，GRPO 可以复用它，只需再加 rollout 循环。
+**建议顺序（也是本 fork 实际走的顺序）：** 先做离线 DPO——不需要 rollout，因此障碍 1 和 2 直接消失，只剩障碍 4 和 5，两者都可控。参考模型用禁用的 LoRA adapter 实现，避免在显存里放第二个 7B。在那里验证过 log-prob 计算之后，GRPO 复用了它并加上了 rollout 循环。
 
 注意 RL **不需要**那份缺失的 SFT 数据集：已发布的 VITA-1.5 checkpoint 本身就是训练好的，而偏好数据无论如何都得自己构造。如果确实想先用真实数据跑一遍 SFT，见 [DATASETS.md](./DATASETS.md)——论文 2213 万条里约三分之一未发布，但公开的部分已经够用，文档给了三档匹配磁盘预算的方案。
 
@@ -591,8 +600,12 @@ log-prob 的策略成为两个不同的函数。冒烟脚本另外把 `lora_drop
 
 **log-prob 是重算的，不是从生成结果里读的。** 带梯度的那次前向无论如何都要跑，
 所以 `old_logps` 取自同一次——这让首个 inner step 的 ratio 精确为 1，
-而不是在两次前向之间引入 bf16 抖动。这是单步范式：clip 不会生效。
-跨 inner epoch 复用 rollout（那时 ratio 会移动、clip 才有意义）未实现。
+而不是在两次前向之间引入 bf16 抖动。默认 `--grpo_num_iterations 1` 时是
+单步范式：clip 不会生效。设为 μ>1 则启用 PPO 式样本复用：
+`_ChunkRepeatSampler` 让同一批 prompt 连续重放 μ 个优化步，第 0 步支付
+生成、打分和参考前向的成本，第 1..μ-1 步只在更新后的权重下重算策略
+log-prob（`_reuse_loss`）——这时 ratio 才离开 1，`grpo/clip_frac`
+才不再是摆设。
 
 `grpo_data.py` **没有**复用 `LazySupervisedDataset`。那个类是为构造监督目标而生的，
 其中每条路径都假设存在一轮最终的 assistant 回复用来算 label；而这里没有任何
@@ -609,12 +622,18 @@ log-prob 的策略成为两个不同的函数。冒烟脚本另外把 `lora_drop
 def keyword_reward(prompt, response, meta) -> float: ...
 ```
 
-内置四条规则：`keyword`、`length`、`no_repeat`、`state_token`。全部返回
-`[0, 1]`，这才使 `--reward_fns keyword:1.0,length:0.5` 里的权重具有可比性。
+内置六条规则：`keyword`、`length`、`no_repeat`、`state_token`，以及为
+CLEVR 新增的可验证奖励对——`answer`（与 `reward_meta["answer"]` 二值精确
+匹配，先取 `<answer>` 标签、失败则回退到文本中最后一个数字）和 `format`
+（`<think>…</think><answer>…</answer>` 结构的 1.0/0.5/0.0 分级检查）。
+全部返回 `[0, 1]`，这才使 `--reward_fns answer:1.0,format:0.3`
+里的权重具有可比性。
 
 `JudgeReward` 可选加载一个小的 instruct 模型，读取它赋予 `"1"`–`"5"`
 各 token 的概率并取加权均值。读分布而非解析生成文本，给出的是连续信号
-——这正是组内排序所需要的——且不可能解析失败。
+——这正是组内排序所需要的——且不可能解析失败。当样本带有参考答案
+（`reward_meta["gold"]`）时，judge 改为评「与参考答案的一致性」而非
+凭空打质量分。
 
 **真正要紧的性质**：奖励必须能区分同一 prompt 的各个 rollout。一条二值规则
 若 G 个样本全部通过，该组方差为 0、优势为 0、没有梯度——等价于没加这条规则。
@@ -699,12 +718,27 @@ GRPO 的 8 个 rollout 一组可省 87.5%。
 
 最后一行信息量最大：两个独立数字朝一致方向移动，比单看 loss 下降更难碰巧发生。
 
-### 14.9 尚未实现
+### 14.9 后来实现了什么、仍然没有什么
 
-- **多模态 GRPO**。目前仅纯文本；prompt embedding 缓存需要接到
-  `encode_images_deduped`，后者已经支持这需要的任意重复倍数。
-- **多步复用 rollout**。`old_logps` 取自当前策略，因此 ratio 为 1、clip 不生效。
-  这实质是带 KL 约束的单步策略梯度。
+原先列在这里、后来（2026-08-20）**已实现**的条目：
+
+- **多模态 GRPO**。`_fuse` 每 batch 把视觉特征拼进 prompt embedding 一次
+  （在 G 倍扩展之前，所以视觉塔对每张不同的图只前向一次），collator 左
+  padding，批量 `generate` 直接在融合后的 embedding 上跑。已在 CLEVR 计数
+  上真实训练——400 步 held-out 准确率 44.6% → 77.4%
+  （[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。
+- **多步复用 rollout**。`--grpo_num_iterations μ` 通过 `_ChunkRepeatSampler`
+  + `_reuse_loss` 让每批 rollout 连续用于 μ 个优化步；复用步只重算策略
+  log-prob，ratio 在这里离开 1、clip 开始生效。μ=1 时与原始 on-policy
+  路径逐字节一致。
+- **真实数据**。DPO 在 RLAIF-V 上训练（SFT→DPO 使 POPE 10.97% → 8.82%，
+  见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)）；GRPO 在 CLEVR-70k +
+  可验证奖励上训练——此前两轮 RLAIF-V 代理奖励实验证明了：开放式描述里
+  分级代理分数排序的是组内噪声。
+
+仍然**未**实现：
+
 - **全参数 DPO/GRPO**。两者都要求 LoRA，缺少时直接拒绝启动而非半可用：
   参考策略的定义就是「adapter 可被关掉」。
-- **真实数据**。偏好对和任务奖励都是合成的，验证的是机制而非模型。
+- **音频 RL**。设计上就不做——本 fork 的 RL 只针对文本+图片/视频，
+  音频编码器全程冻结。

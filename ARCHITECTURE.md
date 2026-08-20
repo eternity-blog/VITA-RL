@@ -596,15 +596,20 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 
 Upstream contains **only supervised fine-tuning** — no reward model, no
 preference optimization, no rollout loop (`grep -rE 'reward|ppo|dpo|grpo|rlhf'`
-over the upstream tree returns nothing). Adding RL is the goal of this fork.
+over the upstream tree returns nothing). Adding RL was the goal of this fork,
+and it is done: both lines have been trained on real data to a measured
+result.
 
-> **Status: offline DPO is implemented** (`vita/train/dpo_*.py`) and verified
-> on synthetic preference pairs — the first-step loss lands on the exact
-> `-log(0.5)` that proves the reference policy is wired up correctly, and the
-> reward margin separates over 24 steps. What follows is the original analysis
-> of the obstacles; the DPO-specific ones are annotated with how they were
-> resolved. See [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化) for the
-> operational side.
+> **Status (2026-08-20): both RL lines are complete.** DPO
+> (`vita/train/dpo_*.py`): first-step loss lands on the exact `-log(0.5)`,
+> and SFT-then-DPO cuts POPE hallucination 10.97% → 8.82% — full record in
+> [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO (`vita/train/grpo_*.py`,
+> multimodal): trained on CLEVR counting with a verifiable reward, held-out
+> accuracy 44.6% → 77.4% in 400 steps — full record in
+> [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md). What follows is the original
+> analysis of the obstacles, kept because it explains the design; the
+> resolved ones are annotated. See [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)
+> for the operational side.
 
 **What helps:**
 
@@ -663,11 +668,11 @@ over the upstream tree returns nothing). Adding RL is the goal of this fork.
    (27.5M) and prints what it froze; the saved `non_lora_trainables.bin`
    should contain zero parameters.
 
-**Suggested order:** offline DPO first — no rollout, so obstacles 1 and 2 vanish
-and only obstacles 4 and 5 remain, both manageable. The reference model can be
-the frozen base weights or a disabled LoRA adapter, avoiding a second 7B in
-memory. Once log-prob computation is verified there, GRPO reuses it and adds the
-rollout loop.
+**Suggested order (this is the order the fork actually followed):** offline
+DPO first — no rollout, so obstacles 1 and 2 vanish and only obstacles 4 and 5
+remain, both manageable. The reference model is a disabled LoRA adapter,
+avoiding a second 7B in memory. Once log-prob computation was verified there,
+GRPO reused it and added the rollout loop.
 
 Note that RL does **not** require the missing SFT dataset: the released VITA-1.5
 checkpoint is already trained, and preference data has to be constructed
@@ -782,9 +787,13 @@ are scored. The smoke script additionally sets `lora_dropout 0`.
 **Log-probs are recomputed, not read off generation.** The gradient-carrying
 pass has to happen anyway, so `old_logps` is taken from it — which pins the
 ratio at exactly 1 on the first inner step instead of introducing bf16 drift
-between two passes. This is the single-step regime: clipping never engages.
-Reusing a rollout batch across inner epochs, where the ratio would move and
-clipping would matter, is not implemented.
+between two passes. With `--grpo_num_iterations 1` (the default) this is the
+single-step regime: clipping never engages. Setting it above 1 turns on
+PPO-style sample reuse: a `_ChunkRepeatSampler` replays the same prompt chunk
+for μ consecutive optimizer steps, iteration 0 pays for generation, reward
+scoring and the reference forward, and iterations 1..μ-1 only recompute the
+policy log-probs under the updated weights (`_reuse_loss`) — that is where
+the ratio departs from 1 and `grpo/clip_frac` stops being decorative.
 
 `grpo_data.py` does **not** reuse `LazySupervisedDataset`. That class exists
 to build supervised targets and every path in it assumes a final assistant
@@ -802,20 +811,28 @@ learned model later without the trainer changing:
 def keyword_reward(prompt, response, meta) -> float: ...
 ```
 
-Four rules ship: `keyword`, `length`, `no_repeat`, `state_token`. All return
-`[0, 1]`, which is what makes the weights in
-`--reward_fns keyword:1.0,length:0.5` comparable.
+Six rules ship: `keyword`, `length`, `no_repeat`, `state_token`, plus the
+verifiable pair added for CLEVR — `answer` (binary exact match against
+`reward_meta["answer"]`, with `<answer>` tag extraction and a last-number
+fallback) and `format` (graded 1.0/0.5/0.0 for the
+`<think>…</think><answer>…</answer>` structure). All return `[0, 1]`, which
+is what makes the weights in `--reward_fns answer:1.0,format:0.3` comparable.
 
 `JudgeReward` optionally loads a small instruct model and reads the
 probability it assigns to each of the tokens `"1"`–`"5"`, returning their
 weighted mean. Reading the distribution rather than parsing generated text
 gives a continuous signal — which is what a group needs in order to be
-ranked — and cannot fail to parse.
+ranked — and cannot fail to parse. When the sample carries a gold answer
+(`reward_meta["gold"]`), the judge grades agreement with the reference
+instead of free-floating quality.
 
 **The property that matters:** a reward must separate the rollouts of one
-prompt. A binary rule that all G samples pass produces a group with zero
-variance, zero advantage and no gradient — worth exactly as much as no
-reward at all. Prefer graded output over pass/fail.
+prompt *by true quality*. A binary rule is fine when it is verifiable — the
+group's pass/fail mix carries the signal, and `groups/degenerate_frac` tracks
+the all-same groups that carry none. What is not fine is a graded score whose
+within-group differences are stylistic luck: that is what the RLAIF-V proxy
+rewards turned out to be, and why the project moved to CLEVR
+(see [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)).
 
 ### 14.5 Two traps that produce plausible-looking wrong runs
 
@@ -905,16 +922,30 @@ End-to-end signals, measured on one H100:
 The last row is the most informative: two independent numbers moving in
 agreement is much harder to get by accident than a loss curve going down.
 
-### 14.9 What is not implemented
+### 14.9 What was later implemented, and what still is not
 
-- **Multimodal GRPO.** Text-only for now; the prompt-embedding cache needs
-  wiring to `encode_images_deduped`, which already accepts the arbitrary
-  repeat count this would require.
-- **Multi-step rollout reuse.** `old_logps` comes from the current policy,
-  so the ratio is 1 and clipping is inert. This is a single-step policy
-  gradient with a KL leash.
+Items originally listed here as missing and since **implemented** (2026-08-20):
+
+- **Multimodal GRPO.** `_fuse` splices vision features into the prompt
+  embeddings once per batch (before the G-fold expansion, so the vision tower
+  runs once per distinct image), the collator left-pads, and batched
+  `generate` runs on the fused embeddings. Trained for real on CLEVR counting
+  — held-out accuracy 44.6% → 77.4% in 400 steps
+  ([GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)).
+- **Multi-step rollout reuse.** `--grpo_num_iterations μ` replays each
+  rollout batch for μ consecutive optimizer steps via `_ChunkRepeatSampler`
+  + `_reuse_loss`; only the policy log-probs are recomputed on reuse steps,
+  and that is where the ratio moves and clipping engages. μ=1 keeps the
+  original on-policy path byte-identical.
+- **Real data.** DPO trained on RLAIF-V (POPE 10.97% → 8.82% via SFT→DPO,
+  [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)); GRPO trained on CLEVR-70k with a
+  verifiable reward, after two RLAIF-V proxy-reward rounds demonstrated that
+  graded proxy scores rank within-group noise on open-ended description.
+
+Still **not** implemented:
+
 - **Full-parameter DPO/GRPO.** Both require LoRA and refuse to start without
   it, rather than half-working: the reference policy is defined as the
   adapter being switchable off.
-- **Real data.** Preference pairs and task rewards are synthetic. They
-  verify the machinery, not the model.
+- **Audio RL.** Out of scope by design — this fork's RL targets text +
+  image/video only; the audio encoder stays frozen throughout.

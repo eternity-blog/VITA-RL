@@ -32,6 +32,11 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 **extend it with a reinforcement learning stage**, which upstream does not provide
 (the original codebase contains only supervised fine-tuning).
 
+> **Scope note.** This fork's RL work targets the **text + image/video**
+> modalities only. VITA-1.5's audio encoder is kept as a frozen component
+> throughout (it ships with the checkpoint and inference still supports it),
+> but no audio training or audio RL happens here.
+
 ### Roadmap
 
 | Stage | Status | Description |
@@ -50,7 +55,16 @@ signal-to-noise ratio of 0.055–0.11. Raising the effective batch from 16 to 63
 made DPO genuinely learn on this data (loss below 0.69, 18x the reward margin)
 and the benchmarks still did not improve — POPE changed 24 of 5127 answers,
 12 fixed against 12 broken. `tools/probe_preference_separability.py` predicts
-this in eight minutes, before the four hours behind it.
+this in eight minutes, before the four hours behind it. The endgame is
+SFT-then-DPO (POPE hallucination 10.97% → 8.82%).
+
+**Read [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) for the GRPO arc**: the same
+lesson in a different costume. Two rounds on RLAIF-V with proxy rewards
+(keyword overlap, LLM judge) moved the KL 6x without moving any content
+reward — within a group of 8 open-ended descriptions, proxy scores rank
+stylistic luck, so the group-normalised advantage was ranking noise.
+Switching to a verifiable reward (CLEVR counting, binary exact-match) made
+the curve take off: held-out accuracy 44.6% → 77.4% in 400 steps.
 
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
@@ -84,7 +98,7 @@ See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test. See
 [ARCHITECTURE.md](./ARCHITECTURE.md) for how the model and codebase actually
 work — the modality-fusion mechanism, the three encoders, the inference and
-training paths, and where an RL stage would attach. See
+training paths, and how the RL stack (DPO + GRPO) attaches. See
 [DATASETS.md](./DATASETS.md) for the training-data survey: what the paper used,
 what is still downloadable as of August 2026, and three plans sized to
 available disk.
@@ -129,7 +143,14 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   pluggable reward scores them during training, with the group as the
   baseline instead of a critic. `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`
   and `train_grpo.py`, plus `tools/test_grpo_loss.py` (39 checks) and
-  `tools/test_rewards.py` (44 checks). Text-only for now. See
+  `tools/test_rewards.py` (44 checks). Extended from text-only to
+  **image+text** (vision features are fused into the prompt embeddings once,
+  then reused by all G rollouts), with PPO-style sample reuse
+  (`--grpo_num_iterations`) and verifiable rewards (`answer` exact match +
+  graded `format`). Trained for real on CLEVR counting:
+  `tools/make_clevr_grpo_data.py`, `script/train/grpo_clevr.sh`,
+  `tools/eval_grpo_heldout.py` — held-out accuracy 44.6% → 77.4% in 400
+  steps. See [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) and
   [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化).
 - **Added offline DPO**, the first RL-family objective in this codebase
   (upstream has only SFT). `vita/train/dpo_{loss,data,trainer}.py` and
@@ -168,7 +189,10 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   paths so that loading does not require network access.
 - Added `PRIMER.md` (prerequisite knowledge), `HANDBOOK.md` (hands-on guide),
   `REPRODUCE.md` (operational log),
-  `ARCHITECTURE.md` (code walkthrough), `DATASETS.md` (training-data survey)
+  `ARCHITECTURE.md` (code walkthrough), `DATASETS.md` (training-data survey),
+  `EXPERIMENT_LOG.md` (the DPO six-round record),
+  `GRPO_DEEP_DIVE.md` (the GRPO four-round record and deep dive),
+  `SFT_DPO_DEEP_DIVE.md`, `PROJECT_SUMMARY.md`
   and `requirements-lock.txt`.
 
 Any further deviation from upstream will be recorded in this section.
@@ -250,7 +274,7 @@ On 2024.08.12, the VITA team launched **VITA-1.0**, the **first-ever open-source
 
 ## 📈 Experimental Results
 
-*All numbers below are reported by the upstream VITA team in the [VITA-1.5 paper](https://arxiv.org/pdf/2501.01957). They have **not** been independently re-measured in this fork; reproduction results will be added here as they become available.*
+*All numbers below are reported by the upstream VITA team in the [VITA-1.5 paper](https://arxiv.org/pdf/2501.01957). This fork's own measurements live elsewhere: the re-measured baseline (MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper) in [BENCHMARKS.md §2.6](./BENCHMARKS.md), the DPO results in [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md), and the GRPO results in [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md).*
 
 - **Evaluation on image and video understanding benchmarks.**
 

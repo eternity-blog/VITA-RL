@@ -92,11 +92,11 @@
 | 2 | [`dpo_data.py`](../../blob/main/vita/train/dpo_data.py) | 170 | 怎么复用 SFT 管线产出成对样本 |
 | 3 | [`dpo_trainer.py`](../../blob/main/vita/train/dpo_trainer.py) | 139 | `disable_adapter()` 当参考模型 |
 | 4 | [`train_dpo.py`](../../blob/main/vita/train/train_dpo.py) | 94 | 入口 + **非 adapter 冻结** |
-| 5 | [`rewards.py`](../../blob/main/vita/train/rewards.py) | 222 | 可插拔奖励注册表 |
+| 5 | [`rewards.py`](../../blob/main/vita/train/rewards.py) | 300 | 可插拔奖励注册表：规则、可验证（`answer`/`format`）、LLM Judge |
 | 6 | [`grpo_loss.py`](../../blob/main/vita/train/grpo_loss.py) | 135 | 组内归一化 + k3 KL |
 | 7 | [`grpo_data.py`](../../blob/main/vita/train/grpo_data.py) | 145 | 为什么**不**复用 SFT 管线 |
-| 8 | [`grpo_trainer.py`](../../blob/main/vita/train/grpo_trainer.py) | 228 | 最复杂：rollout → 打分 → 优势 |
-| 9 | [`train_grpo.py`](../../blob/main/vita/train/train_grpo.py) | 121 | 入口 |
+| 8 | [`grpo_trainer.py`](../../blob/main/vita/train/grpo_trainer.py) | 410 | 最复杂：多模态融合 → rollout → 打分 → 优势，外加 μ 步样本复用 |
+| 9 | [`train_grpo.py`](../../blob/main/vita/train/train_grpo.py) | 132 | 入口 |
 
 走读见 [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)。
 
@@ -108,6 +108,9 @@
 | [`grpo_loss` 的退化组处理](../../blob/main/vita/train/grpo_loss.py#L57) | `std < eps` 时置 0，防 NaN |
 | [`grpo_trainer` 绕过 `generate`](../../blob/main/vita/train/grpo_trainer.py#L88) | 直接调 `Qwen2ForCausalLM.generate` |
 | [`grpo_trainer` 的 log-prob 重算](../../blob/main/vita/train/grpo_trainer.py#L124) | 复用缓存 prompt embeds |
+| `grpo_trainer` 的 `_ChunkRepeatSampler` + `_reuse_loss` | μ 步样本复用：复用步只重算策略 log-prob，ratio 才离开 1 |
+| `grpo_trainer` 的 `_fuse` | 视觉特征在 G 倍扩展**之前**拼入 embedding，视觉塔每图只跑一次 |
+| `rewards.py` 的 `answer` / `format` | 可验证奖励：二值精确匹配 + 分级结构检查（CLEVR 用） |
 | [`train_grpo` 的冻结逻辑](../../blob/main/vita/train/train_grpo.py#L78) | 不冻结参考模型会漂移 |
 
 ## 4. 本 fork 的修复
@@ -144,7 +147,12 @@
 | [`localize_config.py`](../../blob/main/tools/localize_config.py) | 把 HF repo ID 改写成本地路径 |
 | [`make_smoke_data.py`](../../blob/main/tools/make_smoke_data.py) | SFT 合成数据 |
 | [`make_dpo_smoke_data.py`](../../blob/main/tools/make_dpo_smoke_data.py) | DPO 偏好对 |
-| [`make_grpo_smoke_data.py`](../../blob/main/tools/make_grpo_smoke_data.py) | GRPO prompt |
+| [`make_grpo_smoke_data.py`](../../blob/main/tools/make_grpo_smoke_data.py) | GRPO prompt（纯文本冒烟） |
+| [`make_grpo_mm_smoke_data.py`](../../blob/main/tools/make_grpo_mm_smoke_data.py) | GRPO 多模态冒烟数据 |
+| [`make_rlaif_v_grpo_data.py`](../../blob/main/tools/make_rlaif_v_grpo_data.py) | RLAIF-V parquet → GRPO prompt（含 keyword/gold） |
+| [`make_clevr_grpo_data.py`](../../blob/main/tools/make_clevr_grpo_data.py) | CLEVR-70k parquet → GRPO prompt（可验证 `answer`，切 500 条 held-out） |
+| [`eval_grpo_heldout.py`](../../blob/main/tools/eval_grpo_heldout.py) | held-out 生成式评测：answer 准确率、win rate、bootstrap CI |
+| [`probe_preference_separability.py`](../../blob/main/tools/probe_preference_separability.py) | 8 分钟预判偏好数据能不能训（53.6% 就是它量的） |
 
 ### 训练脚本
 
@@ -153,7 +161,10 @@
 | [`smoke_test_qwen.sh`](../../blob/main/script/train/smoke_test_qwen.sh) | SFT 全参，8 卡 ZeRO-3 |
 | [`smoke_test_lora.sh`](../../blob/main/script/train/smoke_test_lora.sh) | SFT LoRA，单卡 |
 | [`dpo_smoke_test.sh`](../../blob/main/script/train/dpo_smoke_test.sh) | DPO，单卡 |
-| [`grpo_smoke_test.sh`](../../blob/main/script/train/grpo_smoke_test.sh) | GRPO，单卡 G=8 |
+| [`grpo_smoke_test.sh`](../../blob/main/script/train/grpo_smoke_test.sh) | GRPO，单卡 G=8（纯文本冒烟） |
+| [`grpo_mm_smoke_test.sh`](../../blob/main/script/train/grpo_mm_smoke_test.sh) | GRPO 多模态冒烟，单卡 |
+| [`grpo_rlaif_v_8gpu.sh`](../../blob/main/script/train/grpo_rlaif_v_8gpu.sh) | GRPO 真实训练：RLAIF-V，8 卡 LoRA+ZeRO-2 |
+| [`grpo_clevr.sh`](../../blob/main/script/train/grpo_clevr.sh) | GRPO 真实训练：CLEVR 计数 + 可验证奖励（44.6%→77.4% 那次） |
 
 ### 真实运行日志
 

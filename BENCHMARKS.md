@@ -8,6 +8,12 @@
 > 但数量级和相对关系应当成立。
 >
 > 采集时间：2026-08-07。全部为单次或少数次运行的实测值，非统计平均。
+>
+> **注意（2026-08-20）**：本文档是当时的机器快照。其中 DPO"无效"相关
+> 结论对应**原始基座上的前三轮**，后被 SFT→DPO 推翻（POPE 10.97%→8.82%，
+> 见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)）；GRPO 的纯文本 rollout
+> 基线后扩展为多模态并在 CLEVR 上跑出 held-out 44.6%→77.4%
+> （4 卡约 30 s/优化步，见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。
 
 ## 目录
 
@@ -83,7 +89,7 @@ AdamW 两个动量 56）。实测在分配 `exp_avg_sq` 时 OOM。8 卡是下限
 
 图块数与耗时基本线性，所以图像去重省下的正好是那一半。
 
-### 2.4 rollout（GRPO 用，纯文本，max_new_tokens=64）
+### 2.4 rollout（GRPO 用，纯文本，max_new_tokens=64；多模态版实测见 GRPO_DEEP_DIVE）
 
 | G | 耗时 | 峰值显存 | 多样性 |
 |---|---|---|---|

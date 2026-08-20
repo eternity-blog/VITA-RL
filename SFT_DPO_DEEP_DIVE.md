@@ -748,21 +748,17 @@ python tools/merge_and_eval.py --base /path/sft_disjoint_out/sft-rlaif-v \
 python tools/compare_pope.py --before .../baseline/vita_qwen2 --after .../disjoint/vita_qwen2
 ```
 
-### 10.4 环境阻塞状态（截至 2026-08-18）
+### 10.4 环境状态（2026-08-20 更新）
 
-disjoint 实验**当前无法启动**，有三个硬阻塞：
+> 2026-08-18 时此处记录过三个硬阻塞（GPU 全占用 / RLAIF-V parquet 未下 /
+> 无既有 checkpoint）。截至 2026-08-20 已全部解除：权重、RLAIF-V 分片、
+> CLEVR 数据均已就绪，环境 `/data/agent/conda/envs/vita-rl` 可用，
+> GRPO 四轮训练已在此环境完成（见
+> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)、
+> [`EXPERIMENT_LOG.md` §14](EXPERIMENT_LOG.md)）。
+> disjoint 实验本身仍未执行，保留为可选待办；执行顺序如下。
 
-| 阻塞项 | 现状 | 影响 |
-|---|---|---|
-| **GPU 全占用** | 8/8 卡，每张 61–65 GB 已用 / 81 GB，利用率 75–94% | 无空闲卡可跑 8 卡 ZeRO-3 SFT |
-| **RLAIF-V parquet 未下载** | `/opt/lx/vita-weights/rlaif_v/*.parquet` 为空，连 shard000/001 都没有 | 无法生成任何 SFT/DPO 数据 |
-| **无既有 checkpoint** | 无 SFT/DPO 产物 | 全链路需从数据起 |
-
-权重状态：`/opt/lx/vita-weights/VITA-1.5` 已 21G（4 个 safetensors，已就绪）、`InternViT-300M-448px` 647M（已就绪）。PROJECT_SUMMARY 标注"下载中"，实测主权重 + 视觉塔已到位，**缺的只是 RLAIF-V 数据**。
-
-conda 环境（`/root/miniconda3/envs/vita`）：torch 2.3.1+cu121、deepspeed 0.14.4、peft 0.11.1、cuda 8 卡可用——就绪。
-
-**待解除阻塞后的执行顺序**：下 shard003/004 → 生成 disjoint SFT 数据 → 跑 SFT → 下 shard000/001 → 生成 disjoint DPO 数据 → 跑 DPO → 合并评测对比。预估耗时（8×H100）：数据下载 ~30min + SFT ~2h + DPO ~2.5h + 评测 ~1.5h ≈ 6.5 小时。
+**执行顺序**：下 shard003/004 → 生成 disjoint SFT 数据 → 跑 SFT → 下 shard000/001 → 生成 disjoint DPO 数据 → 跑 DPO → 合并评测对比。预估耗时（8×H100）：数据下载 ~30min + SFT ~2h + DPO ~2.5h + 评测 ~1.5h ≈ 6.5 小时。
 
 ---
 

@@ -432,20 +432,24 @@ Upstream reproduction:
 - [x] Training pipeline verified end to end on synthetic data (8 GPUs)
 - [x] Single-GPU LoRA training — 23.3 GB peak, after fixing the upstream
       crash described in [HANDBOOK.md §5](./HANDBOOK.md#5-各条路径的实测状态)
-- [ ] Training on real data — upstream provides none; see
-      [DATASETS.md](./DATASETS.md) for what is still obtainable
+- [x] Training on real data — RLAIF-V (SFT + DPO) and CLEVR-70k (GRPO); see
+      [DATASETS.md](./DATASETS.md)
 
-This fork's RL work (all verified on synthetic data, see
-[ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)):
+This fork's RL work (measured end to end on real data — DPO story in
+[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md), GRPO story in
+[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)):
 
-- [x] Offline DPO — first-step loss lands on the exact `-log(0.5)`
-- [x] GRPO with a pluggable reward registry — reward mean rises while
-      completions shorten
+- [x] Offline DPO — first-step loss lands on the exact `-log(0.5)`;
+      SFT-then-DPO cuts POPE hallucination 10.97% → 8.82% (McNemar p<1e-4)
+- [x] GRPO with a pluggable reward registry — verified by smoke tests
+      (first-step kl=0, ratio=1) and four real-data rounds
+- [x] Multimodal GRPO (image+text) — trained on CLEVR counting with a
+      verifiable reward: held-out accuracy 44.6% → 77.4% in 400 steps
+- [x] PPO-style sample reuse (`--grpo_num_iterations`) — reuse steps show
+      ratio≠1 and a live clip, as expected
 - [x] Five CPU test suites (118 checks across them), no checkpoint required
-- [ ] Real preference data / real task rewards
-- [ ] Multimodal GRPO (text-only for now)
-- [ ] VLMEvalKit baseline — configured but blocked on an omegaconf/antlr4
-      version conflict, see [HANDBOOK.md §5](./HANDBOOK.md#5-各条路径的实测状态)
+- [x] VLMEvalKit baseline — the omegaconf/antlr4 conflict is resolved, see
+      [BENCHMARKS.md](./BENCHMARKS.md)
 
 ## Reproducing on another machine
 

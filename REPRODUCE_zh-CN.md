@@ -353,7 +353,20 @@ AdamW 为每个参数保存两个 fp32 动量（7B 约 56 GB），外加 fp32 �
 - [x] 权重下载完成（VITA-1.5 19.6 GB + InternViT 0.3 GB）
 - [x] 推理复现——文本、音频、噪声音频三种查询
 - [x] 训练链路在合成数据上端到端验证（8 × H800）
-- [ ] 真实数据训练（需要上游未提供的数据集）
+- [x] 真实数据训练——RLAIF-V（SFT + DPO）与 CLEVR-70k（GRPO）
+
+本 fork 的 RL 工作（均在真实数据上端到端测量——DPO 全程见
+[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)，GRPO 全程见
+[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）：
+
+- [x] 离线 DPO——首步 loss 精确落在 `-log(0.5)`；SFT→DPO 使 POPE 幻觉率
+      10.97% → 8.82%（McNemar p<1e-4）
+- [x] 多模态 GRPO（图像+文本）——CLEVR 计数 + 可验证奖励：400 步将
+      held-out 准确率 44.6% → 77.4%（win rate 0.977）
+- [x] PPO 式样本复用（`--grpo_num_iterations`）——复用步 ratio≠1、clip 生效
+- [x] 五套 CPU 测试（合计 118 项检查），无需 checkpoint
+- [x] VLMEvalKit 基线——omegaconf/antlr4 冲突已解决，见
+      [BENCHMARKS.md](./BENCHMARKS.md)
 
 ## 在另一台机器上复现
 

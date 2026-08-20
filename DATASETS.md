@@ -10,6 +10,11 @@
 > 核实日期：2026-08-06。所有 `gated` 状态、仓库体积、许可证均通过
 > HuggingFace API 实测，非引用数据集卡片。带宽为本机实测值。
 >
+> **2026-08-20 更新**：本 fork 的 RL 工作定位为**文本 + 图片/视频**多模态
+> （音频编码器只作为 VITA-1.5 自带的冻结组件存在，不做音频训练），
+> 因此 §4 语音调研与 §6 方案中的语音条目仅作历史参考。RL 阶段实际使用
+> 的数据见 **§3.3**（RLAIF-V + CLEVR-70k，均已跑通）。
+>
 > 配套文档：[REPRODUCE.md](./REPRODUCE.md) 环境复现，
 > [ARCHITECTURE.md](./ARCHITECTURE.md) 代码走读（§9 数据管线）。
 
@@ -136,6 +141,20 @@ Doc/Chart/Screen 4431K + General OCR 404K = 7730K，占公开部分的一半以�
 
 **自带图，开箱即用：** LLaVA-OneVision（347 GB）、UReader（88 GB）、
 SynthDoG（123 GB）、AnyWord-3M（881 GB）、ScienceQA（8 GB）。
+
+### 3.3 本 fork RL 训练实际用的数据（2026-08-20 已落地）
+
+上面各节是"复现论文预训练"的调研；本 fork 的 RL 阶段实际只用了两个
+数据集，都已下载并跑通：
+
+| 数据集 | 来源 | 用途 | 体积 | 转换工具 | 环境变量 |
+|---|---|---|---|---|---|
+| **RLAIF-V** | `openbmb/RLAIF-V-Dataset`（HF/ModelScope，parquet） | DPO 偏好对 / SFT（chosen）/ GRPO prompt | 全量 ~14 GB | `make_rlaif_v_data.py` / `make_rlaif_v_sft_data.py` / `make_rlaif_v_grpo_data.py` | `VITA_RLAIF_GRPO_DATA_DIR` 等 |
+| **CLEVR-70k 计数** | `leonardPKU/clevr_cogen_a_train`（HF，R1-V 同款） | GRPO 可验证奖励训练 | ~13 GB parquet → 70,000 图 | `make_clevr_grpo_data.py`（69,500 训练 + 500 held-out，`reward_meta={"answer": N}`） | `VITA_CLEVR_GRPO_DATA_DIR` |
+
+选 CLEVR 的理由与结果（held-out 44.6% → 77.4%）见
+[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)；RLAIF-V 上的 DPO 六轮见
+[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。
 
 ## 4. 语音数据：核实结果
 

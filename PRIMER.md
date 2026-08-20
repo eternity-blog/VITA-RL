@@ -52,8 +52,11 @@ VITA-1.5 是一个**全模态 LLM**：一个语言模型同时吃图像、视频
 
 **本仓库（VITA-RL）是 fork**，目标是复现后加 RL 阶段。
 上游代码里 `grep -rniE 'reward|ppo|dpo|grpo|rlhf'` **命中数为 0** ——
-RL 是这个 fork 自己加的。目前**离线 DPO 和 GRPO 都已实现并在合成数据上验证**
-（约 1400 行，见 §12 阶段四），缺的是真实偏好数据和真实任务奖励。
+RL 是这个 fork 自己加的。两条线都已在**真实数据上跑到终局**：
+DPO 走 SFT→DPO 使 POPE 幻觉率 10.97%→8.82%（[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)）；
+GRPO 扩展到图像+文本后在 CLEVR 计数 + 可验证奖励上 400 步将 held-out
+准确率 44.6%→77.4%（[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。
+范围说明：本 fork 的 RL 只做**文本+图片/视频**，音频编码器全程冻结。
 
 ## 1. 必备背景概念
 
@@ -644,10 +647,13 @@ vita_tts_ckpt/
     纯数学，配 `tools/test_dpo_loss.py` 一起读
 13. `vita/train/dpo_trainer.py`（139 行）——看 `compute_loss`
     怎么用 `disable_adapter()` 当参考模型
-14. `vita/train/rewards.py`（222 行）——GRPO 的奖励注册表
+14. `vita/train/rewards.py`（约 300 行）——GRPO 的奖励注册表：规则奖励、
+    可验证奖励（`answer` 二值精确匹配 + 分级 `format`）、LLM Judge
+    （数字 token 概率取期望）
 15. `vita/train/grpo_loss.py`（135 行）——组内归一化 + KL
-16. `vita/train/grpo_trainer.py`（228 行）——最复杂的一个，
-    rollout → 打分 → 优势 → 损失
+16. `vita/train/grpo_trainer.py`（约 410 行）——最复杂的一个，
+    rollout → 打分 → 优势 → 损失，外加 μ 步样本复用
+    （`_ChunkRepeatSampler` + `_reuse_loss`）
 
 **建议配合跑**（都是单卡）：
 
@@ -663,6 +669,11 @@ bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1  # 看 reward 上升
 详见 [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化) 和
 [§9](./HANDBOOK.md#9-grpo组相对策略优化)。
 
+真实训练链路（CLEVR 计数，可验证奖励）：数据转换
+`tools/make_clevr_grpo_data.py` → 训练 `script/train/grpo_clevr.sh` →
+评测 `tools/eval_grpo_heldout.py`；全程记录与结果（44.6%→77.4%）见
+[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。
+
 ### 各文档什么时候看
 
 | 文档 | 用途 |
@@ -674,6 +685,9 @@ bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1  # 看 reward 上升
 | REPRODUCE.md | 装环境时看 |
 | DATASETS.md | 要接真实数据时看 |
 | MIGRATION.md | 换机器时看 |
+| **EXPERIMENT_LOG.md** | DPO 实验全程（六轮）+ GRPO 一页结果表（§14） |
+| **GRPO_DEEP_DIVE.md** | GRPO 实验全程：原理、超参、Reward 设计、指标手册、面试问答 |
+| SFT_DPO_DEEP_DIVE.md | SFT+DPO 管线的代码级深读 |
 
 ### 不建议读
 

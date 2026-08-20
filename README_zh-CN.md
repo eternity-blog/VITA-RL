@@ -25,14 +25,35 @@
 
 本仓库的目标是**端到端复现 VITA-1.5**，然后**为其增加一个强化学习阶段**——这是上游未提供的（原代码库只有监督微调）。
 
+> **范围说明。** 本 fork 的 RL 工作只针对**文本 + 图片/视频**模态。
+> VITA-1.5 自带的音频编码器全程作为冻结组件保留（推理仍支持音频查询），
+> 但本仓库不做任何音频训练或音频 RL。
+
 ### 路线图
 
 | 阶段 | 状态 | 说明 |
 |---|---|---|
 | 1. 复现推理 | ✅ 已完成 | 文本、音频、噪声音频三种查询均可在已发布的 VITA-1.5 checkpoint 上运行 |
 | 2. 验证训练链路 | ✅ 已完成 | 在 8×H800 上用合成数据端到端跑通；checkpoint 可保存并重新加载 |
-| 3. 真实数据训练 | 🔍 已调研 | 上游未提供数据；[DATASETS.md](./DATASETS.md) 梳理了今天还能拿到什么，并给出匹配磁盘预算的方案 |
-| 4. 增加 RL | 🚧 进行中 | 离线 DPO 与 GRPO 均已实现并在合成数据上验证——DPO 首步 loss 精确命中 `-log(0.5)`，GRPO 的 reward 均值上升且回答长度同步下降。下一步需要真实偏好数据与真实任务奖励 |
+| 3. 基准复测 | ✅ 已完成 | **MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内。** 见 [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
+| 4. 真实数据训练 | ✅ 已完成 | 3000 对 RLAIF-V 偏好对，LoRA DPO 一个 epoch，首步 loss 精确命中 `-log(0.5)` |
+| 5. 增加 RL | ✅ 已完成 | DPO：SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%（McNemar p<1e-4）——见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO：多模态扩展在 CLEVR 计数 + 可验证奖励上训练，**400 步将 held-out 准确率 44.6% → 77.4%**（win rate 0.977）——见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
+
+**想看 3–5 阶段的完整故事，读 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)**：
+RLAIF-V 上三轮 DPO 都没把基准移出噪声带，且原因是量出来的而不是猜的——
+基座对这些偏好对的可分性只有 53.6%（95% CI [50.3%, 56.8%]，n=900），
+信噪比 0.055–0.11。把有效 batch 从 16 提到 63 后 DPO 真正学起来了
+（loss 降破 0.69、reward margin 18 倍），基准仍然不动——POPE 的 5127 个
+答案里只翻转了 24 个，12 个改对对 12 个改错。
+`tools/probe_preference_separability.py` 八分钟就能预判这一切。
+终局方案是 SFT→DPO（POPE 幻觉率 10.97% → 8.82%）。
+
+**GRPO 这条线的完整故事在 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)**：
+同一个教训换了副面孔。RLAIF-V + 代理奖励（keyword 重叠、LLM judge）两轮，
+KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout 的代理分差
+主要是风格运气，组归一化的 advantage 在给噪声排序。换成可验证奖励
+（CLEVR 计数，二值精确匹配）后曲线立刻起飞：400 步 held-out 准确率
+44.6% → 77.4%。
 
 **第一次接触这个代码库？** 先看 [PRIMER.md](./PRIMER.md)——读懂其余文档所需的
 前置知识：负数索引占位符机制、实测的 token 预算、三个编码器，以及最费时间的坑。
@@ -51,13 +72,17 @@
 | [MIGRATION_zh-CN.md](./MIGRATION_zh-CN.md) | 换机器时 | 中英双版 |
 | [CODEMAP.md](./CODEMAP.md) | 在 GitHub 上读代码时，直接跳到某个函数 | 中文 |
 | [BENCHMARKS.md](./BENCHMARKS.md) | 要实测数字时：耗时、显存、以及判断改动是否等价的可复现 loss | 中文 |
+| [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **DPO 实验全程**：设计、每个数字、为什么是这个结果、走过的弯路 | 中文 |
+| [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | SFT + DPO 管线的代码级深读：机制、显存推算、on/off-policy | 中文 |
+| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、四轮训练记录（代理奖励失败→可验证奖励 +32.8pt）、面试问答 | 中文 |
+| [RESULTS.md](./RESULTS.md) | 同一实验更早期、更窄的记录；已被上面取代 | 中文 |
 
 两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
 §5](./ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)
 拆解了让这个模型成立的那个函数，[§14](./ARCHITECTURE_zh-CN.md#14-rl-栈dpo-与-grpo)
 走读本 fork 新增的 RL 栈。
 
-完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 该接在哪里。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及三档按磁盘容量裁剪的方案。
+完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 栈（DPO + GRPO）如何接入。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及本 fork RL 实际用的数据（§3.3）。
 
 ### 如何复现
 
@@ -84,7 +109,7 @@ python tools/localize_config.py \
 - **修复了固定版本 `transformers==4.41.1` 下的 `cache_position` 问题** —— 上游的 `vita_qwen2.py` 在其自身 `requirements.txt` 所固定的版本上根本无法生成。见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)。
 - **补上了缺失的 `DataConfig` key**（`Pretrain_video0`、`Pretrain_audio`）—— 多个上游训练脚本会传这两个值，但它们从未被定义。
 - **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
-- **在 DPO 之上新增 GRPO**：回答由策略自己采样，奖励在训练中由可插拔的奖励函数实时计算，用组内归一化代替 critic。包含 `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`、`train_grpo.py`，以及 `tools/test_grpo_loss.py`（39 项）和 `tools/test_rewards.py`（44 项）。首版仅支持纯文本。见 [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化)。
+- **在 DPO 之上新增 GRPO**：回答由策略自己采样，奖励在训练中由可插拔的奖励函数实时计算，用组内归一化代替 critic。包含 `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`、`train_grpo.py`，以及 `tools/test_grpo_loss.py`（39 项）和 `tools/test_rewards.py`（44 项）。已从纯文本扩展到**图像+文本**（视觉特征融合进 prompt embedding 一次、G 个 rollout 共享），支持 PPO 式样本复用（`--grpo_num_iterations`）与可验证奖励（`answer` 精确匹配 + 分级 `format`），并在 CLEVR 计数上完成真实训练：`tools/make_clevr_grpo_data.py`、`script/train/grpo_clevr.sh`、`tools/eval_grpo_heldout.py`——400 步 held-out 准确率 44.6% → 77.4%。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) 与 [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化)。
 - **新增离线 DPO**，这是本代码库第一个 RL 系目标函数（上游只有 SFT）。包含 `vita/train/dpo_{loss,data,trainer}.py`、`train_dpo.py`、`tools/test_dpo_loss.py`（19 项 CPU 测试）和 `script/train/dpo_smoke_test.sh`。参考模型用同一份权重关掉 LoRA adapter 实现，额外显存为 0。见 [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)。
 - 给 `vita_arch.py` 增加 `encode_images_deduped`：当一个 batch 里多条序列共享同一份媒体时（DPO 的 chosen/rejected 对，以及后续 GRPO 的 rollout 组），视觉编码器只编码一份再复制特征。结果逐位相同（`tools/test_image_dedup.py` 用 `torch.equal` 断言），视觉前向省 44-46%。通过 `image_group_size` 显式开启，SFT 路径不受影响。
 - 把 `vita/train/train.py` 的 `train()` 泛化为可接收「额外参数类 / 数据模块工厂 / trainer 工厂」，使 DPO 能复用那约 230 行模型构建逻辑而非复制。不传参数时行为与之前完全一致。
@@ -94,7 +119,7 @@ python tools/localize_config.py \
 - 新增 `tools/test_audio_optional.py`，上述修复的 CPU 单元测试（编码器打桩，无需权重）。
 - 新增 `tools/inspect_dataset.py`，在 CPU 上加载已配置的数据集，报告序列长度、被监督的文本片段、collate 后的张量形状，以及有多少样本的 label 被静默作废——接入数据集后、开 GPU 前先跑它。
 - 新增 `tools/localize_config.py`，把 checkpoint 的 `mm_vision_tower` / `mm_audio_encoder` 从 HuggingFace repo ID 改写为本地路径，使加载不需要访问网络。
-- 新增 `PRIMER.md`（前置知识，仅中文）、`HANDBOOK.md`（上手手册，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
+- 新增 `PRIMER.md`（前置知识，仅中文）、`HANDBOOK.md`（上手手册，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）、`EXPERIMENT_LOG.md`（DPO 六轮全记录）、`GRPO_DEEP_DIVE.md`（GRPO 四轮全记录与深读）、`SFT_DPO_DEEP_DIVE.md`、`PROJECT_SUMMARY.md` 和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
 
 后续任何相对上游的偏离都会记录在本节。
 
@@ -170,7 +195,7 @@ python tools/localize_config.py \
 
 ## 📈 实验结果
 
-*以下所有数字均由上游 VITA 团队在 [VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)中报告。本 fork **未**独立复测；复现结果将在获得后补充于此。*
+*以下所有数字均由上游 VITA 团队在 [VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)中报告。本 fork 自己的实测在别处：复测基线（MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内）见 [BENCHMARKS.md §2.6](./BENCHMARKS.md)，DPO 结果见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)，GRPO 结果见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。*
 
 - **图像与视频理解基准评测。**
 

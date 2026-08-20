@@ -5,6 +5,9 @@
 >
 > 所有命令都在本机（8×H100 / `/usr/local/kai/lx/VITA-RL`）验证过。
 > 凡是我**没跑过**的，本文明确标注为未验证，不含糊过去。
+>
+> **范围说明**：本 fork 的 RL 工作只针对文本+图片/视频。§2.1 的语音推理
+> 命令是上游能力的验证，音频编码器在本 fork 的所有训练里都是冻结组件。
 
 ## 目录
 
@@ -322,8 +325,10 @@ python tools/inspect_dataset.py --dataset-use MyData --num-samples 5
 | `tools/` 四个工具 | ✅ **本机跑通** | localize / make_smoke / inspect / test |
 | **单卡 LoRA 训练** | ✅ **本机跑通（需先修复）** | 峰值 **23.3 GB**，24 步 10.4 s。上游此路径有致命 bug，本 fork 已修，见下 |
 | **视频推理** | ✅ **本机跑通** | 每秒抽 1 帧，上限 16 帧 |
+| **多模态 DPO（真实数据）** | ✅ **跑通到终局** | RLAIF-V 上 SFT→DPO，POPE 幻觉率 10.97%→8.82%（McNemar p<1e-4）。见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) |
+| **多模态 GRPO（真实数据）** | ✅ **跑通到终局** | CLEVR 计数 + 可验证奖励，400 步 held-out 准确率 44.6%→77.4%（win rate 0.977）。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
 | web demo | ❌ **不可用** | `flask`/`flask_socketio`/`vllm`/`onnxruntime` 均未装；还缺 `web_demo/wakeup_and_vad/resource/` 下的 `silero_vad.onnx`/`.jit` |
-| VLMEvalKit 评测 | ⚠️ **部分就绪** | 配置已改为读 `VITA_CKPT`，依赖大部分装好，但卡在 omegaconf/antlr4 版本冲突，未跑出基线数字。见下 |
+| VLMEvalKit 评测 | ✅ **已跑通** | omegaconf/antlr4 冲突已解（见下），基线与 DPO 对比数字已产出：MME 2353.5、MMBench 77.8、POPE 见上行。历史排障记录保留在下节 |
 | Video-MME 评测 | ⚠️ 未测 | 需另下 Video-MME 数据集 |
 | 语音输出（TTS） | ⚠️ 存疑 | 见 [PRIMER.md §9](./PRIMER.md#9-语音输出论文与代码不一致)——代码与论文描述不一致 |
 
@@ -370,12 +375,13 @@ python -c "import torch,transformers,numpy; print(torch.__version__, transformer
 把 `moviepy.editor` / `moviepy.config_defaults` 注册为 2.x 顶层符号的别名
 （不改 VLMEvalKit 源码）。
 
-**未解决的坑**：`omegaconf 2.3.1` 需要 `antlr4-python3-runtime 4.9.x`，
-而企业镜像最低只有 4.11，导致
+**当时未解决、后来已解决的坑**：`omegaconf 2.3.1` 需要
+`antlr4-python3-runtime 4.9.x`，而企业镜像最低只有 4.11，导致
 `Exception: Could not deserialize ATN with version 3 (expected 4)`。
 omegaconf 被 `vlmeval/vlm/vxverse.py` 在模块顶层 import，同样会拖垮整个包。
-可行方向：从源码装 antlr4 4.9.3（纯 Python，无需编译），
-或给 omegaconf 也加垫片。
+**最终解法**（2026-08-20，见 `setup_vlmeval_deps_dev.sh`）：从源码装
+antlr4 4.9.3（纯 Python，无需编译）。此后 VLMEvalKit 已完整跑通，
+产出基线与 DPO/GRPO 对比数字（POPE / MME / MMBench）。
 
 ### 单卡 LoRA：上游的致命 bug（本 fork 已修）
 
@@ -518,7 +524,7 @@ deepspeed --include localhost:3 --master_port 29555 ... &
 
 ## 8. DPO（离线偏好优化）
 
-这是本 fork 相对上游**唯一的新增训练能力**——上游只有 SFT。
+这是本 fork 相对上游新增的两种训练能力之一（另一种是 [§9 的 GRPO](#9-grpo组相对策略优化)）——上游只有 SFT。
 
 ### 8.1 组成
 
@@ -831,15 +837,34 @@ GRPO 的优势是组内归一化，所有 rollout 得分相同的组
 通过 `groups/degenerate_frac` 上报。**这个数接近 1.0 说明奖励没有区分度，
 几乎什么都没在训练**——它看起来像「模型学不动」，实际是数据/奖励的问题。
 
-### 9.7 已知限制
+### 9.7 多模态与真实训练（后来补齐的部分）
 
-- **首版仅支持纯文本 prompt**。多模态需要把 prompt embeds 缓存与
-  `encode_images_deduped` 结合，后者已支持任意重复倍数。
-- **单步更新**：`old_logps` 取自当前策略，所以 ratio 恒为 1、
-  clip 不起作用。等价于带 KL 约束的策略梯度。
-  多步复用同一批 rollout（PPO 式 inner epochs）未实现。
+上面 9.1–9.6 写于纯文本冒烟阶段。之后 GRPO 补齐了：
+
+- **多模态 prompt**：trainer 的 `_fuse` 每 batch 把视觉特征拼进 prompt
+  embedding 一次（在 G 倍扩展之前），批量 `generate` 直接吃融合后的
+  embedding。冒烟：`bash script/train/grpo_mm_smoke_test.sh`。
+- **μ 步样本复用**：`--grpo_num_iterations μ`（脚本里 `NUM_ITER`）。
+  μ>1 时同一批 rollout 连续用于 μ 个优化步，复用步只重算策略 log-prob，
+  ratio 离开 1、clip 生效；观察 `grpo/clip_frac`。
+- **可验证奖励**：`answer`（二值精确匹配）+ `format`（分级结构检查），
+  见 `vita/train/rewards.py`。
+- **真实训练全链路**（CLEVR 计数）：
+
+```bash
+python tools/make_clevr_grpo_data.py --parquet '<shards>' --out-dir <dir>   # 数据
+export VITA_CLEVR_GRPO_DATA_DIR=<dir> WEIGHTS_ROOT=<weights>
+bash script/train/grpo_clevr.sh <output_dir>                               # 训练（8 卡）
+python tools/eval_grpo_heldout.py --before <base> --after <merged> ...     # held-out 评测
+```
+
+  结果：400 步 held-out 准确率 44.6% → 77.4%。全程记录、超参与指标手册见
+  [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。
+
+仍然的限制：
+
 - **只支持 LoRA**，同 DPO。
-- 奖励是合成规则，不是真实任务目标。
+- **RL 范围只覆盖文本+图片/视频**；音频编码器全程冻结，不做音频 RL。
 
 ## 10. 本机资源现状
 
@@ -858,8 +883,9 @@ GRPO 的优势是组内归一化，所有 rollout 得分相同的组
 
 ### 下一步做什么
 
-- **想训真实数据** → [DATASETS.md](./DATASETS.md)，建议从方案 A（260 GB）起步
-- **想加 RL** → [ARCHITECTURE.md §13](./ARCHITECTURE.md#13-where-rl-would-attach)，
-  建议先做离线 DPO
+- **想训真实数据** → [DATASETS.md](./DATASETS.md)；本 fork RL 实际用的数据见其 §3.3
+- **想看 RL 的完整结果** → DPO 见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)，
+  GRPO 见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)；设计走读见
+  [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
 - **想弄懂原理** → [PRIMER.md](./PRIMER.md)
 - **换机器重建** → [MIGRATION.md](./MIGRATION.md)
