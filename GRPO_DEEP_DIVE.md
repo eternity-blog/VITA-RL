@@ -17,7 +17,7 @@
 |---|---|
 | [§1 为什么是 GRPO](#1-为什么是-grpo不是-ppo-也不是继续-dpo) | PPO 显存/critic 账、53.6% 可分性探针、GRPO 的结构性优势 |
 | [§2 一步训练的完整数据流](#2-一步训练的完整数据流) | fuse → expand → rollout → score → advantage → logps → loss |
-| [§3 超参数逐项解释](#3-超参数逐项解释) | group_size / beta / clip / 温度 / lr / LoRA / batch / ZeRO |
+| [§3 超参数逐项解释](#3-超参数逐项解释) | R4 实际值逐项核实、三轮对照（batch 对冲噪声）、bf16/tf32/fp32 精度栈 |
 | [§4 数学与数值细节](#4-数学与数值细节) | 序列 logp、组归一化与退化组、k1/k2/k3、重要性采样、token 级平均 |
 | [§5 首步三不变量](#5-首步三不变量) | kl=0 / ratio=1 / advantage_std=1 及各自的失效含义 |
 | [§6 多模态扩展的六个要点](#6-多模态扩展的六个要点) | 融合先于展开、left-padding、generate 绕过、byte-identity 等 |
@@ -106,23 +106,74 @@ prompt-only records（含 reward_meta）
 
 ## 3. 超参数逐项解释
 
-| 参数 | 值 | 理由 |
-|---|---|---|
-| `grpo_group_size` | 8 | 组是 baseline，太小 advantage 噪声大；显存/时间随 G 线性涨 |
-| `grpo_beta` | 0.04 | KL 罚权重（DeepSeekMath 同值），把策略拴在基座附近 |
-| `grpo_clip_eps` | 0.2 | PPO 信任域；**本实现单步 ratio≡1，clip 惰性**（为 sample reuse 预留） |
-| `grpo_temperature` / `top_p` | 1.0 / 0.95 | 采样多样性；温度太低组内趋同 → 全退化组 → 无训练信号 |
-| `grpo_max_new_tokens` | 96（真实训练）/ 128（默认） | rollout 长度上限，控制单步成本 |
-| `learning_rate` | 1e-6 + cosine + 3% warmup | 见下"lr 详解"；RL 阶段步长比 DPO(5e-6~2e-5) 再低一档 |
-| LoRA | r=64, α=16, **dropout=0** | dropout 必须为 0：参考 pass 关 adapter 自然无 dropout，policy 侧有 dropout 会让首步 KL 无端非零 |
-| 有效 batch | 64 prompts/step（= 512 rollouts/step） | DPO 教训：SNR 低的数据必须大 batch（噪声按 1/√N 缩）；4 卡跑时 GRAD_ACC 从 8 提到 16 补偿 |
-| ZeRO | **2 而非 3** | LoRA 下 ~28GB/卡够用；`disable_adapter()` 在 ZeRO-3 参数分片下行为复杂 |
-| `dataloader_num_workers` | 0（多卡多模态） | /dev/shm 仅 512MB，8 rank × N worker 传 448×448 切片会 Bus error |
+以 **R4（CLEVR，最终成功那轮）实际运行值**为主线（已对照
+`outputs/r4_train.log` 的 deepspeed 启动命令逐项核实），R1/R2 的差异
+在 §3.2 对照表里。
 
-**lr 详解（1e-6 + cosine + 3% warmup）**：
-warmup（前 ~4/125 步线性 0→1e-6）——Adam 动量估计初期不可靠 + LoRA B 矩阵零初始化，先热身再全速；
-cosine 衰减到 0——RL 尾段大步长比 SFT 更危险（策略移动改变采样分布，末期抖动会把学到的东西采样崩掉）；
-峰值 1e-6——策略每动一步 rollout 分布就变，大步长 → KL 爆涨或 reward hacking。
+### 3.1 逐项解释（R4 实际值）
+
+| 参数 | R4 值 | 理由 |
+|---|---|---|
+| `grpo_group_size` (G) | 8 | 组是 baseline，太小 advantage 噪声大；显存/时间随 G 线性涨。DeepSeekMath 起的惯例值 |
+| `grpo_beta` (β) | 0.04 | KL 罚权重（k3 估计器）。R4 里 KL 涨 6 倍但准确率同步涨，说明 leash 没卡住学习（DAPO 的立场：可验证奖励下干脆设 0，见 §12.2） |
+| `grpo_clip_eps` | 0.2 | PPO 信任域；**μ=1 时 ratio≡1，clip 惰性**（为 sample reuse 预留，μ>1 才生效） |
+| `grpo_num_iterations` (μ) | 1 | 严格 on-policy：每批 rollout 只更新一次 |
+| `grpo_temperature` / `top_p` | 1.0 / 0.95 | 温度 1.0 = 不改分布地随机采，组内多样性全靠采样本身；top_p 砍长尾乱码。温度太低组内趋同 → 全退化组 → 无训练信号 |
+| `grpo_max_new_tokens` | 128 | 计数的 `<think>` 推理 + 答案够用；直接决定 rollout 时间上限（R1/R2 开放式描述用 256） |
+| `reward_fns` | `answer:1.0,format:0.3` | 二值精确匹配为主信号；格式奖励权重压到 0.3，防止只学格式不学计数 |
+| `learning_rate` | 5e-6 + cosine + 3% warmup | R1 用 1e-6 几乎不动，R2 起提到 5e-6（这是 LoRA 参数的 lr）。见下"lr 详解" |
+| LoRA | r=64, α=16, **dropout=0** | dropout 必须为 0：rollout 采样和 log-prob 计算必须是同一个策略；参考 pass 关 adapter 天然无 dropout，policy 侧有 dropout 会让首步 KL 无端非零 |
+| 卡数 / micro-batch / 累计 | 4 卡（GPU 2,3,4,6）× 1 × 4 | **有效 batch = 16 prompts/优化步 = 128 rollouts/步**。400 步共 6,400 个互不重复 prompt（数据集的 9.3%，Trainer 日志 `epoch: 0.09` 交叉验证）× G=8 = 51,200 条 rollout，实跑 3h15m（29.3s/步） |
+| ZeRO | **2 而非 3** | LoRA 下 ~28GB/卡够用；`disable_adapter()` 在 ZeRO-3 参数分片下行为复杂 |
+| 精度 | bf16 + tf32 | 见 §3.3 |
+| `dataloader_num_workers` | 0（多卡多模态） | /dev/shm 仅 512MB，多 rank × N worker 传 448×448 切片会 Bus error |
+
+**lr 详解（cosine + 3% warmup）**：
+warmup（前 12/400 步线性升到峰值）——Adam 动量估计初期不可靠 + LoRA B
+矩阵零初始化，先热身再全速；
+cosine 衰减到 0——RL 尾段大步长比 SFT 更危险（策略移动改变采样分布，
+末期抖动会把学到的东西采样崩掉）；
+峰值 5e-6——策略每动一步 rollout 分布就变，大步长 → KL 爆涨或 reward
+hacking；R1 的教训是 1e-6 太保守，信号干净时 5e-6 稳定可用。
+
+### 3.2 三轮对照：batch 大小是用来对冲信号噪声的
+
+| | R1 (RLAIF-V) | R2 (RLAIF-V+judge) | R4 (CLEVR) |
+|---|---|---|---|
+| lr | 1e-6 | 5e-6 | 5e-6 |
+| β | 0.04 | 0.01 | 0.04 |
+| 有效 batch | 64 prompts/步 | 64 | **16** |
+| max_new_tokens | 256 | 256 | **128** |
+| reward | keyword/length/no_repeat | + judge(gold) | **answer + format** |
+| 结果 | 训练 reward 涨、benchmark 不动 | KL 涨 6 倍、内容 reward 不动 | **44.6%→77.4%** |
+
+值得记住的反直觉点：**R4 的有效 batch 只有 R1/R2 的 1/4，反而成功了**。
+因为可验证奖励的信噪比高，不需要靠大 batch 平均掉代理奖励的噪声。这和
+DPO 线"SNR 低所以 batch 必须 16→63"是同一原理的两面：batch 是用来
+对冲信号噪声的，信号干净时小 batch 就够。同理，R4 只用了数据集 9% 的
+prompt、每个 prompt 只拿 8 比特对错反馈就 +32.8pt——数据效率来自
+信号质量，不是数据量。
+
+### 3.3 精度栈：bf16 / tf32 / fp32 各管什么
+
+| 格式 | 位分配（符号/指数/尾数） | 动态范围 | 在本训练中的角色 |
+|---|---|---|---|
+| fp32 | 1/8/23 | ~10³⁸ | 优化器主权重与动量（ZeRO-2 切分）、log_softmax |
+| **tf32** | 1/**8**/**10**（共 19 位） | 与 fp32 相同 | 残余 fp32 矩阵乘在 Tensor Core 上的执行格式 |
+| bf16 | 1/8/7 | 与 fp32 相同 | 前向/反向的主体存储与计算精度 |
+| fp16 | 1/5/10 | 仅 ~10⁴ | 未用于训练（易溢出）；推理侧视觉/音频编码器用 |
+
+- **TF32** 是 Ampere+ 的矩阵乘内部格式：指数位抄 fp32（不溢出）、尾数位
+  抄 fp16（够快），乘法用 19 位、**累加仍 fp32**。`--tf32 True` 即
+  `torch.backends.cuda.matmul.allow_tf32=True`，让仍以 fp32 请求的
+  矩阵乘走 Tensor Core（快 ~8 倍）。bf16 训练里大头矩阵乘本来就是
+  bf16，TF32 只是"补角落"的加速，无理由不开。
+- **刻意反向的一处**：`_sequence_logps` 把 logits 显式 `.float()` 后再
+  log_softmax——log-prob 之差（ratio、KL）对精度极敏感，bf16 的 7 位
+  尾数会让首步不变量 `kl=0`、`ratio=1` 出现可见漂移。log_softmax 不是
+  矩阵乘，TF32 管不到它，这是老实的 fp32 逐元素运算。
+- 三层分工一句话：**bf16 管主体精度，tf32 管残余 fp32 矩阵乘的速度，
+  ZeRO-2 管优化器状态/梯度怎么切分到多卡**——互相独立，各管一层。
 
 ---
 
