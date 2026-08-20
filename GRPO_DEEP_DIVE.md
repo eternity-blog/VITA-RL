@@ -26,6 +26,7 @@
 | [§9 显存速查](#9-显存速查) | 全参 16 字节/参数账、ZeRO 三档、LoRA 对照 |
 | [§10 本次真实训练记录](#10-本次真实训练记录2026-08-20) | 数据、配置、烟雾结果、wandb |
 | [§11 面试问答清单](#11-面试问答清单) | 按出现概率排序，附答案要点 |
+| [§12 GRPO 之后的演进](#12-grpo-之后的演进vllm-rollout--dapo--gspo) | vLLM rollout 加速、DAPO 四项修改、GSPO 序列级比值，及与本仓库实现的映射 |
 
 ---
 
@@ -500,4 +501,109 @@ answer 0.59→0.89 随后爬坡，KL 缓升收在 0.025，退化组 4%→44%
 11. **"最少几张卡？"** 全参 SFT：单卡 122GB 必死、8 卡 ZeRO-3 实测 18GB、
     纸面 4 卡 ~34GB 可行未实测；LoRA GRPO：单卡 24GB 级即可。
 12. **"如果要 scale？"** rollout 是瓶颈：vLLM 推理引擎、异步 rollout（训练/采样分离）、
-    multi-inner-step 复用、judge/RM 替代规则奖励。
+    multi-inner-step 复用、judge/RM 替代规则奖励。详见 §12。
+13. **"GRPO 原始版之后有哪些改进？"** DAPO（clip-higher / 动态采样 /
+    token 级归一 / 超长软惩罚 / 去 KL）、GSPO（序列级重要性比，MoE 稳定）、
+    Dr. GRPO（去掉 /std 的偏差修正）。各自对症什么问题见 §12。
+
+## 12. GRPO 之后的演进：vLLM rollout / DAPO / GSPO
+
+本节是方法论地图：原始 GRPO（2024，DeepSeekMath）之后工业界的三个主要
+改进方向，各自对症本仓库实测遇到过的哪个问题，以及如果要接入要动哪里。
+均未在本仓库实现——这里是"知道为什么需要它"的记录。
+
+### 12.1 vLLM rollout 加速
+
+**对症的问题**：本仓库实测每个优化步 70% 以上时间花在 rollout（一步生成
+512 条回答），这是 R2 跑 91 步要 3.5 小时、被迫考虑 μ 复用的根本原因。
+
+**瓶颈本质**：自回归生成是显存带宽受限而非算力受限。HF `generate` 有两个
+结构性浪费：
+
+1. KV cache 按 batch 内最长序列整块预分配——短序列的显存白占着；
+2. 整个 batch 等最慢的一条生成完才返回——straggler 拖死吞吐
+   （我们的 completion 长度从十几到 128 token 不等，浪费显著）。
+
+**vLLM 的两个核心机制**：
+
+- **PagedAttention**：KV cache 像操作系统的虚拟内存一样按小块（page）
+  分配和回收，显存利用率接近 100%，同显存能塞下大得多的并发量；
+- **Continuous batching**：一条序列生成完立即腾位换新请求进来，
+  GPU 始终满载，没有 batch 边界的等待。
+
+对 GRPO 这种"一次 512 条、长短不齐"的负载，5-10 倍加速是常态。
+
+**两种接入模式**（TRL / verl / OpenRLHF 的标准做法）：
+
+| 模式 | 做法 | 代价 |
+|---|---|---|
+| 共置（colocate） | 训练和 vLLM 引擎同卡；每步开始把最新权重 `load_weights` 给引擎，生成完引擎 sleep 释放显存 | 显存要精算；每步一次权重同步 |
+| 分离（disaggregate） | 单独几张卡跑常驻 vLLM server，训练卡每步 NCCL 广播新权重过去 | 占额外卡；若做异步流水线则引入 off-policy 偏差 |
+
+注意分离+异步时，生成用的策略落后于当前策略——**这在数学上和 μ 复用是
+同一个问题**（ratio ≠ 1，clip 开始干活），也是 §12.3 GSPO 要解决的场景。
+
+**本仓库没接的原因**：vLLM 只认注册过的模型架构。VITA-1.5 的视觉融合走
+自定义 `prepare_inputs_labels_for_multimodal` 拼 `inputs_embeds`，不是
+vLLM 支持的标准多模态接口（Qwen2-VL 那类），要接就得写自定义模型插件
+（约一周工作量）；另外 LoRA 权重每步要么合并再同步、要么走 vLLM 的
+LoRA 热插拔。学习目的下更务实的路径：用 TRL GRPOTrainer + vLLM 已支持
+的模型（如 Qwen2.5-VL-3B）单独做一个加速实验来理解机制。
+
+### 12.2 DAPO（ByteDance Seed + 清华，arXiv:2503.14476，2025-03）
+
+全称 Decoupled Clip and Dynamic sAmpling Policy Optimization，
+对 GRPO 的四处外科手术式修改，每处都对症一个实测可见的病：
+
+| 修改 | 对症的病 | 本仓库对应观察 |
+|---|---|---|
+| **Clip-Higher**：clip 上下界解耦（ε_low=0.2, ε_high=0.28） | 对称 clip 限制低概率 token 的提升幅度（0.01 最多推到 0.012），探索路径长不大 → 熵坍缩、输出同质化 | 我们 μ=1 时 clip 本来不生效；μ>1 或异步后才会遇到 |
+| **Dynamic Sampling**：采样阶段过滤全对/全错的组，重采新 prompt 补齐 batch | 退化组优势恒为 0：白付生成成本还稀释有效梯度；训练后期简单题全对比例上升，有效梯度密度一路衰减 | **正是 `groups/degenerate_frac` 监控的问题**——我们只监控 + 置零，DAPO 是把算力换成有效样本。过采样让每步生成变贵，但论文实测收敛步数减半有余、墙钟净赚 |
+| **Token 级 loss 归一**：全 batch token 求和除以总 token 数 | GRPO 的"序列内平均再序列间平均"稀释长回答中每个 token 的权重：长的错误回答罚不够、长回答里的好 token 奖不够 | 我们 `max_new_tokens=128` 短回答场景影响小；长 CoT 任务显著（§4.5 已有展开） |
+| **Overlong Reward Shaping**：截断的超长回答给软惩罚而非硬差评 | 被截断的回答可能是对的只是没写完，硬差评是往优势里注入噪声 | 同上，长 CoT 场景才明显 |
+
+另外 DAPO **完全去掉 KL 项**：可验证奖励下不怕 hack 跑偏，策略本来就
+需要大幅偏离初始分布，KL leash 只会拖后腿。这与我们 R4 观察到的
+"KL 涨 6 倍、准确率同步涨"方向一致——当时 β=0.04 的 leash 没有阻止
+学习，但按 DAPO 的论点它也没帮上忙。
+
+成绩：Qwen2.5-32B 上 AIME 50 分，步数是 GRPO baseline 的一半。
+
+**若要在本仓库实现动态采样**：在 `grpo_trainer.py` 的 `_score` 之后加
+一个过滤循环（组内 std < eps 的丢弃、继续从 dataloader 取新 prompt 补
+齐），十几行；主要复杂度在多卡时各 rank 补齐数量不同步，需要 gather。
+
+### 12.3 GSPO（Qwen 团队，arXiv:2507.18071，2025-07，Qwen3 在用）
+
+**核心：重要性比从 token 级换成序列级。** GRPO 逐 token 算
+`π_new(t)/π_old(t)` 并逐 token clip；GSPO 的观察是**单位不匹配**——
+奖励是整条序列一个数、优势是序列级的，重要性修正却在 token 级做。
+token 级比值在长序列上逐位累积噪声（方差随长度爆炸），且每个 token
+独立被 clip 会切出有偏的梯度。GSPO 改为整条序列一个比值，做长度归一：
+
+$$s_i = \left( \frac{\pi_{\text{new}}(y_i \mid x)}{\pi_{\text{old}}(y_i \mid x)} \right)^{1/|y_i|}$$
+
+clip 整条序列（长度归一后 clip 范围也小得多，量级 1e-3 而非 0.2）；
+序列要么整体保留要么整体剔除，梯度不再被 token 级裁剪切碎。
+
+**最大实际收益在 MoE**：MoE 每次权重更新都可能改变 token 的专家路由，
+同一 token 的新旧概率会因"走了不同专家"剧烈变化，token 级比值瞬间失真
+——Qwen 此前靠 routing replay（强制新策略走旧路由）这种 hack 稳住
+GRPO，GSPO 的序列级比值天然平滑掉该问题，hack 直接删除。
+
+**与本仓库的关系**：默认 μ=1 时 ratio 恒为 1，token 级还是序列级无区别。
+这些改进只在 off-policy 场景（μ 复用、异步 vLLM rollout）生效。理解
+链条：先有复用/异步引入 off-policy → token 级比值的噪声暴露 →
+DAPO 修剪切区间、GSPO 换单位。本仓库的 `_reuse_loss`（μ>1 的复用步）
+正是能亲手观察 token 级 ratio 离开 1 的地方。
+
+### 12.4 一页对照
+
+| | 原始 GRPO（本仓库） | DAPO | GSPO |
+|---|---|---|---|
+| 重要性比 | token 级 | token 级 | **序列级（长度归一）** |
+| clip | 对称 ±0.2 | **上界放宽 0.28** | 对称但量级 1e-3 |
+| KL 项 | β=0.04, k3 | **去掉** | 去掉 |
+| 退化组 | 优势置 0 + 监控 | **采样期过滤重采** | 同 GRPO |
+| loss 归一 | 序列内平均再平均 | **全 batch token 级** | 序列级 |
+| 主战场 | 通用 | 长 CoT dense 模型 | MoE / 大规模异步 |
