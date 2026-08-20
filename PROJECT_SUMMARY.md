@@ -1,11 +1,12 @@
 # VITA-1.5 多模态强化学习项目
 
-> 面向简历/面试的项目综述。DPO 部分有真实跑通的数字；GRPO 多模态扩展是本项目的核心工程贡献，代码完成、待权重下载后跑运行时验证（文中已标 `待回填`）。
-> 完整实验过程见 [`EXPERIMENT_LOG.md`](EXPERIMENT_LOG.md)，架构见 [`ARCHITECTURE.md`](ARCHITECTURE.md)。
+> 面向简历/面试的项目综述。DPO 与 GRPO 两条线都有真实跑通的数字。
+> 完整实验过程见 [`EXPERIMENT_LOG.md`](EXPERIMENT_LOG.md)（DPO 六轮）与
+> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)（GRPO 全记录），架构见 [`ARCHITECTURE.md`](ARCHITECTURE.md)。
 
 ## 一句话
 
-在 VITA-1.5（7B 多模态大模型：InternViT-300M 视觉塔 + 音频编码器 + Qwen2.5-7B LLM）上复现并扩展两条强化学习路线：**多模态 DPO**（已跑通，POPE 幻觉率 10.97% → 8.82%，p<0.0001）与**多模态 GRPO**（从纯文本扩展到图像+文本，核心工程贡献）。
+在 VITA-1.5（7B 多模态大模型：InternViT-300M 视觉塔 + 音频编码器 + Qwen2.5-7B LLM）上复现并扩展两条强化学习路线：**多模态 DPO**（POPE 幻觉率 10.97% → 8.82%，p<0.0001）与**多模态 GRPO**（从纯文本扩展到图像+文本；在可验证奖励任务 CLEVR 计数上 400 步将 held-out 准确率 44.6% → 77.4%，win rate 0.977）。
 
 ## 技术栈
 
@@ -56,7 +57,7 @@ PyTorch 2.3.1+cu121 · Transformers 4.41.1 · DeepSpeed ZeRO-2 · PEFT (LoRA r=6
 
 ## B. 扩展 GRPO 到图像+文本（核心工程贡献）
 
-> 上游 VITA-RL 的 GRPO 是纯文本：`prompt_embeds = embed_tokens(input_ids)`。我把它扩展到图像+文本路径。代码完成、py_compile 通过、设计对照源码验证；运行时烟雾测试待权重下载后回填。
+> 上游 VITA-RL 的 GRPO 是纯文本：`prompt_embeds = embed_tokens(input_ids)`。我把它扩展到图像+文本路径。已完成运行时验证：文本/图像烟雾全过（首步 kl=0、ratio=1、advantage_std≈1），并在真实数据上完成 4 轮训练（终局：CLEVR 计数 held-out 44.6% → 77.4%，见现状表与 GRPO_DEEP_DIVE.md）。
 
 ### 设计：为什么这样改
 
@@ -138,12 +139,15 @@ def _fuse(self, model, inputs):
 | 模块 | 状态 |
 |---|---|
 | conda 环境 + 全部依赖（含 flash-attn） | ✅ 就绪 |
-| VITA-1.5 主权重（19.6GB）+ InternViT-300M（608MB） | 🔄 下载中（~22% / ~32%） |
+| VITA-1.5 主权重（19.6GB）+ InternViT-300M（608MB） | ✅ 已下载（ModelScope） |
 | 多模态 DPO 复现 | ✅ 已验证（§A 真实数字） |
-| GRPO 多模态扩展代码 | ✅ 完成，py_compile 通过 |
-| GRPO 文本烟雾（`grpo_smoke_test.sh`，验 kl≈0） | ⏳ 待权重 |
-| GRPO 图像烟雾（`grpo_mm_smoke_test.sh`，验 fusion） | ⏳ 待权重 |
-| GRPO 真实训练（`grpo_rlaif_v_8gpu.sh`，RLAIF-V）+ 评测 | ⏳ 待权重 + GPU |
-| 优化方案讨论 | ⏳ 全部跑完后 |
+| GRPO 文本/图像烟雾（验 kl≈0、fusion） | ✅ 通过（首步不变量全部成立） |
+| GRPO 真实训练 R1（RLAIF-V，规则奖励，125 步） | ✅ 跑通；reward 涨但基准不动（剂量+信号双不足） |
+| GRPO 真实训练 R2（RLAIF-V，+LLM Judge，lr 5e-6/β 0.01） | ⏹ 91 步止损：KL 涨 6 倍而内容奖励无趋势 → 诊断为代理奖励组内排序噪声 |
+| μ 步样本复用（PPO-style，`_ChunkRepeatSampler`） | ✅ 实现并烟雾验证（复用步 ratio≠1、clip 生效） |
+| GRPO 真实训练 R4（CLEVR 计数，可验证奖励，400 步/4 卡/3.2h） | ✅ **held-out 44.6% → 77.4%（+32.8pt），win rate 0.977 [0.953, 0.994]** |
 
-> 下一里程碑：权重下完后 → `localize_config.py` 本地化 → 文本 smoke → 图像 smoke（核心交付物运行时验证）→ 真实训练 + 评测。烟雾数字出来后回填本文件 B 节与现状表。
+> 方法论结论：同一套 GRPO 实现，代理奖励下 216 步纹丝不动，可验证奖励下
+> 400 步 +33pt——GRPO 的成败首先取决于 reward 能否把组内 rollout 按真实
+> 能力排序，其次才是超参剂量。完整记录与指标手册见
+> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)。

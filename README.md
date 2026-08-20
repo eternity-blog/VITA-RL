@@ -40,7 +40,7 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
 | 3. Benchmark baseline | ✅ Done | **MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper.** See [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
 | 4. Train on real data | ✅ Done | 3000 RLAIF-V preference pairs, one epoch of LoRA DPO, first-step loss exactly `-log(0.5)` |
-| 5. Add RL | ✅ Implemented | Offline DPO and GRPO. DPO measured end to end on real data across three runs — see [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) |
+| 5. Add RL | ✅ Done | DPO: POPE hallucination 10.97% → 8.82% (McNemar p<1e-4) via SFT-then-DPO — see [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO: multimodal extension trained on CLEVR counting with a verifiable reward, **held-out accuracy 44.6% → 77.4% in 400 steps** (win rate 0.977) — see [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
 
 **Read [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) for the whole story of stages 3-5**:
 three rounds of DPO on RLAIF-V, none of which moved the benchmarks beyond
@@ -71,6 +71,8 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [CODEMAP.md](./CODEMAP.md) | Reading on GitHub and want to jump straight to a function | 中文 |
 | [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
 | [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **The DPO experiment end to end**: design, every number, why it came out the way it did, and the wrong turns | 中文 |
+| [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | Code-level deep dive of the SFT + DPO pipeline: mechanisms, memory math, on/off-policy | 中文 |
+| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, four training rounds (proxy-reward failure → verifiable-reward +32.8pt), interview Q&A | 中文 |
 | [RESULTS.md](./RESULTS.md) | An earlier, narrower write-up of the same experiment; superseded by the above | 中文 |
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md

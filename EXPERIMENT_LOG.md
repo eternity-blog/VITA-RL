@@ -27,6 +27,7 @@
 | [§11 踩过的坑](#11-踩过的坑) | 12 个环境/工程问题 | 避免重复 |
 | [§12 我判断错的地方](#12-我判断错又更正的地方) | 5 处更正 | 想知道哪些结论改过 |
 | [§13 产出清单](#13-产出清单) | 工具与文件位置 | 找东西 |
+| [§14 GRPO 四轮记录](#14-grpo-实验记录2026-08-20四轮) | 代理奖励失败→可验证奖励 +32.8pt | **GRPO 结果** |
 
 ---
 
@@ -925,7 +926,7 @@ $EVAL_OUT/{baseline,dpo,dpo_lr2e5,dpo_large*,sft*,sftdpo*}/   全部评测结果
 
 | 项 | 状态 |
 |---|---|
-| **GRPO 在真实数据上** | 仅在 12 条合成数据上验证过代码路径。多模态扩展已写完（见下方"多模态 GRPO 扩展"），但尚未跑真实规模数据 |
+| **GRPO 在真实数据上** | ✅ 已完成四轮（RLAIF-V 代理奖励 ×2、CLEVR 可验证奖励终局 +32.8pt），见 §14 |
 | 语义判据（NLI / LLM 评分） | 第 4 轮的天花板在此，未实现 |
 | SFT 混入通用数据 | 可能同时保住 OCR 与 HallusionBench，未验证 |
 | SFT 早停 | `save_total_limit 1` 删掉了中间 checkpoint，验证需重训 |
@@ -939,6 +940,33 @@ $EVAL_OUT/{baseline,dpo,dpo_lr2e5,dpo_large*,sft*,sftdpo*}/   全部评测结果
 - **smoke**（`script/train/grpo_mm_smoke_test.sh` + `tools/make_grpo_mm_smoke_data.py`）：8 条带图记录，`reward_meta` 的 keywords 取图里真实可见的词，让 `keyword_reward` 能给分组排序梯度。
 
 状态：**代码完成、`py_compile` 通过、设计逐条对照源码核实**（`prepare_inputs_labels_for_multimodal` 容忍 `labels=None`；图像占位符断言成立；fusion 在 expand 之前跑）。运行时 smoke 验证待环境重建后进行——首步 `grpo/kl≈0` 是通过条件。
+
+---
+
+## 14. GRPO 实验记录（2026-08-20，四轮）
+
+> 完整细节（原理、超参、数学、指标手册、面试问答）在
+> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)；此处只留一页结果表，
+> 与 DPO 六轮平行对照。
+
+| 轮 | 数据 / 奖励 | 配置 | 结果 | 结论 |
+|---|---|---|---|---|
+| 烟雾 | 合成文本 12 条 / 图文 8 条 | 单卡 | 首步 kl=0、ratio=1、adv_std≈1 全过 | 多模态扩展运行时验证 ✅ |
+| R1 | RLAIF-V 8k，规则奖励（keyword+length+no_repeat+state） | 4 卡，lr 1e-6，β 0.04，125 步 | reward/mean 0.55→0.72；POPE/MME/MMBench 全部纹丝不动（KL 仅 0.0006） | 管线通，剂量与信号双不足 |
+| R2 | RLAIF-V 23k，+LLM Judge（数字 token 期望，gold 对照） | lr 5e-6，β 0.01 | 91 步止损：KL 涨 6 倍，keyword/judge 无趋势 | **代理奖励组内排序噪声**：开放式描述里 8 个 rollout 的分差 ≈ 风格运气，advantage 在给噪声排序 |
+| R3 | 同 R2 + μ=3 样本复用 | 同上 | 起步即停（用户决策转向） | μ 机制另经烟雾验证：复用步 ratio≠1、clip 生效 |
+| **R4** | **CLEVR-70k 计数，可验证奖励（answer 二值精确匹配 1.0 + 分级格式 0.3）** | 4 卡，lr 5e-6，β 0.04，μ=1，400 步（3h15m） | 训练：format 0.81→0.99 先饱和，answer 0.59→0.89 后爬坡，KL 收 0.025，退化组 4%→44%（headroom 耗尽=学成）。**评测：500 条 held-out 44.6% → 77.4%（+32.8pt），win rate 0.977 [0.953, 0.994]** | 可验证奖励下曲线教科书式起飞，对标 R1-V（48→82.5） |
+
+**方法论结论**：同一套 GRPO 实现，代理奖励 216 步不动，可验证奖励 400 步
++33pt。GRPO 的第一性问题是 **reward 能否把组内 rollout 按真实能力排序**——
+组归一化会忠实放大 reward 里的一切，包括噪声。诊断链条：KL 动而 reward
+不动 → 排序信号是噪声 → 换任务/换奖励，而不是调超参。
+（与 DPO 的教训同构：§6 的可分性探针之于 DPO，正如组内方差之于 GRPO——
+都是"训前先量信号"。）
+
+R4 前置守门：开训前先测基座在 500 条 held-out 上的 greedy 准确率（44.6%，
+落在 10–90% 可训练区间）——若接近 0 或 100%，组内无方差，训了也白训。
+这一步 10 分钟，能省数小时无效 GPU。
 
 ---
 
