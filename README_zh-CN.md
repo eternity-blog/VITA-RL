@@ -290,7 +290,7 @@ ShareGPT4V = {"chat_path": ""}
 
 - 在 [./vita/config/dataset_config.py](./vita/config/dataset_config.py) 相应字典中设置 `"chat_path"` 的 JSON 路径。
 - 在 [./vita/config/dataset_config.py](./vita/config/dataset_config.py) 中设置 `AudioFolder` 的音频目录路径。**注意**：加载器实际拼接的是 `AudioFolder/audio/<文件名>`，因此 `AudioFolder` 应指向 `audio/` 的**父目录**。
-- 在 [./vita/config/init.py](./vita/config/__init__.py) 的 `DataConfig` 中添加数据类：
+- 在 [`./vita/config/__init__.py`](./vita/config/__init__.py) 的 `DataConfig` 中添加数据类：
 ```
 from .dataset_config import *
 

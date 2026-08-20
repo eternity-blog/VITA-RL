@@ -388,7 +388,7 @@ ShareGPT4V = {"chat_path": ""}
 
 - Set the JSON path for `"chat_path"` in the corresponding dictionary in [./vita/config/dataset_config.py](./vita/config/dataset_config.py).
 - Set the audio folder path for `AudioFolder` in [./vita/config/dataset_config.py](./vita/config/dataset_config.py).
-- Add the data class in `DataConfig` in [./vita/config/init.py](./vita/config/__init__.py):
+- Add the data class in `DataConfig` in [`./vita/config/__init__.py`](./vita/config/__init__.py):
 ```
 from .dataset_config import *
 
