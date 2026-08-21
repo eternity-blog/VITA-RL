@@ -113,6 +113,18 @@ if _RLAIF_GRPO_DIR:
 else:
     RLAIFVGRPO = {"chat_path": ""}
 
+#### CLEVR counting as SFT (see tools/make_clevr_sft_data.py)
+# The control arm for the CLEVR GRPO experiment: the same prompts, but the
+# gold solution is handed over as a supervised target instead of being used
+# only to judge self-generated rollouts. Enabled by VITA_CLEVR_SFT_DATA_DIR.
+_CLEVR_SFT_DIR = _os.environ.get("VITA_CLEVR_SFT_DATA_DIR", "")
+if _CLEVR_SFT_DIR:
+    AudioFolder = _CLEVR_SFT_DIR
+    FolderDict["clevr_sft"] = _os.path.join(_CLEVR_SFT_DIR, "images")
+    CLEVRSFT = {"chat_path": _os.path.join(_CLEVR_SFT_DIR, "clevr_sft_train.json")}
+else:
+    CLEVRSFT = {"chat_path": ""}
+
 #### CLEVR counting for GRPO (see tools/make_clevr_grpo_data.py)
 # R1-V's recipe (CLEVR-70k counting) adapted to this trainer: a *verifiable*
 # reward. Each record carries reward_meta={"answer": "3"} and is scored by

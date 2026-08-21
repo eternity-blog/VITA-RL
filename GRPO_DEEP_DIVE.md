@@ -464,6 +464,61 @@ answer 0.59→0.89 随后爬坡，KL 缓升收在 0.025，退化组 4%→44%
 **reward 是否能把组内 rollout 按真实能力排序**，其次才是超参剂量。
 诊断链条：KL 动/reward 不动 → 信号结构问题 → 换任务而非调参。
 
+### R4 后续验证（2026-08-21）：通用回归 + OOD + SFT 对照
+
+补上 R4 结果缺的三块证据（当时的不足清单里排前两位的项）：
+
+**1）通用能力回归**（R4 合并模型重跑 VLMEvalKit 三基准，对照基座）：
+
+| 基准 | baseline | GRPO-R4 | Δ | 判读 |
+|---|---|---|---|---|
+| MME total | 2353.51 | 2354.26 | +0.75 | 噪声内 |
+| POPE Overall | 89.14 | 89.07 | −0.07 | 噪声内（precision −0.14 / recall ±0） |
+| MMBench_DEV_EN_V11 | 77.79% | 77.63% | −0.15（1.96σ = ±2.27） | 27 个子项里 25 个逐分全同 |
+
++32.8pt 的专项提升**没有以通用能力为代价**——LoRA（0.6% 参数）+
+β=0.04 的 KL leash 把策略移动限制在计数任务附近，MMBench 子项几乎
+逐字节不动是最直观的证据。顺带一个反直觉观察：MME 的 count 子项也
+纹丝不动（175→175）——它是"是否有两个 X"式的 yes/no 题，与
+`<answer>N</answer>` 的产出格式不同构，专项能力不会自动迁移到
+异构格式的同名任务上。
+
+**2）OOD 泛化（SuperCLEVR test200，R1-V 同款）+ 3）SFT 对照**：
+
+SFT 对照严格配平数据预算：同一 69.5k 训练池采样**同量 6,400 个
+prompt**（排除 held-out 尾部），gold solution 直接做监督目标
+（`tools/make_clevr_sft_data.py` + `script/train/sft_clevr.sh`），
+LoRA 容量（r64 α16）、有效 batch（16）、步数（400）与 GRPO 全同；
+lr 用 LoRA-SFT 的标准值 1e-4（拿 RL 的 1e-6 喂 SFT 等于人为削弱对照）。
+26 分钟跑完（GRPO 同步数 3h15m，7.5 倍成本差），loss 1.01→0.016。
+
+| 评测 | base | GRPO-R4 | SFT 对照 |
+|---|---|---|---|
+| CLEVR held-out 500（分布内） | 44.6% | **77.4%** | 75.4% |
+| SuperCLEVR 200（OOD） | 37.5% | 54.5% | **63.0%** |
+
+win rate（对 base）：GRPO OOD 0.793 [0.690, 0.897]，SFT OOD
+0.840 [0.747, 0.920]——两者都远超噪声，但**SFT 在 OOD 上反超 GRPO
+8.5pt**，与 R1-V 报告的"SFT 泛化差、RL 泛化好"方向相反。
+
+**诚实的解读**（这比复述论文结论更有信息量）：
+- R1-V 的对照是 **2B 模型 + 全参微调**——SFT 全参更新容易灾难性地
+  过拟合到训练分布；这里两个 arm 都被 LoRA 约束在低秩子空间里，
+  SFT"崩掉泛化"的机制被容量约束挡住了。
+- 本数据集的 solution 是**裸答案**（`<answer> N </answer>`，无思维链），
+  SFT 学到的就是"看图输出数字"，没有可过拟合的推理风格；GRPO 自己
+  长出来的 `<think>` 链在 OOD 复杂场景（车辆+部件纹理）下更长，
+  96 token 的生成上限下部分被截断，反而拖累了可解析率。
+- 结论不是"GRPO 不如 SFT"，而是：**当 gold 可以直接模仿时，
+  监督模仿是又快又强的 baseline（26min vs 3h15m）**；GRPO 的结构性
+  优势要在 gold 只能校验、不能模仿（无参考答案文本，只有 verifier）
+  或需要长推理链的任务上才兑现。这也解释了为什么 R1 系工作都强调
+  "verifiable reward + 无 SFT 数据可用"的设定。
+
+复现入口：`tools/make_superclevr_eval_data.py`（OOD 集转换）、
+`tools/make_clevr_sft_data.py`（配平 SFT 数据）、
+`script/train/sft_clevr.sh`（对照训练）。
+
 ---
 
 ## 10.5 指标手册（每个 logged 指标的含义与诊断）

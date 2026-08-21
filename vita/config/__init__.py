@@ -39,6 +39,10 @@ DataConfig = {
     # recipe) -- see tools/make_clevr_grpo_data.py. Enabled by
     # VITA_CLEVR_GRPO_DATA_DIR.
     "CLEVRGRPO": [CLEVRGRPO],
+    # The SFT control arm for CLEVRGRPO: same prompts, gold solution as the
+    # supervised target -- see tools/make_clevr_sft_data.py. Enabled by
+    # VITA_CLEVR_SFT_DATA_DIR.
+    "CLEVRSFT": [CLEVRSFT],
 }
 
 NoPatchSets = ["khair", "jester"]
