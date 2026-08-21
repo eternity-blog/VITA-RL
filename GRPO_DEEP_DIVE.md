@@ -522,6 +522,42 @@ win rate（对 base）：GRPO OOD 0.793 [0.690, 0.897]，SFT OOD
 `tools/make_clevr_sft_data.py`（配平 SFT 数据）、
 `script/train/sft_clevr.sh`（对照训练）。
 
+### R5（2026-08-21）：阶段二对照——同一 SFT 起点，续 SFT vs 接 GRPO
+
+R4 后续验证留下的问题：SFT 分布内追平 GRPO 之后，第二阶段该继续 SFT
+还是切 GRPO？对照设计把监督信号形态压成唯一变量：
+
+- 两臂都从**同一个** SFT-6.4k 合并权重出发（字节相同）；
+- 阶段二喂**同一批**新采样的 6,400 prompt（`make_clevr_stage2_data.py`
+  重建阶段一采样逐条排除，同一份采样写出 SFT/GRPO 双格式）；
+- 同步数（400）、同有效 batch（16）、同 LoRA 容量（合并权重上的新 r64）；
+- 不配平（方法自带）：lr（SFT 1e-4 / GRPO 5e-6）、FLOPs（GRPO 每
+  prompt 8 rollouts，3h15m vs 26min）。
+
+| 模型 | held-out 500 | SuperCLEVR 200（OOD） |
+|---|---|---|
+| A：SFT-6.4k（起点） | 75.4% | 63.0% |
+| B：A + GRPO 400 步 | 76.2%（+0.8 噪声内；500 条只 8 条输出改变） | 62.0%（−1.0 噪声内） |
+| C：A + 续 SFT 400 步 | 78.0%（+2.6，win rate 0.842 勉强超噪声） | 60.5%（−2.5，轻微过拟合） |
+
+**三个结论**：
+
+1. **任务天花板 ~77–78%**：裸 GRPO（R4）77.4、SFT→SFT 78.0、SFT→GRPO
+   76.2，互在噪声内。剩余错误是"硬核"——SFT 无梯度（阶段二 loss 从第
+   一步起就在 0.01–0.03 平底抖动，wandb `sft-clevr-s2-armC`），GRPO 无
+   方差（B 臂开局退化组即 75%：p≈0.88 时全对组 \(0.88^8≈36\%\) 起步）。
+2. **GRPO 从强起点推不动是机制性的**：退化组吃掉 3/4 算力 + KL 锚定
+   SFT 策略，3h15m 只改变 8/500 条输出。handoff 点影响算力效率而非
+   终点——终点由任务上限决定（R4 从裸基座也到 77.4）。DAPO 的
+   dynamic sampling（§12.2）对症的正是这 75% 的浪费。
+3. **对 gold 可模仿的任务，SFT 全面占优**（同终点、1/7.5 成本、OOD
+   还最高）。GRPO 在本仓库的价值是科学验证（只靠 verifier 不碰 gold
+   文本也能到同一天花板），其工程价值兑现的条件——gold 只能校验不能
+   模仿（数学/代码 verifier）、或需塑形 gold 里不存在的行为（长推理
+   链）——本任务不具备。这就是"何时 SFT / 何时 GRPO"的实证答案：
+   **SFT loss 还在降就 SFT；loss 见底且剩余错误 pass@G > pass@1 才轮
+   到 GRPO；pass@G ≈ pass@1 时换更强基座，谁也救不了**。
+
 ---
 
 ## 10.5 指标手册（每个 logged 指标的含义与诊断）
