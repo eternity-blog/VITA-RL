@@ -27,6 +27,7 @@
 | [§10 本次真实训练记录](#10-本次真实训练记录2026-08-20) | 数据、配置、烟雾结果、wandb |
 | [§11 面试问答清单](#11-面试问答清单) | 按出现概率排序，附答案要点 |
 | [§12 GRPO 之后的演进](#12-grpo-之后的演进vllm-rollout--dapo--gspo) | vLLM rollout 加速、DAPO 四项修改、GSPO 序列级比值，及与本仓库实现的映射 |
+| [§13 训练与推理框架选型](#13-训练与推理框架选型本项目用了什么没用什么为什么) | DDP/ZeRO/FSDP/Megatron 版图、本项目实际栈、HF generate 的精确账、vLLM/SGLang/TRT-LLM 对比、RL 训推一体三问题 |
 
 ---
 
@@ -715,3 +716,109 @@ DAPO 修剪切区间、GSPO 换单位。本仓库的 `_reuse_loss`（μ>1 的复
 | 退化组 | 优势置 0 + 监控 | **采样期过滤重采** | 同 GRPO |
 | loss 归一 | 序列内平均再平均 | **全 batch token 级** | 序列级 |
 | 主战场 | 通用 | 长 CoT dense 模型 | MoE / 大规模异步 |
+
+---
+
+## 13. 训练与推理框架选型：本项目用了什么、没用什么、为什么
+
+面试高频题。本节的答题姿势是三层：先说自己实际用的（带数字）、
+再展示知道版图和选型逻辑、最后主动引到 RL 特有的训推一体问题。
+
+### 13.1 本项目实际的训练栈
+
+| 组件 | 角色 | 为什么是它 |
+|---|---|---|
+| HF Transformers `Trainer`（子类化） | 训练循环、梯度累积、checkpoint、日志 | VITA 上游即此生态；RL 逻辑通过覆写 `compute_loss` 注入（`VITAGRPOTrainer`/`VITADPOTrainer`） |
+| DeepSpeed ZeRO-2 | LoRA 训练（DPO/GRPO/SFT 对照）的显存分片 | 可训练参数仅 0.6%，优化器状态本来就小；见 13.2 的"LoRA 为什么不配 ZeRO-3" |
+| DeepSpeed ZeRO-3 | 全参 SFT 7B | 单卡账：bf16 权重 14G + fp32 master 28G + AdamW 双动量 56G ≈ 98G，H100 装不下；8 卡分片后实测 ~18G/卡（§9 有完整推导） |
+| PEFT LoRA r64 α16 | 可训练集 | RL 阶段防灾难遗忘 + adapter 关断 = 零显存参考模型 |
+| flash-attn 2 / bf16 + tf32 / gradient checkpointing | 算子与精度层 | §3 精度栈一节 |
+| `deepspeed --include localhost:2,3,4,6` | 启动器 | 数据并行进程组 |
+
+### 13.2 训练框架版图与选型逻辑
+
+本质是显存算术题，四档按需升级：
+
+| 方案 | 显存模型 | 适用 |
+|---|---|---|
+| DDP | 每卡完整"权重+梯度+优化器"（7B AdamW ≈ 112G，直接排除） | ≤1-2B 或 LoRA |
+| ZeRO-1/2 | 优化器状态（/+梯度）分片，**参数每卡仍有全份** | LoRA、中小模型全参 |
+| ZeRO-3 / FSDP | 参数也分片，用时 all-gather | 7B–70B 全参 |
+| Megatron TP/PP | 单层横切（TP，层内 all-reduce）/ 按层竖切（PP，流水线气泡） | 70B+ 预训练；单层放不下时 |
+
+三个高频追问的答案：
+
+- **ZeRO-3 vs FSDP**：功能等价（参数+梯度+优化器全分片），选型由生态决定
+  ——FSDP 是 PyTorch 原生、与 `torch.compile` 组合更顺；DeepSpeed 配置面
+  更全（offload 等）、HF 集成更久。本项目用 DeepSpeed 是因为上游脚本
+  即此，没必要为换而换。
+- **为什么不上 Megatron**：TP 每层前后向各一次 all-reduce，通信税只有
+  NVLink 域内划算；7B 用 ZeRO-3 的通信模式（仅前后向边界 gather）足够，
+  上 TP 是负优化。
+- **LoRA 为什么配 ZeRO-2 不配 ZeRO-3**：ZeRO-3 分片的是全部参数（含冻结
+  的 99.4%），代价是每层前向都要 all-gather；而 LoRA 场景的显存大头
+  （梯度+优化器状态）ZeRO-2 已处理完。ZeRO-3 纯付通信不省要紧的东西，
+  还让 adapter 保存复杂化（需先 gather 再落盘）。
+
+### 13.3 本项目实际的推理路径：HF `generate()` + 手工优化
+
+三处生成全部是 HF `generate`，没有推理框架：GRPO rollout
+（`_rollout`）、held-out 评测（`eval_grpo_heldout.py`）、VLMEvalKit
+基准（其 VITA wrapper 底层同样是 `generate`）。
+
+做了的三个手工优化（说"裸奔"是不准确的）：
+
+1. **视觉塔每图一次**：融合发生在 G 倍展开**之前**，8 个 rollout 复用
+   同一份融合后的 prompt embedding（省 7 次视觉编码 + mm_projector）；
+2. **批量采样**：一次 `generate` 出 B×G 条，不逐条循环；
+3. **left-padding**：批内所有序列右端对齐生成边界，同步开始解码。
+
+欠着的三笔账（对应到本场景的具体代价）：
+
+| HF generate 缺失 | 本场景代价 |
+|---|---|
+| 前缀 KV 缓存 | 8 份复制的 prompt（含 1000+ token 视觉特征）在 prefill 阶段**各自重算 KV**——复用的是 embedding 不是 KV cache，这是最疼的一笔 |
+| continuous batching | 组内最短序列生成完也要陪跑到最长的结束（completion 十几到 128 token 不等） |
+| paged KV | 按 max_new_tokens 整块预分配，生成短时显存白占 |
+
+合计 = rollout 占整步 70%+ 时间的原因（§12.1 的起点）。
+
+### 13.4 推理框架版图
+
+- **vLLM**：PagedAttention + continuous batching，机制与接入模式
+  （colocate/disaggregate、每步权重同步）见 §12.1，不重复。
+- **SGLang**：核心是 **RadixAttention 前缀缓存**——以基数树管理 KV，
+  跨请求自动复用公共前缀。**GRPO rollout 是它的完美场景**：同组 8 条
+  rollout 共享整个 prompt 前缀，prefix cache 把 prompt 的 prefill 直接
+  摊销成 1/8，恰好命中上表第一笔账。
+- **TensorRT-LLM**：编译期 kernel 融合，固定权重在线服务的延迟最优；
+  但 RL 权重每步在变，编译成本摊不平，不适合训练内 rollout。
+- 通识概念（面试可能穿插问）：prefill（算力受限）vs decode（显存带宽
+  受限）两阶段、KV cache 显存 = 2 × layers × kv_heads × head_dim ×
+  seq × bytes、投机解码、AWQ/GPTQ/FP8 量化——这些属于推理服务的
+  通用背景，与训练内 rollout 的关注点（吞吐+权重可变）不同。
+
+### 13.5 RL 训推一体的三个问题（区分"用过框架"和"懂训推一体"）
+
+1. **为什么 RL 训练必须关心推理**：GRPO 一步 = 生成（70%+）+ 打分 +
+   3 次前向。推理引擎的吞吐直接决定实验迭代速度——但注意优先级判断
+   （见 13.6）。
+2. **权重同步**：训练引擎与推理引擎各持一份权重，每个优化步后要把
+   新权重推给推理侧（§12.1 两种模式）。LoRA 额外多一步：要么合并后
+   同步，要么走推理引擎的 LoRA 热插拔。
+3. **logprob 不一致**：推理引擎生成时报告的 logprob 与训练框架重算的
+   logprob 存在数值差异（kernel 不同、精度路径不同、batch 组织不同）。
+   **结论：vLLM 的 logprob 只能用于采样行为，π_old 和 π_ref 必须在
+   训练侧用同一套 kernel 重算**，保证 ratio 分子分母同源。本实现本来
+   就重算（梯度流的要求，§4.1），这个坑天然绕过；接 vLLM 后此设计
+   必须保留。
+
+### 13.6 面试收尾：为什么没上 vLLM
+
+> "工程优先级问题。当时的瓶颈假设是奖励信号而不是吞吐——事实证明
+> 对了：换可验证奖励让 400 步就出了 +33pt，而 vLLM 只会让错误的实验
+> 跑得更快。信号验证成立之后，rollout 加速才是下一个该还的技术债。
+> 具体到 VITA 还有架构适配成本：自定义视觉融合走 inputs_embeds，
+> 不是 vLLM 认识的标准多模态接口，要写模型插件（§12.1）。"
+
+这句话展示的是实验方法论排序，比"我把 vLLM 接上了"更值钱。
