@@ -151,6 +151,9 @@
 | [`make_grpo_mm_smoke_data.py`](../../blob/main/tools/make_grpo_mm_smoke_data.py) | GRPO 多模态冒烟数据 |
 | [`make_rlaif_v_grpo_data.py`](../../blob/main/tools/make_rlaif_v_grpo_data.py) | RLAIF-V parquet → GRPO prompt（含 keyword/gold） |
 | [`make_clevr_grpo_data.py`](../../blob/main/tools/make_clevr_grpo_data.py) | CLEVR-70k parquet → GRPO prompt（可验证 `answer`，切 500 条 held-out） |
+| [`make_clevr_sft_data.py`](../../blob/main/tools/make_clevr_sft_data.py) | GRPO 的配平 SFT 对照数据（同 6,400 prompt，gold 做监督目标） |
+| [`make_clevr_stage2_data.py`](../../blob/main/tools/make_clevr_stage2_data.py) | 阶段二对照数据：一份采样双格式输出（SFT/GRPO），重建阶段一采样逐条排除 |
+| [`make_superclevr_eval_data.py`](../../blob/main/tools/make_superclevr_eval_data.py) | SuperCLEVR test200 → OOD 评测集（R1-V 同款） |
 | [`eval_grpo_heldout.py`](../../blob/main/tools/eval_grpo_heldout.py) | held-out 生成式评测：answer 准确率、win rate、bootstrap CI |
 | [`probe_preference_separability.py`](../../blob/main/tools/probe_preference_separability.py) | 8 分钟预判偏好数据能不能训（53.6% 就是它量的） |
 
@@ -165,6 +168,7 @@
 | [`grpo_mm_smoke_test.sh`](../../blob/main/script/train/grpo_mm_smoke_test.sh) | GRPO 多模态冒烟，单卡 |
 | [`grpo_rlaif_v_8gpu.sh`](../../blob/main/script/train/grpo_rlaif_v_8gpu.sh) | GRPO 真实训练：RLAIF-V，8 卡 LoRA+ZeRO-2 |
 | [`grpo_clevr.sh`](../../blob/main/script/train/grpo_clevr.sh) | GRPO 真实训练：CLEVR 计数 + 可验证奖励（44.6%→77.4% 那次） |
+| [`sft_clevr.sh`](../../blob/main/script/train/sft_clevr.sh) | GRPO 的 LoRA SFT 对照臂：同 prompt/容量/步数，gold 直接监督（26min） |
 
 ### 真实运行日志
 

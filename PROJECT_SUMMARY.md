@@ -6,7 +6,7 @@
 
 ## 一句话
 
-在 VITA-1.5（7B 多模态大模型：InternViT-300M 视觉塔 + 音频编码器 + Qwen2.5-7B LLM）上复现并扩展两条强化学习路线：**多模态 DPO**（POPE 幻觉率 10.97% → 8.82%，p<0.0001）与**多模态 GRPO**（从纯文本扩展到图像+文本；在可验证奖励任务 CLEVR 计数上 400 步将 held-out 准确率 44.6% → 77.4%，win rate 0.977）。
+在 VITA-1.5（7B 多模态大模型：InternViT-300M 视觉塔 + 音频编码器 + Qwen2.5-7B LLM）上复现并扩展两条强化学习路线：**多模态 DPO**（POPE 幻觉率 10.97% → 8.82%，p<0.0001）与**多模态 GRPO**（从纯文本扩展到图像+文本；在可验证奖励任务 CLEVR 计数上 400 步将 held-out 准确率 44.6% → 77.4%，win rate 0.977，通用基准零退化），并以配平对照实验界定方法边界（SFT 对照、SuperCLEVR OOD、阶段二续训对照）。
 
 ## 技术栈
 
@@ -146,8 +146,12 @@ def _fuse(self, model, inputs):
 | GRPO 真实训练 R2（RLAIF-V，+LLM Judge，lr 5e-6/β 0.01） | ⏹ 91 步止损：KL 涨 6 倍而内容奖励无趋势 → 诊断为代理奖励组内排序噪声 |
 | μ 步样本复用（PPO-style，`_ChunkRepeatSampler`） | ✅ 实现并烟雾验证（复用步 ratio≠1、clip 生效） |
 | GRPO 真实训练 R4（CLEVR 计数，可验证奖励，400 步/4 卡/3.2h） | ✅ **held-out 44.6% → 77.4%（+32.8pt），win rate 0.977 [0.953, 0.994]** |
+| R4 后续验证：通用回归 + SuperCLEVR OOD + 配平 SFT 对照 | ✅ MME/POPE/MMBench **零退化**；OOD 37.5%→54.5%；SFT 对照 26min 达 75.4%（OOD 63.0% 反超 GRPO） |
+| R5 阶段二对照（同一 SFT 起点：续 SFT vs 接 GRPO，同批新 prompt） | ✅ 任务天花板 ~77–78%，两通道均近枯竭（GRPO 仅改变 8/500 输出；退化组开局 75%） |
 
 > 方法论结论：同一套 GRPO 实现，代理奖励下 216 步纹丝不动，可验证奖励下
 > 400 步 +33pt——GRPO 的成败首先取决于 reward 能否把组内 rollout 按真实
-> 能力排序，其次才是超参剂量。完整记录与指标手册见
-> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)。
+> 能力排序，其次才是超参剂量。对照实验进一步界定了适用边界：gold 可直接
+> 模仿的任务上 SFT 同终点且 1/7.5 成本；"何时 SFT / 何时 GRPO"的判据是
+> **SFT loss 是否见底 + 残错上 pass@G 是否 > pass@1**。完整记录与指标
+> 手册见 [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)。

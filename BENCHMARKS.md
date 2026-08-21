@@ -14,6 +14,9 @@
 > 见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)）；GRPO 的纯文本 rollout
 > 基线后扩展为多模态并在 CLEVR 上跑出 held-out 44.6%→77.4%
 > （4 卡约 30 s/优化步，见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。
+> GRPO 模型的通用基准回归也已实测：MME 2353.5→2354.3、POPE
+> 89.14→89.07、MMBench 77.79→77.63，全部噪声内（零退化），
+> 逐项数字见 [GRPO_DEEP_DIVE.md §10](./GRPO_DEEP_DIVE.md)。
 
 ## 目录
 

@@ -605,8 +605,9 @@ result.
 > and SFT-then-DPO cuts POPE hallucination 10.97% → 8.82% — full record in
 > [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO (`vita/train/grpo_*.py`,
 > multimodal): trained on CLEVR counting with a verifiable reward, held-out
-> accuracy 44.6% → 77.4% in 400 steps — full record in
-> [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md). What follows is the original
+> accuracy 44.6% → 77.4% in 400 steps, zero regression on general
+> benchmarks, bounded by matched SFT-control / OOD / stage-2 experiments —
+> full record in [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md). What follows is the original
 > analysis of the obstacles, kept because it explains the design; the
 > resolved ones are annotated. See [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)
 > for the operational side.

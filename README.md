@@ -45,7 +45,7 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
 | 3. Benchmark baseline | ✅ Done | **MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper.** See [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
 | 4. Train on real data | ✅ Done | 3000 RLAIF-V preference pairs, one epoch of LoRA DPO, first-step loss exactly `-log(0.5)` |
-| 5. Add RL | ✅ Done | DPO: POPE hallucination 10.97% → 8.82% (McNemar p<1e-4) via SFT-then-DPO — see [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO: multimodal extension trained on CLEVR counting with a verifiable reward, **held-out accuracy 44.6% → 77.4% in 400 steps** (win rate 0.977) — see [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
+| 5. Add RL | ✅ Done | DPO: POPE hallucination 10.97% → 8.82% (McNemar p<1e-4) via SFT-then-DPO — see [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO: multimodal extension trained on CLEVR counting with a verifiable reward, **held-out accuracy 44.6% → 77.4% in 400 steps** (win rate 0.977), zero regression on MME/POPE/MMBench, plus matched SFT-control and OOD experiments that map the method's boundary — see [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
 
 **Read [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) for the whole story of stages 3-5**:
 three rounds of DPO on RLAIF-V, none of which moved the benchmarks beyond
@@ -64,7 +64,14 @@ lesson in a different costume. Two rounds on RLAIF-V with proxy rewards
 reward — within a group of 8 open-ended descriptions, proxy scores rank
 stylistic luck, so the group-normalised advantage was ranking noise.
 Switching to a verifiable reward (CLEVR counting, binary exact-match) made
-the curve take off: held-out accuracy 44.6% → 77.4% in 400 steps.
+the curve take off: held-out accuracy 44.6% → 77.4% in 400 steps. The
+follow-up controls then mapped the boundary honestly: zero regression on
+MME/POPE/MMBench, OOD transfer to SuperCLEVR (+17pt), and a data-matched
+SFT control that ties GRPO in-distribution at 1/7.5 the cost and beats it
+OOD — with the stage-2 experiment (same SFT start, same fresh prompts,
+SFT-vs-GRPO continuation) showing a ~77–78% task ceiling either way. The
+empirical rule that falls out: SFT while its loss still falls; GRPO only
+when loss floors and residual errors still have pass@G > pass@1.
 
 **New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
@@ -86,7 +93,7 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
 | [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **The DPO experiment end to end**: design, every number, why it came out the way it did, and the wrong turns | 中文 |
 | [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | Code-level deep dive of the SFT + DPO pipeline: mechanisms, memory math, on/off-policy | 中文 |
-| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, four training rounds (proxy-reward failure → verifiable-reward +32.8pt), interview Q&A | 中文 |
+| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, five rounds of training + controls (proxy-reward failure → verifiable-reward +32.8pt → benchmark regression / OOD / matched SFT control / stage-2 ceiling), GRPO successors (vLLM/DAPO/GSPO), training & inference framework selection, interview Q&A | 中文 |
 | [RESULTS.md](./RESULTS.md) | An earlier, narrower write-up of the same experiment; superseded by the above | 中文 |
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
@@ -150,7 +157,13 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   graded `format`). Trained for real on CLEVR counting:
   `tools/make_clevr_grpo_data.py`, `script/train/grpo_clevr.sh`,
   `tools/eval_grpo_heldout.py` — held-out accuracy 44.6% → 77.4% in 400
-  steps. See [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) and
+  steps, zero regression on general benchmarks. Then bounded honestly with
+  controls: a data-matched SFT arm (`tools/make_clevr_sft_data.py`,
+  `script/train/sft_clevr.sh`), a SuperCLEVR OOD eval
+  (`tools/make_superclevr_eval_data.py`), and a stage-2 continuation
+  experiment (`tools/make_clevr_stage2_data.py`) that pins the task ceiling
+  at ~77–78% regardless of channel. See
+  [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) and
   [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化).
 - **Added offline DPO**, the first RL-family objective in this codebase
   (upstream has only SFT). `vita/train/dpo_{loss,data,trainer}.py` and

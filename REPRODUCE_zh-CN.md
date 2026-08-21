@@ -363,6 +363,9 @@ AdamW 为每个参数保存两个 fp32 动量（7B 约 56 GB），外加 fp32 �
       10.97% → 8.82%（McNemar p<1e-4）
 - [x] 多模态 GRPO（图像+文本）——CLEVR 计数 + 可验证奖励：400 步将
       held-out 准确率 44.6% → 77.4%（win rate 0.977）
+- [x] GRPO 对照与边界实验——通用基准零退化（MME/POPE/MMBench）；
+      SuperCLEVR OOD 37.5%→54.5%；配平 SFT 对照分布内追平（75.4%）且
+      OOD 反超（63.0%）；阶段二对照钉死任务天花板 ~77–78%
 - [x] PPO 式样本复用（`--grpo_num_iterations`）——复用步 ratio≠1、clip 生效
 - [x] 五套 CPU 测试（合计 118 项检查），无需 checkpoint
 - [x] VLMEvalKit 基线——omegaconf/antlr4 冲突已解决，见

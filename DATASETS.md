@@ -151,8 +151,11 @@ SynthDoG（123 GB）、AnyWord-3M（881 GB）、ScienceQA（8 GB）。
 |---|---|---|---|---|---|
 | **RLAIF-V** | `openbmb/RLAIF-V-Dataset`（HF/ModelScope，parquet） | DPO 偏好对 / SFT（chosen）/ GRPO prompt | 全量 ~14 GB | `make_rlaif_v_data.py` / `make_rlaif_v_sft_data.py` / `make_rlaif_v_grpo_data.py` | `VITA_RLAIF_GRPO_DATA_DIR` 等 |
 | **CLEVR-70k 计数** | `leonardPKU/clevr_cogen_a_train`（HF，R1-V 同款） | GRPO 可验证奖励训练 | ~13 GB parquet → 70,000 图 | `make_clevr_grpo_data.py`（69,500 训练 + 500 held-out，`reward_meta={"answer": N}`） | `VITA_CLEVR_GRPO_DATA_DIR` |
+| CLEVR SFT 对照 | 同上（同一 parquet，配平采样） | GRPO 的 SFT 对照臂（同 6,400 prompt，gold 直接监督） | 复用上行图片 | `make_clevr_sft_data.py`（阶段一）/ `make_clevr_stage2_data.py`（阶段二双格式，重建排除保证无重叠） | `VITA_CLEVR_SFT_DATA_DIR` |
+| **SuperCLEVR test200** | `jigsaw-r1/super_clevr`（HF，R1-V 同款 OOD 集） | OOD 泛化评测（只评不训） | 26 MB parquet → 200 图 | `make_superclevr_eval_data.py`（GRPO-eval 格式，`eval_grpo_heldout.py` 直接消费） | —（评测传 `--data/--image-root`） |
 
-选 CLEVR 的理由与结果（held-out 44.6% → 77.4%）见
+选 CLEVR 的理由与结果（held-out 44.6% → 77.4%）、SFT 对照与 OOD 结论
+（通用零退化、OOD 上 SFT 63.0% 反超 GRPO 54.5%、任务天花板 ~77–78%）见
 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)；RLAIF-V 上的 DPO 六轮见
 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。
 

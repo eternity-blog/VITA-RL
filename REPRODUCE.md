@@ -442,9 +442,14 @@ This fork's RL work (measured end to end on real data — DPO story in
 - [x] Offline DPO — first-step loss lands on the exact `-log(0.5)`;
       SFT-then-DPO cuts POPE hallucination 10.97% → 8.82% (McNemar p<1e-4)
 - [x] GRPO with a pluggable reward registry — verified by smoke tests
-      (first-step kl=0, ratio=1) and four real-data rounds
+      (first-step kl=0, ratio=1) and five real-data rounds plus controls
 - [x] Multimodal GRPO (image+text) — trained on CLEVR counting with a
       verifiable reward: held-out accuracy 44.6% → 77.4% in 400 steps
+- [x] GRPO follow-up controls — zero regression on MME/POPE/MMBench;
+      SuperCLEVR OOD 37.5% → 54.5%; a data-matched SFT control that ties
+      in-distribution (75.4%) and beats GRPO OOD (63.0%); stage-2
+      continuation (same SFT start, same fresh prompts) pins the task
+      ceiling at ~77–78% either way
 - [x] PPO-style sample reuse (`--grpo_num_iterations`) — reuse steps show
       ratio≠1 and a live clip, as expected
 - [x] Five CPU test suites (118 checks across them), no checkpoint required

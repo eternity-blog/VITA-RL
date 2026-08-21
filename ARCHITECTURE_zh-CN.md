@@ -490,7 +490,8 @@ outputs['loss'] = loss
 > 首步 loss 精确命中 `-log(0.5)`，SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%——
 > 全记录见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO
 > （`vita/train/grpo_*.py`，多模态）：在 CLEVR 计数 + 可验证奖励上训练，
-> 400 步 held-out 准确率 44.6% → 77.4%——全记录见
+> 400 步 held-out 准确率 44.6% → 77.4%，通用基准零退化，并有配平 SFT
+> 对照 / OOD / 阶段二对照界定边界——全记录见
 > [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。下文保留最初的障碍分析，
 > 因为它解释了设计；已解决的条目附有说明。操作层面见
 > [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)。

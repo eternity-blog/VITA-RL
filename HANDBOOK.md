@@ -327,6 +327,7 @@ python tools/inspect_dataset.py --dataset-use MyData --num-samples 5
 | **视频推理** | ✅ **本机跑通** | 每秒抽 1 帧，上限 16 帧 |
 | **多模态 DPO（真实数据）** | ✅ **跑通到终局** | RLAIF-V 上 SFT→DPO，POPE 幻觉率 10.97%→8.82%（McNemar p<1e-4）。见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) |
 | **多模态 GRPO（真实数据）** | ✅ **跑通到终局** | CLEVR 计数 + 可验证奖励，400 步 held-out 准确率 44.6%→77.4%（win rate 0.977）。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
+| **GRPO 对照与边界实验** | ✅ **闭环** | 通用回归（MME/POPE/MMBench **零退化**）、SuperCLEVR OOD（37.5%→54.5%）、配平 SFT 对照（26min 达 75.4%，OOD 63.0% 反超）、R5 阶段二对照（任务天花板 ~77–78%）。见 [GRPO_DEEP_DIVE.md §10](./GRPO_DEEP_DIVE.md) 与 [EXPERIMENT_LOG.md §14](./EXPERIMENT_LOG.md) |
 | web demo | ❌ **不可用** | `flask`/`flask_socketio`/`vllm`/`onnxruntime` 均未装；还缺 `web_demo/wakeup_and_vad/resource/` 下的 `silero_vad.onnx`/`.jit` |
 | VLMEvalKit 评测 | ✅ **已跑通** | omegaconf/antlr4 冲突已解（见下），基线与 DPO 对比数字已产出：MME 2353.5、MMBench 77.8、POPE 见上行。历史排障记录保留在下节 |
 | Video-MME 评测 | ⚠️ 未测 | 需另下 Video-MME 数据集 |
@@ -858,8 +859,11 @@ bash script/train/grpo_clevr.sh <output_dir>                               # 训
 python tools/eval_grpo_heldout.py --before <base> --after <merged> ...     # held-out 评测
 ```
 
-  结果：400 步 held-out 准确率 44.6% → 77.4%。全程记录、超参与指标手册见
-  [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。
+  结果：400 步 held-out 准确率 44.6% → 77.4%。后续对照实验补齐了边界：
+  通用基准零退化、SuperCLEVR OOD +17pt、配平 SFT 对照分布内追平且 OOD
+  反超（工具：`make_clevr_sft_data.py` / `make_superclevr_eval_data.py` /
+  `make_clevr_stage2_data.py`，训练脚本 `sft_clevr.sh`）。全程记录、超参
+  与指标手册见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。
 
 仍然的限制：
 

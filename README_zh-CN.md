@@ -37,7 +37,7 @@
 | 2. 验证训练链路 | ✅ 已完成 | 在 8×H800 上用合成数据端到端跑通；checkpoint 可保存并重新加载 |
 | 3. 基准复测 | ✅ 已完成 | **MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内。** 见 [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
 | 4. 真实数据训练 | ✅ 已完成 | 3000 对 RLAIF-V 偏好对，LoRA DPO 一个 epoch，首步 loss 精确命中 `-log(0.5)` |
-| 5. 增加 RL | ✅ 已完成 | DPO：SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%（McNemar p<1e-4）——见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO：多模态扩展在 CLEVR 计数 + 可验证奖励上训练，**400 步将 held-out 准确率 44.6% → 77.4%**（win rate 0.977）——见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
+| 5. 增加 RL | ✅ 已完成 | DPO：SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%（McNemar p<1e-4）——见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO：多模态扩展在 CLEVR 计数 + 可验证奖励上训练，**400 步将 held-out 准确率 44.6% → 77.4%**（win rate 0.977），通用基准零退化，并以配平 SFT 对照与 OOD 实验界定方法边界——见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
 
 **想看 3–5 阶段的完整故事，读 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)**：
 RLAIF-V 上三轮 DPO 都没把基准移出噪声带，且原因是量出来的而不是猜的——
@@ -53,7 +53,11 @@ RLAIF-V 上三轮 DPO 都没把基准移出噪声带，且原因是量出来的�
 KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout 的代理分差
 主要是风格运气，组归一化的 advantage 在给噪声排序。换成可验证奖励
 （CLEVR 计数，二值精确匹配）后曲线立刻起飞：400 步 held-out 准确率
-44.6% → 77.4%。
+44.6% → 77.4%。后续对照实验诚实地画出了边界：通用基准零退化、OOD 迁移
+到 SuperCLEVR（+17pt）、配平数据预算的 SFT 对照以 1/7.5 的成本分布内
+追平且 OOD 反超；阶段二对照（同一 SFT 起点、同批新 prompt、续 SFT vs
+接 GRPO）钉死任务天花板 ~77–78%。落出来的实证法则：**SFT loss 还在降
+就 SFT；loss 见底且残错 pass@G > pass@1 才轮到 GRPO**。
 
 **第一次接触这个代码库？** 先看 [PRIMER.md](./PRIMER.md)——读懂其余文档所需的
 前置知识：负数索引占位符机制、实测的 token 预算、三个编码器，以及最费时间的坑。
@@ -74,7 +78,7 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 | [BENCHMARKS.md](./BENCHMARKS.md) | 要实测数字时：耗时、显存、以及判断改动是否等价的可复现 loss | 中文 |
 | [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **DPO 实验全程**：设计、每个数字、为什么是这个结果、走过的弯路 | 中文 |
 | [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | SFT + DPO 管线的代码级深读：机制、显存推算、on/off-policy | 中文 |
-| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、四轮训练记录（代理奖励失败→可验证奖励 +32.8pt）、面试问答 | 中文 |
+| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、五轮训练与对照记录（代理奖励失败→可验证奖励 +32.8pt→通用回归/OOD/配平 SFT 对照/阶段二天花板）、GRPO 演进（vLLM/DAPO/GSPO）、训练与推理框架选型、面试问答 | 中文 |
 | [RESULTS.md](./RESULTS.md) | 同一实验更早期、更窄的记录；已被上面取代 | 中文 |
 
 两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
@@ -109,7 +113,7 @@ python tools/localize_config.py \
 - **修复了固定版本 `transformers==4.41.1` 下的 `cache_position` 问题** —— 上游的 `vita_qwen2.py` 在其自身 `requirements.txt` 所固定的版本上根本无法生成。见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)。
 - **补上了缺失的 `DataConfig` key**（`Pretrain_video0`、`Pretrain_audio`）—— 多个上游训练脚本会传这两个值，但它们从未被定义。
 - **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
-- **在 DPO 之上新增 GRPO**：回答由策略自己采样，奖励在训练中由可插拔的奖励函数实时计算，用组内归一化代替 critic。包含 `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`、`train_grpo.py`，以及 `tools/test_grpo_loss.py`（39 项）和 `tools/test_rewards.py`（44 项）。已从纯文本扩展到**图像+文本**（视觉特征融合进 prompt embedding 一次、G 个 rollout 共享），支持 PPO 式样本复用（`--grpo_num_iterations`）与可验证奖励（`answer` 精确匹配 + 分级 `format`），并在 CLEVR 计数上完成真实训练：`tools/make_clevr_grpo_data.py`、`script/train/grpo_clevr.sh`、`tools/eval_grpo_heldout.py`——400 步 held-out 准确率 44.6% → 77.4%。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) 与 [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化)。
+- **在 DPO 之上新增 GRPO**：回答由策略自己采样，奖励在训练中由可插拔的奖励函数实时计算，用组内归一化代替 critic。包含 `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`、`train_grpo.py`，以及 `tools/test_grpo_loss.py`（39 项）和 `tools/test_rewards.py`（44 项）。已从纯文本扩展到**图像+文本**（视觉特征融合进 prompt embedding 一次、G 个 rollout 共享），支持 PPO 式样本复用（`--grpo_num_iterations`）与可验证奖励（`answer` 精确匹配 + 分级 `format`），并在 CLEVR 计数上完成真实训练：`tools/make_clevr_grpo_data.py`、`script/train/grpo_clevr.sh`、`tools/eval_grpo_heldout.py`——400 步 held-out 准确率 44.6% → 77.4%，通用基准零退化。随后用对照实验界定边界：配平 SFT 对照臂（`tools/make_clevr_sft_data.py`、`script/train/sft_clevr.sh`）、SuperCLEVR OOD 评测（`tools/make_superclevr_eval_data.py`）、阶段二续训对照（`tools/make_clevr_stage2_data.py`），钉死任务天花板 ~77–78%。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) 与 [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化)。
 - **新增离线 DPO**，这是本代码库第一个 RL 系目标函数（上游只有 SFT）。包含 `vita/train/dpo_{loss,data,trainer}.py`、`train_dpo.py`、`tools/test_dpo_loss.py`（19 项 CPU 测试）和 `script/train/dpo_smoke_test.sh`。参考模型用同一份权重关掉 LoRA adapter 实现，额外显存为 0。见 [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)。
 - 给 `vita_arch.py` 增加 `encode_images_deduped`：当一个 batch 里多条序列共享同一份媒体时（DPO 的 chosen/rejected 对，以及后续 GRPO 的 rollout 组），视觉编码器只编码一份再复制特征。结果逐位相同（`tools/test_image_dedup.py` 用 `torch.equal` 断言），视觉前向省 44-46%。通过 `image_group_size` 显式开启，SFT 路径不受影响。
 - 把 `vita/train/train.py` 的 `train()` 泛化为可接收「额外参数类 / 数据模块工厂 / trainer 工厂」，使 DPO 能复用那约 230 行模型构建逻辑而非复制。不传参数时行为与之前完全一致。
@@ -119,7 +123,7 @@ python tools/localize_config.py \
 - 新增 `tools/test_audio_optional.py`，上述修复的 CPU 单元测试（编码器打桩，无需权重）。
 - 新增 `tools/inspect_dataset.py`，在 CPU 上加载已配置的数据集，报告序列长度、被监督的文本片段、collate 后的张量形状，以及有多少样本的 label 被静默作废——接入数据集后、开 GPU 前先跑它。
 - 新增 `tools/localize_config.py`，把 checkpoint 的 `mm_vision_tower` / `mm_audio_encoder` 从 HuggingFace repo ID 改写为本地路径，使加载不需要访问网络。
-- 新增 `PRIMER.md`（前置知识，仅中文）、`HANDBOOK.md`（上手手册，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）、`EXPERIMENT_LOG.md`（DPO 六轮全记录）、`GRPO_DEEP_DIVE.md`（GRPO 四轮全记录与深读）、`SFT_DPO_DEEP_DIVE.md`、`PROJECT_SUMMARY.md` 和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
+- 新增 `PRIMER.md`（前置知识，仅中文）、`HANDBOOK.md`（上手手册，仅中文）、`REPRODUCE.md`（操作日志）、`ARCHITECTURE.md`（代码走读）、`DATASETS.md`（训练数据调研，仅中文）、`EXPERIMENT_LOG.md`（DPO 六轮全记录）、`GRPO_DEEP_DIVE.md`（GRPO 五轮训练与对照全记录、深读）、`SFT_DPO_DEEP_DIVE.md`、`PROJECT_SUMMARY.md` 和 `requirements-lock.txt`。其中 REPRODUCE 与 ARCHITECTURE 含中英两版。
 
 后续任何相对上游的偏离都会记录在本节。
 
