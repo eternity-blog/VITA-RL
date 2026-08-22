@@ -155,3 +155,24 @@ def _fuse(self, model, inputs):
 > 模仿的任务上 SFT 同终点且 1/7.5 成本；"何时 SFT / 何时 GRPO"的判据是
 > **SFT loss 是否见底 + 残错上 pass@G 是否 > pass@1**。完整记录与指标
 > 手册见 [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)。
+
+## 面试准备阅读路线
+
+按"先叙事、再数字、后细节"的顺序：
+
+1. **叙事骨架**（30 分钟）：本文 + [README_zh-CN.md](README_zh-CN.md)
+   的 DPO/GRPO 两段故事——两条线各自的"失败→诊断→修复"弧线要能脱稿讲。
+2. **DPO 线**（半天）：[EXPERIMENT_LOG.md](EXPERIMENT_LOG.md)
+   §1 摘要表 + §2.2 四条方法论原则 + §6 探针 + §8–9 贡献分解；然后
+   [SFT_DPO_DEEP_DIVE.md](SFT_DPO_DEEP_DIVE.md) **§12 面试问答（21 问）**，
+   重点 Q2（两种"分不开"）、Q3（为什么不只 SFT）、Q13（数据重叠）。
+3. **GRPO 线**（半天）：[GRPO_DEEP_DIVE.md](GRPO_DEEP_DIVE.md)
+   §10 五轮全记录 + §11 面试问答 + §12 演进（vLLM/DAPO/GSPO）+
+   §13 框架选型；R5 的"何时 SFT / 何时 GRPO"判据是两条线的合流点。
+4. **实现细节抽查**（按需）：[CODEMAP.md](CODEMAP.md) 定位文件 →
+   [ARCHITECTURE_zh-CN.md](ARCHITECTURE_zh-CN.md) §14 RL 栈走读。
+
+必背的三组数：DPO 线 **52.2%/0.055 → 58.0%/0.218**（诊断）、
+**−7.84 → +4.75**（根因）、**10.97 → 10.34 → 8.82**（贡献分解）；
+GRPO 线 **44.6 → 77.4**（R4）、**37.5 → 54.5 vs 63.0**（OOD 对比）、
+**~77–78%**（天花板）。

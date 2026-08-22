@@ -380,7 +380,7 @@ python -c "import torch,transformers,numpy; print(torch.__version__, transformer
 `antlr4-python3-runtime 4.9.x`，而企业镜像最低只有 4.11，导致
 `Exception: Could not deserialize ATN with version 3 (expected 4)`。
 omegaconf 被 `vlmeval/vlm/vxverse.py` 在模块顶层 import，同样会拖垮整个包。
-**最终解法**（2026-08-20，见 `setup_vlmeval_deps_dev.sh`）：从源码装
+**最终解法**（2026-08-20，见 `script/dev/setup_vlmeval_deps_dev.sh`，本地未入库脚本）：从源码装
 antlr4 4.9.3（纯 Python，无需编译）。此后 VLMEvalKit 已完整跑通，
 产出基线与 DPO/GRPO 对比数字（POPE / MME / MMBench）。
 
