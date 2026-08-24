@@ -79,7 +79,7 @@
 | 负索引占位符机制 | `<image>` → IMAGE_TOKEN_INDEX(−200)，融合时替换成视觉 embedding | [PRIMER](./PRIMER.md)、[ARCHITECTURE §5](./ARCHITECTURE.md) |
 | 三编码器结构 | InternViT-300M（图）+ 音频编码器（341M，RL 全程冻结）+ Qwen2.5-7B | [PRIMER](./PRIMER.md) |
 | 动态切图与 token 预算 | 动态 patch 最多 13 块，图像 token 数实测表 | [PRIMER](./PRIMER.md)、[BENCHMARKS](./BENCHMARKS.md) |
-| mm_projector | `Linear(3200→3584) → GELU → Linear(3584→3584)`，SFT 全参训练、RL 冻结 | [SFT_DPO_DEEP_DIVE §5](./SFT_DPO_DEEP_DIVE.md) |
+| mm_projector | `Linear(4096→3584) → GELU → Linear(3584→3584)`（4096=1024×4 pixel shuffle），SFT 全参训练、RL 冻结 | [SFT_DPO_DEEP_DIVE §5](./SFT_DPO_DEEP_DIVE.md) |
 | 融合后 labels 重对齐 | 拼入图像 embedding 改变序列长度，collator 的 labels 必须融合后重对齐——多模态 DPO 最易错处 | [SFT_DPO_DEEP_DIVE §3](./SFT_DPO_DEEP_DIVE.md) |
 | 状态 token（☜☞☟） | 单 token 查询状态标记，生僻字形保证 1 token；GRPO 奖励里已移除 | [ARCHITECTURE §7](./ARCHITECTURE.md) |
 

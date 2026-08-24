@@ -445,16 +445,17 @@ Qwen2.5-7B 实际约 7.6B 参数。混合精度 + AdamW 的完整训练状态：
 SFT 脚本传 `--mm_projector_type mlp2x_gelu`，对应一个 **2 层 MLP**：
 
 ```python
-modules = [nn.Linear(config.mm_hidden_size, config.hidden_size)]   # 3200 → 3584
+modules = [nn.Linear(config.mm_hidden_size, config.hidden_size)]   # 4096 → 3584
 for _ in range(1, mlp_depth):                                      # mlp_depth=2
     modules.append(nn.GELU())
     modules.append(nn.Linear(config.hidden_size, config.hidden_size))  # 3584 → 3584
 return nn.Sequential(*modules)
 ```
 
-即：`Linear(3200→3584) → GELU → Linear(3584→3584)`。
+即：`Linear(4096→3584) → GELU → Linear(3584→3584)`。
 
-- `mm_hidden_size` = InternViT-300M 的输出维度 = **3200**
+- `mm_hidden_size` = **4096**（权重 `config.json` 实测）：InternViT-300M 每
+  patch 输出 1024 维，pixel shuffle 四合一拼成 4096（见 PRIMER §3.1）
 - `hidden_size` = Qwen2.5-7B 的隐层维度 = **3584**
 
 ### 5.2 在管线中的位置（`vita_arch.py:160-164`）
@@ -470,25 +471,25 @@ def encode_images(self, images):
 
 ```
 图像像素 [3,448,448]
-  → InternViT-300M（冻结）→ 视觉特征 [num_patches, 3200]
-  → mm_projector（可训练）→ 投影特征 [num_patches, 3584]
+  → InternViT-300M（冻结）+ pixel shuffle → 视觉特征 [256, 4096]
+  → mm_projector（可训练）→ 投影特征 [256, 3584]
   → 拼接进文本 token embedding 序列（3584 维）
   → Qwen2.5-7B LLM
 ```
 
 ### 5.3 作用
 
-**mm_projector 是视觉模态和语言模态之间的维度对齐桥梁**。InternViT 输出 3200 维的视觉 patch 特征，但 Qwen2 LLM 期望的输入维度是 3584（等于它的词嵌入维度）。两者维度不匹配，无法直接拼接。mm_projector 把视觉特征线性投影到语言模型的嵌入空间，使视觉特征能像"特殊的视觉 token"一样插入文本序列，被 LLM 当作普通 token 处理。
+**mm_projector 是视觉模态和语言模态之间的维度对齐桥梁**。InternViT 经 pixel shuffle 后输出 4096 维的视觉 patch 特征，但 Qwen2 LLM 期望的输入维度是 3584（等于它的词嵌入维度）。两者维度不匹配，无法直接拼接。mm_projector 把视觉特征线性投影到语言模型的嵌入空间，使视觉特征能像"特殊的视觉 token"一样插入文本序列，被 LLM 当作普通 token 处理。
 
 这是所有 LLaVA 系多模态模型的标准组件——视觉塔负责"看"，LLM 负责"推理"，mm_projector 负责把"看"的结果翻译成 LLM 听得懂的语言。
 
 ### 5.4 参数量
 
-- `Linear(3200, 3584)`：3200×3584 + 3584 ≈ **11.47M**
+- `Linear(4096, 3584)`：4096×3584 + 3584 ≈ **14.68M**
 - `Linear(3584, 3584)`：3584×3584 + 3584 ≈ **12.85M**
-- 合计 ≈ **24.3M 参数**
+- 合计 ≈ **27.5M 参数**
 
-相对 7B LLM，mm_projector 只有 24M，约占 0.3%。
+相对 7B LLM，mm_projector 只有 ~28M，约占 0.4%。
 
 ---
 
