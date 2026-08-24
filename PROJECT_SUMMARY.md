@@ -158,7 +158,8 @@ def _fuse(self, model, inputs):
 
 ## 面试准备阅读路线
 
-按"先叙事、再数字、后细节"的顺序：
+按"先叙事、再数字、后细节"的顺序（总复习清单见
+[KNOWLEDGE.md](KNOWLEDGE.md)——全部知识点一句话核心 + 出处）：
 
 1. **叙事骨架**（30 分钟）：本文 + [README_zh-CN.md](README_zh-CN.md)
    的 DPO/GRPO 两段故事——两条线各自的"失败→诊断→修复"弧线要能脱稿讲。

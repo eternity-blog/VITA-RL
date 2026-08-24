@@ -78,6 +78,7 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 | [BENCHMARKS.md](./BENCHMARKS.md) | 要实测数字时：耗时、显存、以及判断改动是否等价的可复现 loss | 中文 |
 | [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **DPO 实验全程**：设计、每个数字、为什么是这个结果、走过的弯路 | 中文 |
 | [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | SFT + DPO 管线的代码级深读：机制、显存推算、on/off-policy、数据泄露讨论、面试问答（21 问） | 中文 |
+| [KNOWLEDGE.md](./KNOWLEDGE.md) | **面试复习用知识点总索引**：全项目概念与训练细节一张表——一句话核心 + 精确出处，附必背数字 | 中文 |
 | [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、五轮训练与对照记录（代理奖励失败→可验证奖励 +32.8pt→通用回归/OOD/配平 SFT 对照/阶段二天花板）、GRPO 演进（vLLM/DAPO/GSPO）、训练与推理框架选型、面试问答 | 中文 |
 | [RESULTS.md](./RESULTS.md) | 同一实验更早期、更窄的记录；已被上面取代 | 中文 |
 

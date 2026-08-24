@@ -93,6 +93,7 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
 | [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **The DPO experiment end to end**: design, every number, why it came out the way it did, and the wrong turns | 中文 |
 | [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | Code-level deep dive of the SFT + DPO pipeline: mechanisms, memory math, on/off-policy, data-leakage discussion, interview Q&A (21 questions) | 中文 |
+| [KNOWLEDGE.md](./KNOWLEDGE.md) | **Knowledge-point master index for interview prep**: every concept and training detail in one table — one-line takeaway + exact source location, plus the must-memorize numbers | 中文 |
 | [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, five rounds of training + controls (proxy-reward failure → verifiable-reward +32.8pt → benchmark regression / OOD / matched SFT control / stage-2 ceiling), GRPO successors (vLLM/DAPO/GSPO), training & inference framework selection, interview Q&A | 中文 |
 | [RESULTS.md](./RESULTS.md) | An earlier, narrower write-up of the same experiment; superseded by the above | 中文 |
 
