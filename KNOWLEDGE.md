@@ -53,7 +53,7 @@
 | 知识点 | 一句话核心 | 出处 |
 |---|---|---|
 | 组内归一化优势 | A_i=(r_i−mean)/std，组均值替代 critic；信号来自组内方差 | [GRPO_DEEP_DIVE §4](./GRPO_DEEP_DIVE.md) |
-| KL 估计器 k1/k2/k3 | 本项目用 k3：exp(d)−d−1（d=ref−policy），无偏且恒非负；β=0 时可去（R6 消融验证中） | [GRPO_DEEP_DIVE §4](./GRPO_DEEP_DIVE.md)、`vita/train/grpo_loss.py:115` |
+| KL 估计器 k1/k2/k3 | 本项目用 k3：exp(d)−d−1（d=ref−policy），无偏且恒非负；可验证奖励+单步复用下 β=0 无精度损失（R6 消融证实） | [GRPO_DEEP_DIVE §4/§10 R6](./GRPO_DEEP_DIVE.md)、`vita/train/grpo_loss.py:115` |
 | 首步三不变量 | kl=0、ratio=1、advantage_std≈1——多卡/融合/参考模型正确性的烟雾判据 | [GRPO_DEEP_DIVE §5](./GRPO_DEEP_DIVE.md) |
 | 多模态扩展六要点 | 视觉特征融合进 prompt embedding 一次、G 份 rollout 复用；与 DPO 去重机制的差异 | [GRPO_DEEP_DIVE §6](./GRPO_DEEP_DIVE.md) |
 | μ 步样本复用（PPO-style） | 同批 rollout 复用 μ 个优化步；复用步 ratio≠1、clip 生效；μ>1 才需要 clip | [GRPO_DEEP_DIVE §3](./GRPO_DEEP_DIVE.md) |
@@ -129,7 +129,7 @@
 | GRPO R4 | CLEVR G=8、β=0.04→答案奖励 1.0+format 0.3、lr 5e-6、400 步 4 卡 3.2h | [GRPO_DEEP_DIVE §10](./GRPO_DEEP_DIVE.md) |
 | SFT 对照臂 | 同 6400 prompt、LoRA 同容量、26 分钟 | [GRPO_DEEP_DIVE §10 R4 后续](./GRPO_DEEP_DIVE.md)、`script/train/sft_clevr.sh` |
 | R5 阶段二 | 同一阶段一 SFT checkpoint 起点、同批 disjoint 新 prompt、续 SFT vs 接 GRPO | [GRPO_DEEP_DIVE §10 R5](./GRPO_DEEP_DIVE.md) |
-| R6（进行中） | β=0 消融：验证可验证奖励任务上 KL 项是否多余 | wandb `grpo-clevr-r6-beta0` |
+| R6 | β=0 消融：与 R4 同配置去 KL——held-out 77.0%/OOD 56.5%，与 R4 全在噪声内，KL 项无可测影响 | [GRPO_DEEP_DIVE §10 R6](./GRPO_DEEP_DIVE.md)、wandb `grpo-clevr-r6-beta0` |
 
 ## 10. 必背数字
 
@@ -153,4 +153,5 @@
 | MME 2353.5→2354.3 / POPE 89.14→89.07 | 通用回归零退化 |
 | 37.5% → 54.5%（GRPO）vs 63.0%（SFT） | SuperCLEVR OOD：SFT 反超 |
 | 75.4% / 26 分钟 / 1:7.5 | SFT 对照臂：分布内追平的成本比 |
-| ~77–78% | R5 任务天花板（两通道均近枯竭） |
+| ~77–78% | 任务天花板，三次复现：R4 77.4 / R5 续 SFT 78.0 / R6 77.0 |
+| 77.0% / 56.5%（β=0）vs 77.4% / 54.5%（β=0.04） | R6 消融：KL 项无可测影响 |

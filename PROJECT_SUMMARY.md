@@ -148,6 +148,7 @@ def _fuse(self, model, inputs):
 | GRPO 真实训练 R4（CLEVR 计数，可验证奖励，400 步/4 卡/3.2h） | ✅ **held-out 44.6% → 77.4%（+32.8pt），win rate 0.977 [0.953, 0.994]** |
 | R4 后续验证：通用回归 + SuperCLEVR OOD + 配平 SFT 对照 | ✅ MME/POPE/MMBench **零退化**；OOD 37.5%→54.5%；SFT 对照 26min 达 75.4%（OOD 63.0% 反超 GRPO） |
 | R5 阶段二对照（同一 SFT 起点：续 SFT vs 接 GRPO，同批新 prompt） | ✅ 任务天花板 ~77–78%，两通道均近枯竭（GRPO 仅改变 8/500 输出；退化组开局 75%） |
+| R6 β=0 消融（与 R4 同配置，唯一变量去 KL 项） | ✅ held-out **77.0%**（R4：77.4）、OOD **56.5%**（R4：54.5），全在噪声内——**KL 项无可测影响**，DAPO 立场获消融验证 |
 
 > 方法论结论：同一套 GRPO 实现，代理奖励下 216 步纹丝不动，可验证奖励下
 > 400 步 +33pt——GRPO 的成败首先取决于 reward 能否把组内 rollout 按真实
