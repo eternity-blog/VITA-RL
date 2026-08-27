@@ -5,6 +5,9 @@
 > 配套：面试问答清单在 [GRPO_DEEP_DIVE.md §11](./GRPO_DEEP_DIVE.md)
 > 和 [SFT_DPO_DEEP_DIVE.md §12](./SFT_DPO_DEEP_DIVE.md)（21 问）；
 > 阅读路线在 [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) 末尾。
+> 数字溯源：原始训练日志与评测结果在 [artifacts/](./artifacts/README.md)，
+> LoRA adapter 在 HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)；
+> 环境重建与全部资源下载链接在 [ENVIRONMENT.md](./ENVIRONMENT.md)。
 
 ## 目录
 

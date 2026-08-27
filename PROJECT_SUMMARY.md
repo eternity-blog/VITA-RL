@@ -174,6 +174,12 @@ def _fuse(self, model, inputs):
 4. **实现细节抽查**（按需）：[CODEMAP.md](CODEMAP.md) 定位文件 →
    [ARCHITECTURE_zh-CN.md](ARCHITECTURE_zh-CN.md) §14 RL 栈走读。
 
+被问到"数字能验证吗 / 怎么复现"时的答案：原始训练日志与评测 JSON 在
+[artifacts/](artifacts/README.md)；LoRA adapter 在
+HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)（合并即复原
+评测模型）；环境与全部资源下载链接在 [ENVIRONMENT.md](ENVIRONMENT.md)；
+当时的实验编排脚本在 [script/dev/](script/dev/README.md)。
+
 必背的三组数：DPO 线 **52.2%/0.055 → 58.0%/0.218**（诊断）、
 **−7.84 → +4.75**（根因）、**10.97 → 10.34 → 8.82**（贡献分解）；
 GRPO 线 **44.6 → 77.4**（R4）、**37.5 → 54.5 vs 63.0**（OOD 对比）、

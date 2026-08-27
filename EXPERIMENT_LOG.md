@@ -932,7 +932,7 @@ $EVAL_OUT/{baseline,dpo,dpo_lr2e5,dpo_large*,sft*,sftdpo*}/   全部评测结果
 - `BENCHMARKS.md` —— 这台机器上的实测性能、显存、报错原文
 - `HANDBOOK.md` —— 命令速查、地雷区、DPO/GRPO 操作章节
 - `ARCHITECTURE.md` §14 —— RL 栈的代码走读
-- `RESULTS.md` —— 早期版本（前三轮），已被本文档取代
+- `RESULTS.md` —— 早期版本（前三轮），内容已并入本文档后删除（git 历史可查）
 
 ### 13.5 尚未做的
 

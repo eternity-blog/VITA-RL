@@ -557,7 +557,7 @@ vita_tts_ckpt/
 | `requirements.txt` 装不上 | 未固定的 `xformers` 要求 torch≥2.10，与固定的 `torch==2.3.1` 冲突。见 [REPRODUCE.md](./REPRODUCE.md) 的分阶段安装 |
 | numpy 2.x | torch 2.3.1 早于 numpy 2.0 的 ABI 变更。`numba`/`librosa`/`opencv` 会把 numpy 2 拉回来，**装完要重新固定** |
 | flash-attn 必须有 | `train.py` 硬编码 `attn_implementation="flash_attention_2"` |
-| `command.sh` 不是构建脚本 | 那是原作者的命令历史，引用的文件很多已不存在 |
+| 上游的 `command.sh`（已删除） | 原作者的命令历史，引用的文件很多已不存在，本 fork 已移除 |
 
 ### 10.3 配置相关
 
@@ -691,7 +691,7 @@ bash script/train/grpo_smoke_test.sh /tmp/grpo_out 1  # 看 reward 上升
 
 ### 不建议读
 
-- `command.sh` —— 原作者的命令历史，引用的文件很多已不存在
+- `command.sh` —— 原作者的命令历史，引用的文件很多已不存在（本 fork 已删除）
 - `data_utils_*` 的其余六个变体 —— 与启用的那个是近似拷贝
   （`neg_patch_fo` 只差 58 行）
 - `vita_mixtral.py` / `vita_nemo.py` —— VITA-1.0 遗留和其他变体，与 1.5 无关

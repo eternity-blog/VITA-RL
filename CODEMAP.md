@@ -170,10 +170,20 @@
 | [`grpo_clevr.sh`](../../blob/main/script/train/grpo_clevr.sh) | GRPO 真实训练：CLEVR 计数 + 可验证奖励（44.6%→77.4% 那次） |
 | [`sft_clevr.sh`](../../blob/main/script/train/sft_clevr.sh) | GRPO 的 LoRA SFT 对照臂：同 prompt/容量/步数，gold 直接监督（26min） |
 
-### 真实运行日志
+### 实验编排脚本（历史记录）
+
+[`script/dev/`](../../tree/main/script/dev) 是各轮实验在开发机上的实际
+编排脚本（环境、下载、训练、评测的顺序与并行安排），逐个脚本的说明见
+[其 README](../../blob/main/script/dev/README.md)。
+
+### 真实运行日志与原始产物
 
 [`logs/`](../../tree/main/logs) 存了四次真实运行的指标行，
 可以对照 [BENCHMARKS.md](./BENCHMARKS.md) 的表格看。
+[`artifacts/`](../../tree/main/artifacts) 存了 GRPO 时代全部轮次的完整
+训练日志、逐 step trainer state 与评测原始结果（索引见
+[其 README](../../blob/main/artifacts/README.md)）；LoRA adapter 在
+HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)。
 
 ## 6. 地雷位置
 
@@ -189,7 +199,6 @@
 | [`vita_arch.py:59`](../../blob/main/vita/model/vita_arch.py#L59) | 强制解冻 `mm_projector`，破坏参考模型 |
 | [`vita_trainer.py:190`](../../blob/main/vita/train/vita_trainer.py#L190) | `mm_projector_lr` 已失效 |
 | [`constants.py:14`](../../blob/main/vita/constants.py#L14) | `GLOBAL_WEIGHTS_PATH` 仍是占位符 |
-| [`command.sh`](../../blob/main/command.sh) | 不是构建脚本，是作者的命令历史 |
 
 详细说明见 [HANDBOOK.md §6](./HANDBOOK.md#6-地雷区)。
 

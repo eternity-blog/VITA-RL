@@ -585,7 +585,7 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 | `GLOBAL_WEIGHTS_PATH` in `constants.py` is still the literal `/path/to/model_weights` | only reached on the LoRA branch |
 | `mm_projector_lr` no longer affects `mm_projector` (`vita_trainer.py:190`) | upstream, unfixed |
 | Tokenization mismatch silently voids a sample's labels | upstream behaviour, [§9.3](#93-label-masking) |
-| `command.sh` is the authors' scratch history, referencing deleted files — not an entry point | — |
+| Upstream's `command.sh` was the authors' scratch history, referencing deleted files — removed from this fork | — |
 | `Conversation.get_prompt()` is **not idempotent**: it does `self.system = self.system[0]`, replacing the 3-element list with a string, so a second call on the same object indexes into that string and the whole system prompt collapses to one character. Harmless today (the data pipeline copies the template per sample and calls it once) but a live hazard for multi-turn RL rollouts that reuse a conversation object | upstream, unfixed ([PRIMER.md §6.2](./PRIMER.md#62-get_prompt-不幂等未记录的缺陷)) |
 | LoRA was unusable: `find_all_linear_names` does not exclude `audio_encoder`, and whale has two `nn.Linear`s whose leaf name is the digit `"0"` (`encoder.enc.0.core.out.0`, `encoder.enc.1.embed.0`). peft matches target modules by suffix, so `"0"` matched `layers.0` — a whole `Qwen2DecoderLayer` — and peft rejected it. `--lora_enable True` failed outright regardless of memory | **fixed in this fork** (`script/train/smoke_test_lora.sh`, 23.3 GB peak on one GPU) |
 | 4-bit path exists in `train.py` but no shipped script uses it | unverified |

@@ -223,7 +223,7 @@ MMStar 是「去掉了能靠文本先验蒙对的题」的 benchmark，所以它
 
 ## 2.7 DPO 后的四项（RLAIF-V，3000 对，1 epoch）
 
-同一套评测跑合并了 DPO adapter 的模型。**详细分析见 RESULTS.md。**
+同一套评测跑合并了 DPO adapter 的模型。**详细分析见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。**
 
 | Benchmark | baseline | LR 5e-6 | LR 2e-5 | 1.96σ |
 |---|---|---|---|---|

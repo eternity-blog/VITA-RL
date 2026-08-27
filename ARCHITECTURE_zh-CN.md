@@ -475,7 +475,7 @@ outputs['loss'] = loss
 | `constants.py` 中的 `GLOBAL_WEIGHTS_PATH` 仍是字面量 `/path/to/model_weights` | 仅在 LoRA 分支被用到 |
 | `mm_projector_lr` 已不再影响 `mm_projector`（`vita_trainer.py:190`） | 上游问题，未修 |
 | tokenization 长度不匹配会静默作废该样本的 label | 上游行为，见[§9.3](#93-label-掩码) |
-| `command.sh` 是作者的命令备忘，引用了已删除的文件——不是入口 | —— |
+| 上游的 `command.sh` 是作者的命令备忘，引用了已删除的文件——本 fork 已移除 | —— |
 | `Conversation.get_prompt()` **不幂等**：内部执行 `self.system = self.system[0]`，把三元素列表就地换成字符串，于是同一对象第二次调用时索引到的是字符串首字符，整段 system prompt 塌成一个字母。当前无害（数据管线每样本 copy 一次且只调一次），但多轮 RL rollout 复用 conversation 对象时会触发 | 上游缺陷，未修（[PRIMER.md §6.2](./PRIMER.md#62-get_prompt-不幂等未记录的缺陷)） |
 | LoRA 路径根本跑不起来：`find_all_linear_names` 没有排除 `audio_encoder`，而 whale 里有两个 `nn.Linear` 的叶子名是数字 `"0"`（`encoder.enc.0.core.out.0`、`encoder.enc.1.embed.0`）。peft 按后缀匹配目标模块，`"0"` 于是命中 `layers.0`——整个 `Qwen2DecoderLayer`——被 peft 拒绝。与显存无关，`--lora_enable True` 必然失败 | **本 fork 已修**（`script/train/smoke_test_lora.sh`，单卡峰值 23.3 GB） |
 | `train.py` 中存在 4-bit 路径，但没有任何发布脚本使用 | 未验证 |

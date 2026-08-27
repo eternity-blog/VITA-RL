@@ -81,8 +81,6 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 | [ENVIRONMENT.md](./ENVIRONMENT.md) | **conda 环境从零重建 + 全部权重/数据集/评测集下载链接**（开发机已回收，这是复现清单） | 中文 |
 | [KNOWLEDGE.md](./KNOWLEDGE.md) | **面试复习用知识点总索引**：全项目概念与训练细节一张表——一句话核心 + 精确出处，附必背数字 | 中文 |
 | [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、五轮训练与对照记录（代理奖励失败→可验证奖励 +32.8pt→通用回归/OOD/配平 SFT 对照/阶段二天花板）、GRPO 演进（vLLM/DAPO/GSPO）、训练与推理框架选型、面试问答 | 中文 |
-| [RESULTS.md](./RESULTS.md) | 同一实验更早期、更窄的记录；已被上面取代 | 中文 |
-
 从已回收开发机上抢救下来的原始实验产物（各轮训练日志、逐 step trainer
 state、评测原始输出）在 [artifacts/](./artifacts/README.md)——上面文档里的
 每个数字都能在那里找到原始文件。GRPO 时代的 5 个 LoRA adapter 托管在
@@ -243,7 +241,7 @@ python tools/localize_config.py \
 
 5. **依赖版本固定且偏旧。** `torch==2.3.1` 和 `transformers==4.41.1`。`vita/model/language_model/vita_qwen2.py` 对 `Qwen2ForCausalLM.forward` 打了猴子补丁，这使其与该 `transformers` 版本紧密耦合——升级极可能导致崩坏。
 
-6. **`command.sh` 不是构建脚本。** 它是原作者的命令备忘，引用了仓库中已不存在的文件。**不要**把它当作入口使用。
+6. **上游的 `command.sh` 已从本 fork 删除。** 它是原作者的命令备忘（不是构建脚本），引用的文件早已不存在；如需查看可在 git 历史中找到。
 
 ## ⭐ 训练
 

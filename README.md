@@ -96,8 +96,6 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | Code-level deep dive of the SFT + DPO pipeline: mechanisms, memory math, on/off-policy, data-leakage discussion, interview Q&A (21 questions) | 中文 |
 | [KNOWLEDGE.md](./KNOWLEDGE.md) | **Knowledge-point master index for interview prep**: every concept and training detail in one table — one-line takeaway + exact source location, plus the must-memorize numbers | 中文 |
 | [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, five rounds of training + controls (proxy-reward failure → verifiable-reward +32.8pt → benchmark regression / OOD / matched SFT control / stage-2 ceiling), GRPO successors (vLLM/DAPO/GSPO), training & inference framework selection, interview Q&A | 中文 |
-| [RESULTS.md](./RESULTS.md) | An earlier, narrower write-up of the same experiment; superseded by the above | 中文 |
-
 Raw run artifacts (per-run training logs, step-by-step trainer state, raw
 evaluation outputs) salvaged from the now-decommissioned dev machine live in
 [artifacts/](./artifacts/README.md) — every number in the documents above can
@@ -352,9 +350,9 @@ environment-specific values that were never parameterised:
    `vita/model/language_model/vita_qwen2.py` monkey-patches `Qwen2ForCausalLM.forward`,
    which couples it tightly to that `transformers` version — upgrading is likely to break it.
 
-6. **`command.sh` is not a build script.** It is the original authors' scratch command
-   history and references files that no longer exist in the repository. Do not use it as
-   an entry point.
+6. **`command.sh` (upstream) has been removed from this fork.** It was the original
+   authors' scratch command history, not a build script, and referenced files that no
+   longer exist. It remains available in git history if ever needed.
 
 ## ⭐ Training
 
