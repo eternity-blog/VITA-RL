@@ -33,6 +33,20 @@
 | `r5_sft2_arm/` | R5 SFT2 臂 | 同起点同预算的继续 SFT 对照臂 | GRPO_DEEP_DIVE §10 R5 |
 | `r6_beta0/` | R6 | β=0 消融：可验证奖励下去掉 KL 项，精度无差异 | GRPO_DEEP_DIVE §10 R6 |
 
+### wandb 训练曲线入口
+
+| 轮次 | wandb 项目 / run 名 |
+|---|---|
+| R1 | [changan_1/vita-rl-grpo](https://wandb.ai/changan_1/vita-rl-grpo)，run 显示名为输出目录路径（文档中记作 `grpo-rlaif-v-8k-4gpu`，ID `ucwf96ug`） |
+| R2 / R2 探针 / R3 | 同项目，`grpo-rlaif-v-r2` / `grpo-r2-probe` / `grpo-rlaif-v-r3-mu3` |
+| R4 / R6 | [changan_1/huggingface](https://wandb.ai/changan_1/huggingface)（当时未设项目名走了默认），`grpo-clevr-r4` / `grpo-clevr-r6-beta0` |
+| R5 GRPO 臂 | changan_1/vita-rl-grpo，`grpo-clevr-r5-sft2rl` |
+| SFT 对照 / R5 SFT2 臂 | 训练时未接 wandb，事后从 log.txt 解析补传；曲线以本目录 `trainer_state.json` 为准 |
+
+wandb 只是便捷入口，不是依赖：每个 run 的逐 step 指标完整保存在对应
+`trainer_state.json` 的 `log_history` 里，随时可以重画曲线
+（`asset/` 里的训练曲线图就是这么生成的，见 `tools/plot_training_curves.py`）。
+
 ## eval/ —— 评测原始结果
 
 | 文件/目录 | 内容 |

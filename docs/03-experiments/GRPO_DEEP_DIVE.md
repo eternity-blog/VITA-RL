@@ -392,6 +392,14 @@ KL 拴着一个移动的桩子，日志看不出异常。
 
 ## 10. 本次真实训练记录（2026-08-20）
 
+![GRPO 训练曲线四联图](../../asset/grpo_training_curves.png)
+
+> 四个面板 = 本节四个核心结论：R4 可验证奖励起飞（format 先饱和、answer 后爬坡）；
+> R1 代理奖励涨了但基准纹丝不动；R6 去掉 KL 惩罚后 KL 自由涨到 R4 的 6 倍**而精度不变**；
+> R4 退化组比例 4%→44%（headroom 耗尽 = 学成）。
+> 图由 `tools/plot_training_curves.py` 从 [`artifacts/train/`](../../artifacts/README.md)
+> 的 trainer_state 直接重画，不依赖 wandb。
+
 | 项 | 值 |
 |---|---|
 | 机器 | 8×H100 80GB（KML 开发机），用空闲的 GPU 2/3/4/6 |
