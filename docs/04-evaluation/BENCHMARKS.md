@@ -11,12 +11,12 @@
 >
 > **注意（2026-08-20）**：本文档是当时的机器快照。其中 DPO"无效"相关
 > 结论对应**原始基座上的前三轮**，后被 SFT→DPO 推翻（POPE 10.97%→8.82%，
-> 见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)）；GRPO 的纯文本 rollout
+> 见 [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)）；GRPO 的纯文本 rollout
 > 基线后扩展为多模态并在 CLEVR 上跑出 held-out 44.6%→77.4%
-> （4 卡约 30 s/优化步，见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。
+> （4 卡约 30 s/优化步，见 [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)）。
 > GRPO 模型的通用基准回归也已实测：MME 2353.5→2354.3、POPE
 > 89.14→89.07、MMBench 77.79→77.63，全部噪声内（零退化），
-> 逐项数字见 [GRPO_DEEP_DIVE.md §10](./GRPO_DEEP_DIVE.md)。
+> 逐项数字见 [GRPO_DEEP_DIVE.md §10](../03-experiments/GRPO_DEEP_DIVE.md)。
 
 ## 目录
 
@@ -223,7 +223,7 @@ MMStar 是「去掉了能靠文本先验蒙对的题」的 benchmark，所以它
 
 ## 2.7 DPO 后的四项（RLAIF-V，3000 对，1 epoch）
 
-同一套评测跑合并了 DPO adapter 的模型。**详细分析见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。**
+同一套评测跑合并了 DPO adapter 的模型。**详细分析见 [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)。**
 
 | Benchmark | baseline | LR 5e-6 | LR 2e-5 | 1.96σ |
 |---|---|---|---|---|
@@ -589,4 +589,4 @@ bash script/train/grpo_smoke_test.sh /tmp/z 1   # 首步 KL 应为 0
 
 如果 CPU 测试全过、但 DPO 首步不是 0.6931，问题几乎必定在参考模型或
 `mm_projector` 的冻结上——见
-[ARCHITECTURE.md §14.5](./ARCHITECTURE.md#145-two-traps-that-produce-plausible-looking-wrong-runs)。
+[ARCHITECTURE.md §14.5](../00-background/ARCHITECTURE.md#145-two-traps-that-produce-plausible-looking-wrong-runs)。

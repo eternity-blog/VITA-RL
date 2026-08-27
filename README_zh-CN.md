@@ -35,11 +35,11 @@
 |---|---|---|
 | 1. 复现推理 | ✅ 已完成 | 文本、音频、噪声音频三种查询均可在已发布的 VITA-1.5 checkpoint 上运行 |
 | 2. 验证训练链路 | ✅ 已完成 | 在 8×H800 上用合成数据端到端跑通；checkpoint 可保存并重新加载 |
-| 3. 基准复测 | ✅ 已完成 | **MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内。** 见 [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
+| 3. 基准复测 | ✅ 已完成 | **MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内。** 见 [BENCHMARKS.md §2.6](./docs/04-evaluation/BENCHMARKS.md) |
 | 4. 真实数据训练 | ✅ 已完成 | 3000 对 RLAIF-V 偏好对，LoRA DPO 一个 epoch，首步 loss 精确命中 `-log(0.5)` |
-| 5. 增加 RL | ✅ 已完成 | DPO：SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%（McNemar p<1e-4）——见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO：多模态扩展在 CLEVR 计数 + 可验证奖励上训练，**400 步将 held-out 准确率 44.6% → 77.4%**（win rate 0.977），通用基准零退化，并以配平 SFT 对照与 OOD 实验界定方法边界——见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
+| 5. 增加 RL | ✅ 已完成 | DPO：SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%（McNemar p<1e-4）——见 [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md)。GRPO：多模态扩展在 CLEVR 计数 + 可验证奖励上训练，**400 步将 held-out 准确率 44.6% → 77.4%**（win rate 0.977），通用基准零退化，并以配平 SFT 对照与 OOD 实验界定方法边界——见 [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md) |
 
-**想看 3–5 阶段的完整故事，读 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)**：
+**想看 3–5 阶段的完整故事，读 [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md)**：
 RLAIF-V 上三轮 DPO 都没把基准移出噪声带，且原因是量出来的而不是猜的——
 基座对这些偏好对的可分性只有 53.6%（95% CI [50.3%, 56.8%]，n=900），
 信噪比 0.055–0.11。把有效 batch 从 16 提到 63 后 DPO 真正学起来了
@@ -48,7 +48,7 @@ RLAIF-V 上三轮 DPO 都没把基准移出噪声带，且原因是量出来的�
 `tools/probe_preference_separability.py` 八分钟就能预判这一切。
 终局方案是 SFT→DPO（POPE 幻觉率 10.97% → 8.82%）。
 
-**GRPO 这条线的完整故事在 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)**：
+**GRPO 这条线的完整故事在 [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md)**：
 同一个教训换了副面孔。RLAIF-V + 代理奖励（keyword 重叠、LLM judge）两轮，
 KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout 的代理分差
 主要是风格运气，组归一化的 advantage 在给噪声排序。换成可验证奖励
@@ -59,44 +59,42 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 接 GRPO）钉死任务天花板 ~77–78%。落出来的实证法则：**SFT loss 还在降
 就 SFT；loss 见底且残错 pass@G > pass@1 才轮到 GRPO**。
 
-**第一次接触这个代码库？** 先看 [PRIMER.md](./PRIMER.md)——读懂其余文档所需的
+**第一次接触这个代码库？** 先看 [PRIMER.md](./docs/00-background/PRIMER.md)——读懂其余文档所需的
 前置知识：负数索引占位符机制、实测的 token 预算、三个编码器，以及最费时间的坑。
-它的[建议阅读顺序](./PRIMER.md#12-建议的阅读顺序)给出了一条四阶段的代码通读路径，
+它的[建议阅读顺序](./docs/00-background/PRIMER.md#12-建议的阅读顺序)给出了一条四阶段的代码通读路径，
 标注了每段耗时和是否需要 GPU。
 
-### 什么时候看哪份文档
+### 文档地图（按管线组织）
 
-| 文档 | 什么时候看 | 语言 |
+`docs/` 按"过一遍项目"的顺序编号：背景 → 环境 → 数据 → 训练 → 评测 → 复习。
+
+| 阶段 | 目录 | 里面有什么 |
 |---|---|---|
-| [PRIMER.md](./PRIMER.md) | **最先看。** 其余文档的前置知识 | 中文 |
-| [HANDBOOK.md](./HANDBOOK.md) | 动手时：命令、地雷区、故障排查 | 中文 |
-| [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md) | 想弄清某段代码为什么这么写 | 中英双版 |
-| [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md) | 装环境时 | 中英双版 |
-| [DATASETS.md](./DATASETS.md) | 要接真实数据时 | 中文 |
-| [MIGRATION_zh-CN.md](./MIGRATION_zh-CN.md) | 换机器时 | 中英双版 |
-| [CODEMAP.md](./CODEMAP.md) | 在 GitHub 上读代码时，直接跳到某个函数 | 中文 |
-| [BENCHMARKS.md](./BENCHMARKS.md) | 要实测数字时：耗时、显存、以及判断改动是否等价的可复现 loss | 中文 |
-| [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **DPO 实验全程**：设计、每个数字、为什么是这个结果、走过的弯路 | 中文 |
-| [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | SFT + DPO 管线的代码级深读：机制、显存推算、on/off-policy、数据泄露讨论、面试问答（21 问） | 中文 |
-| [ENVIRONMENT.md](./ENVIRONMENT.md) | **conda 环境从零重建 + 全部权重/数据集/评测集下载链接**（开发机已回收，这是复现清单） | 中文 |
-| [KNOWLEDGE.md](./KNOWLEDGE.md) | **面试复习用知识点总索引**：全项目概念与训练细节一张表——一句话核心 + 精确出处，附必背数字 | 中文 |
-| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、五轮训练与对照记录（代理奖励失败→可验证奖励 +32.8pt→通用回归/OOD/配平 SFT 对照/阶段二天花板）、GRPO 演进（vLLM/DAPO/GSPO）、训练与推理框架选型、面试问答 | 中文 |
+| 0 · 背景 | [docs/00-background/](./docs/00-background/) | [PRIMER](./docs/00-background/PRIMER.md)（**最先看**——其余文档的前置知识）· [ARCHITECTURE](./docs/00-background/ARCHITECTURE_zh-CN.md)（[EN](./docs/00-background/ARCHITECTURE.md)）——某段代码为什么这么写 · [CODEMAP](./docs/00-background/CODEMAP.md)——GitHub 上读代码的可点击跳转表 |
+| 1 · 环境 | [docs/01-setup/](./docs/01-setup/) | [ENVIRONMENT](./docs/01-setup/ENVIRONMENT.md)（**conda 重建 + 全部权重/数据/评测集下载链接**）· [REPRODUCE](./docs/01-setup/REPRODUCE_zh-CN.md)（[EN](./docs/01-setup/REPRODUCE.md)）——安装顺序与每个 pin 的原因 · [HANDBOOK](./docs/01-setup/HANDBOOK.md)——命令速查、地雷区、故障排查 · [MIGRATION](./docs/01-setup/MIGRATION_zh-CN.md)（[EN](./docs/01-setup/MIGRATION.md)）——换机器 |
+| 2 · 数据 | [docs/02-data/](./docs/02-data/) | [DATASETS](./docs/02-data/DATASETS.md)——论文用了什么、哪些能下载、本 fork 实际训练用的数据（§3.3） |
+| 3 · 训练与实验 | [docs/03-experiments/](./docs/03-experiments/) | [EXPERIMENT_LOG](./docs/03-experiments/EXPERIMENT_LOG.md)（**DPO 线全程** + GRPO 摘要）· [SFT_DPO_DEEP_DIVE](./docs/03-experiments/SFT_DPO_DEEP_DIVE.md)（机制、显存推算、21 问面试问答）· [GRPO_DEEP_DIVE](./docs/03-experiments/GRPO_DEEP_DIVE.md)（**GRPO 线全程**：数学、奖励设计、指标手册、六轮训练与对照、DAPO/GSPO/vLLM、面试问答） |
+| 4 · 评测 | [docs/04-evaluation/](./docs/04-evaluation/) | [BENCHMARKS](./docs/04-evaluation/BENCHMARKS.md)——实测数字、噪声带、耗时与显存 |
+| 5 · 复习 | [docs/05-review/](./docs/05-review/) | [KNOWLEDGE](./docs/05-review/KNOWLEDGE.md)（**面试复习总索引**：每个知识点一句话核心 + 精确出处）· [PROJECT_SUMMARY](./docs/05-review/PROJECT_SUMMARY.md)——一页总结 + 阅读路线 |
+
 从已回收开发机上抢救下来的原始实验产物（各轮训练日志、逐 step trainer
 state、评测原始输出）在 [artifacts/](./artifacts/README.md)——上面文档里的
 每个数字都能在那里找到原始文件。GRPO 时代的 5 个 LoRA adapter 托管在
 HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)，用
 `tools/merge_and_eval.py` 合并进基座即可精确复原对应轮次的评测模型。
+DPO 时代的权重随更早一台开发机丢失，完整记录与复现路径见
+[EXPERIMENT_LOG.md §13.3](./docs/03-experiments/EXPERIMENT_LOG.md)。
 
 两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
-§5](./ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)
-拆解了让这个模型成立的那个函数，[§14](./ARCHITECTURE_zh-CN.md#14-rl-栈dpo-与-grpo)
+§5](./docs/00-background/ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)
+拆解了让这个模型成立的那个函数，[§14](./docs/00-background/ARCHITECTURE_zh-CN.md#14-rl-栈dpo-与-grpo)
 走读本 fork 新增的 RL 栈。
 
-完整日志见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 栈（DPO + GRPO）如何接入。训练数据调研见 [DATASETS.md](./DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及本 fork RL 实际用的数据（§3.3）。
+完整日志见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md)：可用的依赖组合、必须的代码修复，以及如何运行训练 smoke test。代码库和模型的实际运作方式见 [ARCHITECTURE_zh-CN.md](./docs/00-background/ARCHITECTURE_zh-CN.md)——模态融合机制、三个编码器、推理与训练路径，以及 RL 栈（DPO + GRPO）如何接入。训练数据调研见 [DATASETS.md](./docs/02-data/DATASETS.md)：论文用了什么、截至 2026 年 8 月哪些还能下载、以及本 fork RL 实际用的数据（§3.3）。
 
 ### 如何复现
 
-下文上游的安装与快速开始说明**并非在所有机器上都能照做跑通**（原因见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md)）。请从这里开始：
+下文上游的安装与快速开始说明**并非在所有机器上都能照做跑通**（原因见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md)）。请从这里开始：
 
 ```bash
 export VITA_REPO=$(pwd) VITA_WEIGHTS=/path/to/weights   # 需约 25 GB 可用空间
@@ -110,17 +108,17 @@ python tools/localize_config.py \
 
 精确解析出的版本记录在 [`requirements-lock.txt`](./requirements-lock.txt)——请把它当作**已知可用组合的记录**，而非安装路径。
 
-在全新机器上重建？见 [MIGRATION_zh-CN.md](./MIGRATION_zh-CN.md)——git 里只有代码（约 11 MB），权重和 conda 环境需要重新获取。
+在全新机器上重建？见 [MIGRATION_zh-CN.md](./docs/01-setup/MIGRATION_zh-CN.md)——git 里只有代码（约 11 MB），权重和 conda 环境需要重新获取。
 
 ### 相对上游的改动
 
 - 增加了 `.gitignore`（上游没有），覆盖训练产物、模型权重与密钥。
 - 重写本 README，明确归属上游项目并说明本 fork 的目标。
-- **修复了固定版本 `transformers==4.41.1` 下的 `cache_position` 问题** —— 上游的 `vita_qwen2.py` 在其自身 `requirements.txt` 所固定的版本上根本无法生成。见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)。
+- **修复了固定版本 `transformers==4.41.1` 下的 `cache_position` 问题** —— 上游的 `vita_qwen2.py` 在其自身 `requirements.txt` 所固定的版本上根本无法生成。见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md#必须的代码修复)。
 - **补上了缺失的 `DataConfig` key**（`Pretrain_video0`、`Pretrain_audio`）—— 多个上游训练脚本会传这两个值，但它们从未被定义。
-- **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
-- **在 DPO 之上新增 GRPO**：回答由策略自己采样，奖励在训练中由可插拔的奖励函数实时计算，用组内归一化代替 critic。包含 `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`、`train_grpo.py`，以及 `tools/test_grpo_loss.py`（39 项）和 `tools/test_rewards.py`（44 项）。已从纯文本扩展到**图像+文本**（视觉特征融合进 prompt embedding 一次、G 个 rollout 共享），支持 PPO 式样本复用（`--grpo_num_iterations`）与可验证奖励（`answer` 精确匹配 + 分级 `format`），并在 CLEVR 计数上完成真实训练：`tools/make_clevr_grpo_data.py`、`script/train/grpo_clevr.sh`、`tools/eval_grpo_heldout.py`——400 步 held-out 准确率 44.6% → 77.4%，通用基准零退化。随后用对照实验界定边界：配平 SFT 对照臂（`tools/make_clevr_sft_data.py`、`script/train/sft_clevr.sh`）、SuperCLEVR OOD 评测（`tools/make_superclevr_eval_data.py`）、阶段二续训对照（`tools/make_clevr_stage2_data.py`），钉死任务天花板 ~77–78%。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) 与 [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化)。
-- **新增离线 DPO**，这是本代码库第一个 RL 系目标函数（上游只有 SFT）。包含 `vita/train/dpo_{loss,data,trainer}.py`、`train_dpo.py`、`tools/test_dpo_loss.py`（19 项 CPU 测试）和 `script/train/dpo_smoke_test.sh`。参考模型用同一份权重关掉 LoRA adapter 实现，额外显存为 0。见 [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)。
+- **把 `prepare_inputs_labels_for_multimodal` 的 `audios` 改为可选** —— `None` 分支写了但不可达，导致所有纯文本／纯图像前向都必须塞一个假波形，白跑 341M 参数的音频编码器。见 [ARCHITECTURE_zh-CN.md](./docs/00-background/ARCHITECTURE_zh-CN.md#12-已知缺陷与粗糙之处)。
+- **在 DPO 之上新增 GRPO**：回答由策略自己采样，奖励在训练中由可插拔的奖励函数实时计算，用组内归一化代替 critic。包含 `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`、`train_grpo.py`，以及 `tools/test_grpo_loss.py`（39 项）和 `tools/test_rewards.py`（44 项）。已从纯文本扩展到**图像+文本**（视觉特征融合进 prompt embedding 一次、G 个 rollout 共享），支持 PPO 式样本复用（`--grpo_num_iterations`）与可验证奖励（`answer` 精确匹配 + 分级 `format`），并在 CLEVR 计数上完成真实训练：`tools/make_clevr_grpo_data.py`、`script/train/grpo_clevr.sh`、`tools/eval_grpo_heldout.py`——400 步 held-out 准确率 44.6% → 77.4%，通用基准零退化。随后用对照实验界定边界：配平 SFT 对照臂（`tools/make_clevr_sft_data.py`、`script/train/sft_clevr.sh`）、SuperCLEVR OOD 评测（`tools/make_superclevr_eval_data.py`）、阶段二续训对照（`tools/make_clevr_stage2_data.py`），钉死任务天花板 ~77–78%。见 [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md) 与 [HANDBOOK.md §9](./docs/01-setup/HANDBOOK.md#9-grpo组相对策略优化)。
+- **新增离线 DPO**，这是本代码库第一个 RL 系目标函数（上游只有 SFT）。包含 `vita/train/dpo_{loss,data,trainer}.py`、`train_dpo.py`、`tools/test_dpo_loss.py`（19 项 CPU 测试）和 `script/train/dpo_smoke_test.sh`。参考模型用同一份权重关掉 LoRA adapter 实现，额外显存为 0。见 [HANDBOOK.md §8](./docs/01-setup/HANDBOOK.md#8-dpo离线偏好优化)。
 - 给 `vita_arch.py` 增加 `encode_images_deduped`：当一个 batch 里多条序列共享同一份媒体时（DPO 的 chosen/rejected 对，以及后续 GRPO 的 rollout 组），视觉编码器只编码一份再复制特征。结果逐位相同（`tools/test_image_dedup.py` 用 `torch.equal` 断言），视觉前向省 44-46%。通过 `image_group_size` 显式开启，SFT 路径不受影响。
 - 把 `vita/train/train.py` 的 `train()` 泛化为可接收「额外参数类 / 数据模块工厂 / trainer 工厂」，使 DPO 能复用那约 230 行模型构建逻辑而非复制。不传参数时行为与之前完全一致。
 - **让 LoRA 可用。** `find_all_linear_names` 没有排除 `audio_encoder`，而 whale 里有两个 `nn.Linear` 的叶子名是数字 `"0"`；peft 按后缀匹配，于是命中了 `layers.0`——整个 `Qwen2DecoderLayer`——导致 `--lora_enable True` 必然失败。现已排除 `audio_encoder` 并跳过纯数字叶子名。单卡 LoRA 峰值 23.3 GB。
@@ -205,7 +203,7 @@ python tools/localize_config.py \
 
 ## 📈 实验结果
 
-*以下所有数字均由上游 VITA 团队在 [VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)中报告。本 fork 自己的实测在别处：复测基线（MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内）见 [BENCHMARKS.md §2.6](./BENCHMARKS.md)，DPO 结果见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)，GRPO 结果见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。*
+*以下所有数字均由上游 VITA 团队在 [VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)中报告。本 fork 自己的实测在别处：复测基线（MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内）见 [BENCHMARKS.md §2.6](./docs/04-evaluation/BENCHMARKS.md)，DPO 结果见 [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md)，GRPO 结果见 [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md)。*
 
 - **图像与视频理解基准评测。**
 
@@ -258,7 +256,7 @@ pip install -r requirements.txt
 pip install flash-attn --no-build-isolation
 ```
 
-> ⚠️ 上述上游安装步骤在本项目的验证机器上**无法成功**。可用的分步安装方案见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#安装顺序顺序很重要)。
+> ⚠️ 上述上游安装步骤在本项目的验证机器上**无法成功**。可用的分步安装方案见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md#安装顺序顺序很重要)。
 
 ### 数据准备
 - 训练数据的 json 示例：
@@ -336,7 +334,7 @@ OUTPUT_DIR=/path/to/your/outputs/vita_video_audio
 bash script/train/finetuneTaskNeg_qwen_nodes.sh ${OUTPUT_DIR}
 ```
 
-> 💡 7B 全参数训练在单张 80GB 卡上**放不下**（AdamW 优化器状态需约 84 GB，靠 ZeRO-3 切分）。**至少需要 8 张卡。** 详见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#显存说明)。
+> 💡 7B 全参数训练在单张 80GB 卡上**放不下**（AdamW 优化器状态需约 84 GB，靠 ZeRO-3 切分）。**至少需要 8 张卡。** 详见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md#显存说明)。
 
 
 ## 📐 推理
@@ -373,7 +371,7 @@ CUDA_VISIBLE_DEVICES=4 python video_audio_demo.py \
 
 > 注：上游 README 在音频示例中写的是 `asset/vita_newlog.png`，但仓库里并无该文件——此处已改为实际存在的 `.jpg`。
 >
-> 回复开头的 `☜` / `☞` / `☟` 是状态符号，分别表示"回复文本查询"、"回复语音查询"、"负样本（噪声）条件下的回复"。详见 [ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md#6-状态符号拒答机制)。
+> 回复开头的 `☜` / `☞` / `☟` 是状态符号，分别表示"回复文本查询"、"回复语音查询"、"负样本（噪声）条件下的回复"。详见 [ARCHITECTURE_zh-CN.md](./docs/00-background/ARCHITECTURE_zh-CN.md#6-状态符号拒答机制)。
 
 
 ### Demo

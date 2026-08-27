@@ -74,8 +74,8 @@ pip install "moviepy==2.2.1"   # VLMEvalKit import moviepy.editor 需要 shim，
 
 | 文件 | 记录的是 | 何时用 |
 |---|---|---|
-| [`requirements-lock.txt`](./requirements-lock.txt) | DPO 时代 H100 机器的已知可用组合 | 复现 DPO 六轮 |
-| [`requirements-lock-grpo.txt`](./requirements-lock-grpo.txt) | GRPO 时代 H800 机器（`artifacts/` 所有 run 的出处），比前者多 wandb/tensorboard/VLMEvalKit 依赖 | 复现 GRPO R1–R6 |
+| [`requirements-lock.txt`](../../requirements-lock.txt) | DPO 时代 H100 机器的已知可用组合 | 复现 DPO 六轮 |
+| [`requirements-lock-grpo.txt`](../../requirements-lock-grpo.txt) | GRPO 时代 H800 机器（`artifacts/` 所有 run 的出处），比前者多 wandb/tensorboard/VLMEvalKit 依赖 | 复现 GRPO R1–R6 |
 
 两者核心 pin（torch/transformers/deepspeed/peft/flash-attn）完全一致，
 装哪个都能跑全部代码路径。

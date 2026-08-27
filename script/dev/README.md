@@ -6,7 +6,7 @@
 但编排逻辑（哪几步、什么顺序、哪些并行、判定条件）是文档数字的操作出处，
 入库存档。
 
-换机器复跑时：路径按 [ENVIRONMENT.md](../../ENVIRONMENT.md) 重建后替换；
+换机器复跑时：路径按 [ENVIRONMENT.md](../../docs/01-setup/ENVIRONMENT.md) 重建后替换；
 `${DEV_HTTP_PROXY:-}` 是内网代理占位符，有代理需求时自行 export，无则留空。
 
 | 脚本 | 作用 | 对应文档 |

@@ -140,9 +140,9 @@ python tools/localize_config.py \
 
 ## 六、后续工作的起点
 
-项目当前进度见 [README_zh-CN.md 的路线图](./README_zh-CN.md#路线图)：推理、训练链路
+项目当前进度见 [README_zh-CN.md 的路线图](../../README_zh-CN.md#路线图)：推理、训练链路
 与两条 RL 线均已完成——DPO 端到端测量（POPE 幻觉率 10.97% → 8.82%，见
-[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)），多模态 GRPO 在可验证奖励任务上
+[EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)），多模态 GRPO 在可验证奖励任务上
 训练成功（held-out 准确率 44.6% → 77.4%，见
-[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。RL 栈代码走读见
-[ARCHITECTURE_zh-CN.md 第 14 章](./ARCHITECTURE_zh-CN.md)。
+[GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)）。RL 栈代码走读见
+[ARCHITECTURE_zh-CN.md 第 14 章](../00-background/ARCHITECTURE_zh-CN.md)。

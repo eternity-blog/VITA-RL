@@ -1,8 +1,8 @@
 # VITA-1.5 多模态强化学习项目
 
 > 面向简历/面试的项目综述。DPO 与 GRPO 两条线都有真实跑通的数字。
-> 完整实验过程见 [`EXPERIMENT_LOG.md`](EXPERIMENT_LOG.md)（DPO 六轮）与
-> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)（GRPO 全记录），架构见 [`ARCHITECTURE.md`](ARCHITECTURE.md)。
+> 完整实验过程见 [`EXPERIMENT_LOG.md`](../03-experiments/EXPERIMENT_LOG.md)（DPO 六轮）与
+> [`GRPO_DEEP_DIVE.md`](../03-experiments/GRPO_DEEP_DIVE.md)（GRPO 全记录），架构见 [`ARCHITECTURE.md`](../00-background/ARCHITECTURE.md)。
 
 ## 一句话
 
@@ -155,30 +155,30 @@ def _fuse(self, model, inputs):
 > 能力排序，其次才是超参剂量。对照实验进一步界定了适用边界：gold 可直接
 > 模仿的任务上 SFT 同终点且 1/7.5 成本；"何时 SFT / 何时 GRPO"的判据是
 > **SFT loss 是否见底 + 残错上 pass@G 是否 > pass@1**。完整记录与指标
-> 手册见 [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)。
+> 手册见 [`GRPO_DEEP_DIVE.md`](../03-experiments/GRPO_DEEP_DIVE.md)。
 
 ## 面试准备阅读路线
 
 按"先叙事、再数字、后细节"的顺序（总复习清单见
-[KNOWLEDGE.md](KNOWLEDGE.md)——全部知识点一句话核心 + 出处）：
+[KNOWLEDGE.md](./KNOWLEDGE.md)——全部知识点一句话核心 + 出处）：
 
-1. **叙事骨架**（30 分钟）：本文 + [README_zh-CN.md](README_zh-CN.md)
+1. **叙事骨架**（30 分钟）：本文 + [README_zh-CN.md](../../README_zh-CN.md)
    的 DPO/GRPO 两段故事——两条线各自的"失败→诊断→修复"弧线要能脱稿讲。
-2. **DPO 线**（半天）：[EXPERIMENT_LOG.md](EXPERIMENT_LOG.md)
+2. **DPO 线**（半天）：[EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)
    §1 摘要表 + §2.2 四条方法论原则 + §6 探针 + §8–9 贡献分解；然后
-   [SFT_DPO_DEEP_DIVE.md](SFT_DPO_DEEP_DIVE.md) **§12 面试问答（21 问）**，
+   [SFT_DPO_DEEP_DIVE.md](../03-experiments/SFT_DPO_DEEP_DIVE.md) **§12 面试问答（21 问）**，
    重点 Q2（两种"分不开"）、Q3（为什么不只 SFT）、Q13（数据重叠）。
-3. **GRPO 线**（半天）：[GRPO_DEEP_DIVE.md](GRPO_DEEP_DIVE.md)
+3. **GRPO 线**（半天）：[GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)
    §10 五轮全记录 + §11 面试问答 + §12 演进（vLLM/DAPO/GSPO）+
    §13 框架选型；R5 的"何时 SFT / 何时 GRPO"判据是两条线的合流点。
-4. **实现细节抽查**（按需）：[CODEMAP.md](CODEMAP.md) 定位文件 →
-   [ARCHITECTURE_zh-CN.md](ARCHITECTURE_zh-CN.md) §14 RL 栈走读。
+4. **实现细节抽查**（按需）：[CODEMAP.md](../00-background/CODEMAP.md) 定位文件 →
+   [ARCHITECTURE_zh-CN.md](../00-background/ARCHITECTURE_zh-CN.md) §14 RL 栈走读。
 
 被问到"数字能验证吗 / 怎么复现"时的答案：原始训练日志与评测 JSON 在
-[artifacts/](artifacts/README.md)；LoRA adapter 在
+[artifacts/](../../artifacts/README.md)；LoRA adapter 在
 HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)（合并即复原
-评测模型）；环境与全部资源下载链接在 [ENVIRONMENT.md](ENVIRONMENT.md)；
-当时的实验编排脚本在 [script/dev/](script/dev/README.md)。
+评测模型）；环境与全部资源下载链接在 [ENVIRONMENT.md](../01-setup/ENVIRONMENT.md)；
+当时的实验编排脚本在 [script/dev/](../../script/dev/README.md)。
 
 必背的三组数：DPO 线 **52.2%/0.055 → 58.0%/0.218**（诊断）、
 **−7.84 → +4.75**（根因）、**10.97 → 10.34 → 8.82**（贡献分解）；

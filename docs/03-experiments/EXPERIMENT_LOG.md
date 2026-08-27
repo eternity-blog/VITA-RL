@@ -910,10 +910,15 @@ CPU 预处理是瓶颈；后来实测只占 12 ms/图，真正耗时是 7B 生�
 
 ### 13.3 磁盘产物（原开发机，不在 git 里）
 
-> **2026-08-27 更新**：开发机回收前，GRPO 时代（§14）各轮的训练日志、
-> trainer_state 与评测原始结果已抢救进仓库 [`artifacts/`](./artifacts/README.md)。
-> 下面列的 DPO 时代磁盘产物跑在更早一台机器上（已回收），原始文件不可恢复，
-> 数字以本文档为准，wandb 云端 run 仍可查。
+> **2026-08-27 更新——两条线的留存状态（开发机已全部回收）**：
+>
+> | | 数字与过程 | 训练曲线 | 原始日志/评测 JSON | 成品权重 |
+> |---|---|---|---|---|
+> | **DPO 线**（六轮，§3–§9） | ✅ 本文档 | ✅ wandb 云端 | ❌ 随旧开发机丢失 | ❌ **丢失**（三轮 DPO adapter、全参 SFT checkpoint、SFT→DPO 最终模型均在旧机器上，回收前未备份） |
+> | **GRPO 线**（R1–R6，§14） | ✅ 本文档 + GRPO_DEEP_DIVE | ✅ wandb 云端 | ✅ [`artifacts/`](../../artifacts/README.md) | ✅ 5 个 LoRA adapter 在 HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)，合并基座即复原 |
+>
+> DPO 线成品如需重新取得，按 §10 复现（全参 SFT ~2h/8 卡 + DPO ~2.5h + 评测）。
+> 下面列的是当时的磁盘布局，仅作历史参考。
 
 ```
 $VITA_WEIGHTS/rlaif_v/shard00{0,1,3,4}.parquet   原始分片，约 4 GB
@@ -958,7 +963,7 @@ $EVAL_OUT/{baseline,dpo,dpo_lr2e5,dpo_large*,sft*,sftdpo*}/   全部评测结果
 ## 14. GRPO 实验记录（2026-08-20 起，训练 + 对照 + 消融）
 
 > 完整细节（原理、超参、数学、指标手册、面试问答）在
-> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)；此处只留一页结果表，
+> [`GRPO_DEEP_DIVE.md`](./GRPO_DEEP_DIVE.md)；此处只留一页结果表，
 > 与 DPO 六轮平行对照。
 
 | 轮 | 数据 / 奖励 | 配置 | 结果 | 结论 |

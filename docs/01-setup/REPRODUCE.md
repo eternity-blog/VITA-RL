@@ -157,7 +157,7 @@ which is a platform-metadata note rather than a dependency conflict; decord
 imports and runs.
 
 The exact resolved versions are recorded in
-[`requirements-lock.txt`](./requirements-lock.txt). Use it to check what you
+[`requirements-lock.txt`](../../requirements-lock.txt). Use it to check what you
 ended up with rather than as the install path — installing straight from it can
 fail, because the ordering above matters.
 
@@ -433,11 +433,11 @@ Upstream reproduction:
 - [x] Single-GPU LoRA training — 23.3 GB peak, after fixing the upstream
       crash described in [HANDBOOK.md §5](./HANDBOOK.md#5-各条路径的实测状态)
 - [x] Training on real data — RLAIF-V (SFT + DPO) and CLEVR-70k (GRPO); see
-      [DATASETS.md](./DATASETS.md)
+      [DATASETS.md](../02-data/DATASETS.md)
 
 This fork's RL work (measured end to end on real data — DPO story in
-[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md), GRPO story in
-[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)):
+[EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md), GRPO story in
+[GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)):
 
 - [x] Offline DPO — first-step loss lands on the exact `-log(0.5)`;
       SFT-then-DPO cuts POPE hallucination 10.97% → 8.82% (McNemar p<1e-4)
@@ -454,7 +454,7 @@ This fork's RL work (measured end to end on real data — DPO story in
       ratio≠1 and a live clip, as expected
 - [x] Five CPU test suites (118 checks across them), no checkpoint required
 - [x] VLMEvalKit baseline — the omegaconf/antlr4 conflict is resolved, see
-      [BENCHMARKS.md](./BENCHMARKS.md)
+      [BENCHMARKS.md](../04-evaluation/BENCHMARKS.md)
 
 ## Reproducing on another machine
 

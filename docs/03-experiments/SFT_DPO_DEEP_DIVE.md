@@ -4,8 +4,8 @@
 > 覆盖数据构建、训练实现、显存/架构/动力学、on/off-policy 辨析、数据泄露讨论，
 > 以及一个旨在隔离"分布对齐"与"chosen 记忆"两因子的 disjoint 实验设计。
 >
-> 实验过程与数字见 [`EXPERIMENT_LOG.md`](EXPERIMENT_LOG.md)，
-> 项目综述见 [`PROJECT_SUMMARY.md`](PROJECT_SUMMARY.md)。
+> 实验过程与数字见 [`EXPERIMENT_LOG.md`](./EXPERIMENT_LOG.md)，
+> 项目综述见 [`PROJECT_SUMMARY.md`](../05-review/PROJECT_SUMMARY.md)。
 
 ---
 
@@ -756,8 +756,8 @@ python tools/compare_pope.py --before .../baseline/vita_qwen2 --after .../disjoi
 > 无既有 checkpoint）。截至 2026-08-20 已全部解除：权重、RLAIF-V 分片、
 > CLEVR 数据均已就绪，环境 `/data/agent/conda/envs/vita-rl` 可用，
 > GRPO 四轮训练已在此环境完成（见
-> [`GRPO_DEEP_DIVE.md`](GRPO_DEEP_DIVE.md)、
-> [`EXPERIMENT_LOG.md` §14](EXPERIMENT_LOG.md)）。
+> [`GRPO_DEEP_DIVE.md`](./GRPO_DEEP_DIVE.md)、
+> [`EXPERIMENT_LOG.md` §14](./EXPERIMENT_LOG.md)）。
 > disjoint 实验本身仍未执行，保留为可选待办；执行顺序如下。
 
 **执行顺序**：下 shard003/004 → 生成 disjoint SFT 数据 → 跑 SFT → 下 shard000/001 → 生成 disjoint DPO 数据 → 跑 DPO → 合并评测对比。预估耗时（8×H100）：数据下载 ~30min + SFT ~2h + DPO ~2.5h + 评测 ~1.5h ≈ 6.5 小时。
@@ -799,7 +799,7 @@ python tools/compare_pope.py --before .../baseline/vita_qwen2 --after .../disjoi
 ## 12. 面试问答
 
 > 按被问概率和挂人概率排的。每条答案给要点和出处章节，数字都能在
-> [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) 找到原始表格。
+> [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) 找到原始表格。
 
 ### 12.1 原理与概念
 

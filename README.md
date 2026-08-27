@@ -43,11 +43,11 @@ The goal of this repository is to **reproduce VITA-1.5 end-to-end**, and then to
 |---|---|---|
 | 1. Reproduce inference | ✅ Done | Text, audio and noisy-audio queries all run against the released VITA-1.5 checkpoint |
 | 2. Verify training pipeline | ✅ Done | Runs end to end on 8×H800 with a synthetic dataset; checkpoints save and reload |
-| 3. Benchmark baseline | ✅ Done | **MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper.** See [BENCHMARKS.md §2.6](./BENCHMARKS.md) |
+| 3. Benchmark baseline | ✅ Done | **MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper.** See [BENCHMARKS.md §2.6](./docs/04-evaluation/BENCHMARKS.md) |
 | 4. Train on real data | ✅ Done | 3000 RLAIF-V preference pairs, one epoch of LoRA DPO, first-step loss exactly `-log(0.5)` |
-| 5. Add RL | ✅ Done | DPO: POPE hallucination 10.97% → 8.82% (McNemar p<1e-4) via SFT-then-DPO — see [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO: multimodal extension trained on CLEVR counting with a verifiable reward, **held-out accuracy 44.6% → 77.4% in 400 steps** (win rate 0.977), zero regression on MME/POPE/MMBench, plus matched SFT-control and OOD experiments that map the method's boundary — see [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
+| 5. Add RL | ✅ Done | DPO: POPE hallucination 10.97% → 8.82% (McNemar p<1e-4) via SFT-then-DPO — see [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md). GRPO: multimodal extension trained on CLEVR counting with a verifiable reward, **held-out accuracy 44.6% → 77.4% in 400 steps** (win rate 0.977), zero regression on MME/POPE/MMBench, plus matched SFT-control and OOD experiments that map the method's boundary — see [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md) |
 
-**Read [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) for the whole story of stages 3-5**:
+**Read [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md) for the whole story of stages 3-5**:
 three rounds of DPO on RLAIF-V, none of which moved the benchmarks beyond
 noise, with the reason measured rather than guessed — the base model separates
 those preference pairs at 53.6% (95% CI [50.3%, 56.8%], n=900), a
@@ -58,7 +58,7 @@ and the benchmarks still did not improve — POPE changed 24 of 5127 answers,
 this in eight minutes, before the four hours behind it. The endgame is
 SFT-then-DPO (POPE hallucination 10.97% → 8.82%).
 
-**Read [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) for the GRPO arc**: the same
+**Read [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md) for the GRPO arc**: the same
 lesson in a different costume. Two rounds on RLAIF-V with proxy rewards
 (keyword overlap, LLM judge) moved the KL 6x without moving any content
 reward — within a group of 8 open-ended descriptions, proxy scores rank
@@ -73,55 +73,54 @@ SFT-vs-GRPO continuation) showing a ~77–78% task ceiling either way. The
 empirical rule that falls out: SFT while its loss still falls; GRPO only
 when loss floors and residual errors still have pass@G > pass@1.
 
-**New to this codebase?** Start with [PRIMER.md](./PRIMER.md) — the background
+**New to this codebase?** Start with [PRIMER.md](./docs/00-background/PRIMER.md) — the background
 you need before the other documents make sense: the negative-index placeholder
 mechanism, measured token budgets, the three encoders, and the traps that cost
-the most time. Its [reading order](./PRIMER.md#12-建议的阅读顺序) lays out a
+the most time. Its [reading order](./docs/00-background/PRIMER.md#12-建议的阅读顺序) lays out a
 four-stage path through the code, with timings and which parts need a GPU.
 
-### Which document to read when
+### Documentation map (organized as a pipeline)
 
-| Document | Read it when | Language |
+Everything under `docs/` is numbered in the order you would work through the
+project — background, setup, data, training, evaluation, review:
+
+| Stage | Directory | What is inside |
 |---|---|---|
-| [PRIMER.md](./PRIMER.md) | **First.** Prerequisites for everything else | 中文 |
-| [HANDBOOK.md](./HANDBOOK.md) | You are at a terminal: commands, landmines, troubleshooting | 中文 |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | You want to know why a piece of code is the way it is | EN + [中文](./ARCHITECTURE_zh-CN.md) |
-| [REPRODUCE.md](./REPRODUCE.md) | Setting up the environment | EN + [中文](./REPRODUCE_zh-CN.md) |
-| [DATASETS.md](./DATASETS.md) | Ready to train on real data | 中文 |
-| [ENVIRONMENT.md](./ENVIRONMENT.md) | **Rebuilding the conda env from scratch + download links for every weight / dataset / benchmark** (the dev machine is gone; this is the checklist) | 中文 |
-| [MIGRATION.md](./MIGRATION.md) | Moving to another machine | EN + [中文](./MIGRATION_zh-CN.md) |
-| [CODEMAP.md](./CODEMAP.md) | Reading on GitHub and want to jump straight to a function | 中文 |
-| [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
-| [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) | **The DPO experiment end to end**: design, every number, why it came out the way it did, and the wrong turns | 中文 |
-| [SFT_DPO_DEEP_DIVE.md](./SFT_DPO_DEEP_DIVE.md) | Code-level deep dive of the SFT + DPO pipeline: mechanisms, memory math, on/off-policy, data-leakage discussion, interview Q&A (21 questions) | 中文 |
-| [KNOWLEDGE.md](./KNOWLEDGE.md) | **Knowledge-point master index for interview prep**: every concept and training detail in one table — one-line takeaway + exact source location, plus the must-memorize numbers | 中文 |
-| [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, five rounds of training + controls (proxy-reward failure → verifiable-reward +32.8pt → benchmark regression / OOD / matched SFT control / stage-2 ceiling), GRPO successors (vLLM/DAPO/GSPO), training & inference framework selection, interview Q&A | 中文 |
+| 0 · Background | [docs/00-background/](./docs/00-background/) | [PRIMER](./docs/00-background/PRIMER.md) (**read first** — prerequisites for everything else) · [ARCHITECTURE](./docs/00-background/ARCHITECTURE.md) ([中文](./docs/00-background/ARCHITECTURE_zh-CN.md)) — why the code is the way it is · [CODEMAP](./docs/00-background/CODEMAP.md) — clickable jump table for reading on GitHub |
+| 1 · Setup | [docs/01-setup/](./docs/01-setup/) | [ENVIRONMENT](./docs/01-setup/ENVIRONMENT.md) (**conda rebuild + download links for every weight/dataset/benchmark**) · [REPRODUCE](./docs/01-setup/REPRODUCE.md) ([中文](./docs/01-setup/REPRODUCE_zh-CN.md)) — install order and why each pin exists · [HANDBOOK](./docs/01-setup/HANDBOOK.md) — commands, landmines, troubleshooting · [MIGRATION](./docs/01-setup/MIGRATION.md) ([中文](./docs/01-setup/MIGRATION_zh-CN.md)) |
+| 2 · Data | [docs/02-data/](./docs/02-data/) | [DATASETS](./docs/02-data/DATASETS.md) — what the paper used, what is downloadable, what this fork actually trained on (§3.3) |
+| 3 · Training & experiments | [docs/03-experiments/](./docs/03-experiments/) | [EXPERIMENT_LOG](./docs/03-experiments/EXPERIMENT_LOG.md) (**the DPO line end to end** + GRPO summary) · [SFT_DPO_DEEP_DIVE](./docs/03-experiments/SFT_DPO_DEEP_DIVE.md) (mechanisms, memory math, 21 interview Q&As) · [GRPO_DEEP_DIVE](./docs/03-experiments/GRPO_DEEP_DIVE.md) (**the GRPO line end to end**: math, rewards, metric handbook, six rounds + controls, DAPO/GSPO/vLLM, interview Q&A) |
+| 4 · Evaluation | [docs/04-evaluation/](./docs/04-evaluation/) | [BENCHMARKS](./docs/04-evaluation/BENCHMARKS.md) — measured numbers, noise bands, timings, memory |
+| 5 · Review | [docs/05-review/](./docs/05-review/) | [KNOWLEDGE](./docs/05-review/KNOWLEDGE.md) (**master index for interview prep**: one-line takeaway + exact source per knowledge point) · [PROJECT_SUMMARY](./docs/05-review/PROJECT_SUMMARY.md) — one-page summary + reading route |
+
 Raw run artifacts (per-run training logs, step-by-step trainer state, raw
 evaluation outputs) salvaged from the now-decommissioned dev machine live in
 [artifacts/](./artifacts/README.md) — every number in the documents above can
 be traced back to a file there. The five GRPO-era LoRA adapters are hosted at
 [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL) on Hugging Face;
 merging one into the base model with `tools/merge_and_eval.py` exactly
-reproduces the corresponding evaluated checkpoint.
+reproduces the corresponding evaluated checkpoint. The DPO-era weights were
+lost with an earlier dev machine — the full record and reproduction path
+survive in [EXPERIMENT_LOG.md §13.3](./docs/03-experiments/EXPERIMENT_LOG.md).
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
-§5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
-dissects the function that makes this model work, and [§14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
+§5](./docs/00-background/ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
+dissects the function that makes this model work, and [§14](./docs/00-background/ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
 covers the RL stack this fork added.
 
-See [REPRODUCE.md](./REPRODUCE.md) for the full log: working dependency set,
+See [REPRODUCE.md](./docs/01-setup/REPRODUCE.md) for the full log: working dependency set,
 the code fixes required, and how to run the training smoke test. See
-[ARCHITECTURE.md](./ARCHITECTURE.md) for how the model and codebase actually
+[ARCHITECTURE.md](./docs/00-background/ARCHITECTURE.md) for how the model and codebase actually
 work — the modality-fusion mechanism, the three encoders, the inference and
 training paths, and how the RL stack (DPO + GRPO) attaches. See
-[DATASETS.md](./DATASETS.md) for the training-data survey: what the paper used,
+[DATASETS.md](./docs/02-data/DATASETS.md) for the training-data survey: what the paper used,
 what is still downloadable as of August 2026, and three plans sized to
 available disk.
 
 ### Reproducing this
 
 The upstream install and quick-start instructions further down do not work
-as written on every machine (see [REPRODUCE.md](./REPRODUCE.md) for why).
+as written on every machine (see [REPRODUCE.md](./docs/01-setup/REPRODUCE.md) for why).
 Start here instead:
 
 ```bash
@@ -138,7 +137,7 @@ Exact resolved versions are in
 [`requirements-lock.txt`](./requirements-lock.txt) — read it as a record of a
 known-good set, not as an install path.
 
-Rebuilding on a fresh machine? See [MIGRATION.md](./MIGRATION.md) — git holds
+Rebuilding on a fresh machine? See [MIGRATION.md](./docs/01-setup/MIGRATION.md) — git holds
 only code (~11 MB); the weights and conda environment must be re-acquired.
 
 ### Changes relative to upstream
@@ -147,13 +146,13 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
 - Rewrote this README to attribute the work to the upstream project and to document the fork's goals.
 - **Fixed `cache_position` under the pinned `transformers==4.41.1`** — upstream's
   `vita_qwen2.py` cannot generate on the version its own `requirements.txt`
-  pins. See [REPRODUCE.md](./REPRODUCE.md#code-fixes-required).
+  pins. See [REPRODUCE.md](./docs/01-setup/REPRODUCE.md#code-fixes-required).
 - **Added the missing `DataConfig` keys** (`Pretrain_video0`, `Pretrain_audio`)
   that several upstream training scripts pass but that were never defined.
 - **Made `audios` optional in `prepare_inputs_labels_for_multimodal`** — the
   `None` branch existed but was unreachable, so every text-only or image-only
   forward pass had to be fed a dummy waveform and ran the 341M-parameter audio
-  encoder for nothing. See [ARCHITECTURE.md](./ARCHITECTURE.md#12-known-defects-and-rough-edges).
+  encoder for nothing. See [ARCHITECTURE.md](./docs/00-background/ARCHITECTURE.md#12-known-defects-and-rough-edges).
 - **Added GRPO** on top of DPO: the policy samples its own completions and a
   pluggable reward scores them during training, with the group as the
   baseline instead of a critic. `vita/train/{rewards,grpo_loss,grpo_data,grpo_trainer}.py`
@@ -171,14 +170,14 @@ only code (~11 MB); the weights and conda environment must be re-acquired.
   (`tools/make_superclevr_eval_data.py`), and a stage-2 continuation
   experiment (`tools/make_clevr_stage2_data.py`) that pins the task ceiling
   at ~77–78% regardless of channel. See
-  [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) and
-  [HANDBOOK.md §9](./HANDBOOK.md#9-grpo组相对策略优化).
+  [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md) and
+  [HANDBOOK.md §9](./docs/01-setup/HANDBOOK.md#9-grpo组相对策略优化).
 - **Added offline DPO**, the first RL-family objective in this codebase
   (upstream has only SFT). `vita/train/dpo_{loss,data,trainer}.py` and
   `train_dpo.py`, with `tools/test_dpo_loss.py` (19 CPU checks) and
   `script/train/dpo_smoke_test.sh`. The reference policy is the same weights
   with the LoRA adapter disabled, so it costs no extra memory. See
-  [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化).
+  [HANDBOOK.md §8](./docs/01-setup/HANDBOOK.md#8-dpo离线偏好优化).
 - Added `encode_images_deduped` to `vita_arch.py`: when a batch repeats the
   same media across sequences (DPO's chosen/rejected pair, later GRPO's
   rollout group), the vision tower encodes one repetition and the features
@@ -295,7 +294,7 @@ On 2024.08.12, the VITA team launched **VITA-1.0**, the **first-ever open-source
 
 ## 📈 Experimental Results
 
-*All numbers below are reported by the upstream VITA team in the [VITA-1.5 paper](https://arxiv.org/pdf/2501.01957). This fork's own measurements live elsewhere: the re-measured baseline (MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper) in [BENCHMARKS.md §2.6](./BENCHMARKS.md), the DPO results in [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md), and the GRPO results in [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md).*
+*All numbers below are reported by the upstream VITA team in the [VITA-1.5 paper](https://arxiv.org/pdf/2501.01957). This fork's own measurements live elsewhere: the re-measured baseline (MME 2353.5, MMStar 59.8, MMBench 77.8, AI2D 79.2 — all within 1.2 points of the paper) in [BENCHMARKS.md §2.6](./docs/04-evaluation/BENCHMARKS.md), the DPO results in [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md), and the GRPO results in [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md).*
 
 - **Evaluation on image and video understanding benchmarks.**
 

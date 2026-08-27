@@ -6,7 +6,7 @@
 
 > 语言：[English](./ARCHITECTURE.md) | **中文**
 >
-> 配套文档：[REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md) 是操作日志（怎么装、怎么跑、什么坏了）。本文是概念地图。
+> 配套文档：[REPRODUCE_zh-CN.md](../01-setup/REPRODUCE_zh-CN.md) 是操作日志（怎么装、怎么跑、什么坏了）。本文是概念地图。
 
 ## 目录
 
@@ -340,7 +340,7 @@ README 指定的续训入口是 `finetuneTaskNeg_qwen_nodes.sh`（4 节点 × 8 
 
 ### 8.4 显存
 
-7B 全参数训练在单张 80 GB GPU 上放不下。AdamW 为每个参数保存两个 fp32 动量（约 56 GB），外加 fp32 主权重（约 28 GB）；ZeRO-3 将这些切分到各 rank。单卡运行会完成前向和反向，然后在分配优化器状态时 OOM。**8 卡是全参数训练的实际下限。** 参见 [REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#显存说明)。
+7B 全参数训练在单张 80 GB GPU 上放不下。AdamW 为每个参数保存两个 fp32 动量（约 56 GB），外加 fp32 主权重（约 28 GB）；ZeRO-3 将这些切分到各 rank。单卡运行会完成前向和反向，然后在分配优化器状态时 OOM。**8 卡是全参数训练的实际下限。** 参见 [REPRODUCE_zh-CN.md](../01-setup/REPRODUCE_zh-CN.md#显存说明)。
 
 ## 9. 数据管线
 
@@ -466,11 +466,11 @@ outputs['loss'] = loss
 
 | 问题 | 状态 |
 |---|---|
-| `cache_position` 在固定的 `transformers==4.41.1` 上导致生成失败——上游在同一个提交里加入这段代码和这个版本固定，而两者对 Qwen2 路径从未一致 | **本 fork 已修**（[REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#必须的代码修复)） |
+| `cache_position` 在固定的 `transformers==4.41.1` 上导致生成失败——上游在同一个提交里加入这段代码和这个版本固定，而两者对 Qwen2 路径从未一致 | **本 fork 已修**（[REPRODUCE_zh-CN.md](../01-setup/REPRODUCE_zh-CN.md#必须的代码修复)） |
 | `prepare_inputs_labels_for_multimodal` 在 `audios is None` 时置 `audio_features = None`，但六行后无条件解引用它——于是 `None` 分支不可达，所有调用方只能传一个假的 `torch.zeros(400, 80)`，纯文本和纯图像批次也要白跑 341M 参数的音频编码器 | **本 fork 已修**（`tools/test_audio_optional.py`） |
 | `DataConfig` 缺少 `Pretrain_video0` / `Pretrain_audio`，而多个脚本会传这两个值 → `KeyError` | **本 fork 已修** |
 | `vita_nemo.py:78,178` 有完全相同的 `cache_position` 缺陷 | **未修** —— 缺少 Nemo 权重无法测试 |
-| `requirements.txt` 无法顺利安装（未固定的 `xformers` 要求 `torch>=2.10`；未固定的 `pillow` 需要较新 gcc）；`six`/`timm`/`einops`/`PyYAML`/`opencv`/`librosa` 被 import 但未列出 | 已绕过（[REPRODUCE_zh-CN.md](./REPRODUCE_zh-CN.md#与上游-requirementstxt-的偏离)） |
+| `requirements.txt` 无法顺利安装（未固定的 `xformers` 要求 `torch>=2.10`；未固定的 `pillow` 需要较新 gcc）；`six`/`timm`/`einops`/`PyYAML`/`opencv`/`librosa` 被 import 但未列出 | 已绕过（[REPRODUCE_zh-CN.md](../01-setup/REPRODUCE_zh-CN.md#与上游-requirementstxt-的偏离)） |
 | `script/train/` 中遍布硬编码的集群路径（`/mnt/cfs/lhj/…`），以及钉死在作者内网的 `MASTER_ADDR`/`INDEX` | 必须在本地修改 |
 | `constants.py` 中的 `GLOBAL_WEIGHTS_PATH` 仍是字面量 `/path/to/model_weights` | 仅在 LoRA 分支被用到 |
 | `mm_projector_lr` 已不再影响 `mm_projector`（`vita_trainer.py:190`） | 上游问题，未修 |
@@ -488,13 +488,13 @@ outputs['loss'] = loss
 
 > **状态（2026-08-20）：两条 RL 线均已完成。** DPO（`vita/train/dpo_*.py`）：
 > 首步 loss 精确命中 `-log(0.5)`，SFT→DPO 使 POPE 幻觉率 10.97% → 8.82%——
-> 全记录见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)。GRPO
+> 全记录见 [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)。GRPO
 > （`vita/train/grpo_*.py`，多模态）：在 CLEVR 计数 + 可验证奖励上训练，
 > 400 步 held-out 准确率 44.6% → 77.4%，通用基准零退化，并有配平 SFT
 > 对照 / OOD / 阶段二对照界定边界——全记录见
-> [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。下文保留最初的障碍分析，
+> [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)。下文保留最初的障碍分析，
 > 因为它解释了设计；已解决的条目附有说明。操作层面见
-> [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)。
+> [HANDBOOK.md §8](../01-setup/HANDBOOK.md#8-dpo离线偏好优化)。
 
 **有利条件：**
 
@@ -518,7 +518,7 @@ outputs['loss'] = loss
 
 **建议顺序（也是本 fork 实际走的顺序）：** 先做离线 DPO——不需要 rollout，因此障碍 1 和 2 直接消失，只剩障碍 4 和 5，两者都可控。参考模型用禁用的 LoRA adapter 实现，避免在显存里放第二个 7B。在那里验证过 log-prob 计算之后，GRPO 复用了它并加上了 rollout 循环。
 
-注意 RL **不需要**那份缺失的 SFT 数据集：已发布的 VITA-1.5 checkpoint 本身就是训练好的，而偏好数据无论如何都得自己构造。如果确实想先用真实数据跑一遍 SFT，见 [DATASETS.md](./DATASETS.md)——论文 2213 万条里约三分之一未发布，但公开的部分已经够用，文档给了三档匹配磁盘预算的方案。
+注意 RL **不需要**那份缺失的 SFT 数据集：已发布的 VITA-1.5 checkpoint 本身就是训练好的，而偏好数据无论如何都得自己构造。如果确实想先用真实数据跑一遍 SFT，见 [DATASETS.md](../02-data/DATASETS.md)——论文 2213 万条里约三分之一未发布，但公开的部分已经够用，文档给了三档匹配磁盘预算的方案。
 
 ## 14. RL 栈：DPO 与 GRPO
 
@@ -727,13 +727,13 @@ GRPO 的 8 个 rollout 一组可省 87.5%。
   （在 G 倍扩展之前，所以视觉塔对每张不同的图只前向一次），collator 左
   padding，批量 `generate` 直接在融合后的 embedding 上跑。已在 CLEVR 计数
   上真实训练——400 步 held-out 准确率 44.6% → 77.4%
-  （[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）。
+  （[GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)）。
 - **多步复用 rollout**。`--grpo_num_iterations μ` 通过 `_ChunkRepeatSampler`
   + `_reuse_loss` 让每批 rollout 连续用于 μ 个优化步；复用步只重算策略
   log-prob，ratio 在这里离开 1、clip 开始生效。μ=1 时与原始 on-policy
   路径逐字节一致。
 - **真实数据**。DPO 在 RLAIF-V 上训练（SFT→DPO 使 POPE 10.97% → 8.82%，
-  见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)）；GRPO 在 CLEVR-70k +
+  见 [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)）；GRPO 在 CLEVR-70k +
   可验证奖励上训练——此前两轮 RLAIF-V 代理奖励实验证明了：开放式描述里
   分级代理分数排序的是组内噪声。
 

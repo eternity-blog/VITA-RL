@@ -9,7 +9,7 @@ writing; they may drift as the code changes.
 
 > Language: **English** | [中文](./ARCHITECTURE_zh-CN.md)
 >
-> Companion documents: [REPRODUCE.md](./REPRODUCE.md) is the operational log
+> Companion documents: [REPRODUCE.md](../01-setup/REPRODUCE.md) is the operational log
 > (how to install, run, and what broke). This file is the conceptual map.
 
 ## Contents
@@ -424,7 +424,7 @@ Full-parameter 7B does not fit on one 80 GB GPU. AdamW holds two fp32 moments
 per parameter (~56 GB) plus fp32 master weights (~28 GB); ZeRO-3 shards these
 across ranks. A single-GPU run completes forward and backward and then OOMs
 allocating optimizer state. **8 GPUs is the practical floor** for full-parameter
-training. See [REPRODUCE.md](./REPRODUCE.md#memory-note).
+training. See [REPRODUCE.md](../01-setup/REPRODUCE.md#memory-note).
 
 ## 9. The data pipeline
 
@@ -576,11 +576,11 @@ Things that will cost time if unknown. Fixed items are specific to this fork.
 
 | Issue | Status |
 |---|---|
-| `cache_position` breaks generation on the pinned `transformers==4.41.1` — upstream added the code and the pin in the same commit, and they were never consistent for Qwen2 | **fixed in this fork** ([REPRODUCE.md](./REPRODUCE.md#code-fixes-required)) |
+| `cache_position` breaks generation on the pinned `transformers==4.41.1` — upstream added the code and the pin in the same commit, and they were never consistent for Qwen2 | **fixed in this fork** ([REPRODUCE.md](../01-setup/REPRODUCE.md#code-fixes-required)) |
 | `prepare_inputs_labels_for_multimodal` sets `audio_features = None` when `audios is None`, then dereferences it unconditionally six lines later — so the `None` branch was unreachable and every caller passed a dummy `torch.zeros(400, 80)`, running the 341M-parameter audio encoder on text-only and image-only batches for nothing | **fixed in this fork** (`tools/test_audio_optional.py`) |
 | `DataConfig` missing `Pretrain_video0` / `Pretrain_audio`, which several scripts pass → `KeyError` | **fixed in this fork** |
 | `vita_nemo.py:78,178` has the same `cache_position` bug | **not fixed** — untestable without Nemo weights |
-| `requirements.txt` does not install cleanly (unpinned `xformers` demands `torch>=2.10`; unpinned `pillow` needs a modern gcc); `six`/`timm`/`einops`/`PyYAML`/`opencv`/`librosa` are imported but unlisted | worked around ([REPRODUCE.md](./REPRODUCE.md#deviations-from-upstream-requirementstxt)) |
+| `requirements.txt` does not install cleanly (unpinned `xformers` demands `torch>=2.10`; unpinned `pillow` needs a modern gcc); `six`/`timm`/`einops`/`PyYAML`/`opencv`/`librosa` are imported but unlisted | worked around ([REPRODUCE.md](../01-setup/REPRODUCE.md#deviations-from-upstream-requirementstxt)) |
 | Hard-coded cluster paths throughout `script/train/` (`/mnt/cfs/lhj/…`), plus `MASTER_ADDR`/`INDEX` pinned to the authors' network | must be edited locally |
 | `GLOBAL_WEIGHTS_PATH` in `constants.py` is still the literal `/path/to/model_weights` | only reached on the LoRA branch |
 | `mm_projector_lr` no longer affects `mm_projector` (`vita_trainer.py:190`) | upstream, unfixed |
@@ -603,13 +603,13 @@ result.
 > **Status (2026-08-20): both RL lines are complete.** DPO
 > (`vita/train/dpo_*.py`): first-step loss lands on the exact `-log(0.5)`,
 > and SFT-then-DPO cuts POPE hallucination 10.97% → 8.82% — full record in
-> [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md). GRPO (`vita/train/grpo_*.py`,
+> [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md). GRPO (`vita/train/grpo_*.py`,
 > multimodal): trained on CLEVR counting with a verifiable reward, held-out
 > accuracy 44.6% → 77.4% in 400 steps, zero regression on general
 > benchmarks, bounded by matched SFT-control / OOD / stage-2 experiments —
-> full record in [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md). What follows is the original
+> full record in [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md). What follows is the original
 > analysis of the obstacles, kept because it explains the design; the
-> resolved ones are annotated. See [HANDBOOK.md §8](./HANDBOOK.md#8-dpo离线偏好优化)
+> resolved ones are annotated. See [HANDBOOK.md §8](../01-setup/HANDBOOK.md#8-dpo离线偏好优化)
 > for the operational side.
 
 **What helps:**
@@ -678,7 +678,7 @@ GRPO reused it and added the rollout loop.
 Note that RL does **not** require the missing SFT dataset: the released VITA-1.5
 checkpoint is already trained, and preference data has to be constructed
 regardless. If you do want to run the SFT stage on real data first, see
-[DATASETS.md](./DATASETS.md) — about a third of the paper's 22M samples is
+[DATASETS.md](../02-data/DATASETS.md) — about a third of the paper's 22M samples is
 unreleased, but the public remainder is enough, and the survey gives three
 plans sized to available disk.
 
@@ -833,7 +833,7 @@ group's pass/fail mix carries the signal, and `groups/degenerate_frac` tracks
 the all-same groups that carry none. What is not fine is a graded score whose
 within-group differences are stylistic luck: that is what the RLAIF-V proxy
 rewards turned out to be, and why the project moved to CLEVR
-(see [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)).
+(see [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)).
 
 ### 14.5 Two traps that produce plausible-looking wrong runs
 
@@ -932,14 +932,14 @@ Items originally listed here as missing and since **implemented** (2026-08-20):
   runs once per distinct image), the collator left-pads, and batched
   `generate` runs on the fused embeddings. Trained for real on CLEVR counting
   — held-out accuracy 44.6% → 77.4% in 400 steps
-  ([GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)).
+  ([GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)).
 - **Multi-step rollout reuse.** `--grpo_num_iterations μ` replays each
   rollout batch for μ consecutive optimizer steps via `_ChunkRepeatSampler`
   + `_reuse_loss`; only the policy log-probs are recomputed on reuse steps,
   and that is where the ratio moves and clipping engages. μ=1 keeps the
   original on-policy path byte-identical.
 - **Real data.** DPO trained on RLAIF-V (POPE 10.97% → 8.82% via SFT→DPO,
-  [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)); GRPO trained on CLEVR-70k with a
+  [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)); GRPO trained on CLEVR-70k with a
   verifiable reward, after two RLAIF-V proxy-reward rounds demonstrated that
   graded proxy scores rank within-group noise on open-ended description.
 

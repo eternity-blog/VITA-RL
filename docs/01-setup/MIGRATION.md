@@ -146,7 +146,7 @@ python tools/localize_config.py \
       `for t in dpo_loss grpo_loss rewards image_dedup audio_optional; do python tools/test_$t.py; done`
 - [ ] if training: `bash script/train/smoke_test_qwen.sh /tmp/smoke_out 8` completes
 
-Then check the numbers against [BENCHMARKS.md](./BENCHMARKS.md), which records
+Then check the numbers against [BENCHMARKS.md](../04-evaluation/BENCHMARKS.md), which records
 what this all measured on the original 8×H100 box. Two of those are identities
 rather than measurements and **must** reproduce anywhere:
 
@@ -161,10 +161,10 @@ memory will differ on different hardware; those two will not.
 
 ## 6. Where to pick up
 
-Current progress is in the [README roadmap](./README.md#roadmap): inference,
+Current progress is in the [README roadmap](../../README.md#roadmap): inference,
 the training pipeline, and both RL lines are done — DPO measured end to end
 (POPE hallucination 10.97% → 8.82%, see
-[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)) and multimodal GRPO trained on a
+[EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)) and multimodal GRPO trained on a
 verifiable-reward task (held-out accuracy 44.6% → 77.4%, see
-[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)). The RL stack's code walkthrough is
-in [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo).
+[GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)). The RL stack's code walkthrough is
+in [ARCHITECTURE.md §14](../00-background/ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo).

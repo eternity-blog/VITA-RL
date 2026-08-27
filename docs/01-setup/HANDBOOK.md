@@ -1,6 +1,6 @@
 # 上手手册：本机实操
 
-> [PRIMER.md](./PRIMER.md) 讲的是**原理**，这份讲的是**动手**：本机的确切路径、
+> [PRIMER.md](../00-background/PRIMER.md) 讲的是**原理**，这份讲的是**动手**：本机的确切路径、
 > 可直接复制的命令、改代码时的自检流程，以及各条路径的实测状态。
 >
 > 所有命令都在本机（8×H100 / `/usr/local/kai/lx/VITA-RL`）验证过。
@@ -325,13 +325,13 @@ python tools/inspect_dataset.py --dataset-use MyData --num-samples 5
 | `tools/` 四个工具 | ✅ **本机跑通** | localize / make_smoke / inspect / test |
 | **单卡 LoRA 训练** | ✅ **本机跑通（需先修复）** | 峰值 **23.3 GB**，24 步 10.4 s。上游此路径有致命 bug，本 fork 已修，见下 |
 | **视频推理** | ✅ **本机跑通** | 每秒抽 1 帧，上限 16 帧 |
-| **多模态 DPO（真实数据）** | ✅ **跑通到终局** | RLAIF-V 上 SFT→DPO，POPE 幻觉率 10.97%→8.82%（McNemar p<1e-4）。见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md) |
-| **多模态 GRPO（真实数据）** | ✅ **跑通到终局** | CLEVR 计数 + 可验证奖励，400 步 held-out 准确率 44.6%→77.4%（win rate 0.977）。见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) |
-| **GRPO 对照与边界实验** | ✅ **闭环** | 通用回归（MME/POPE/MMBench **零退化**）、SuperCLEVR OOD（37.5%→54.5%）、配平 SFT 对照（26min 达 75.4%，OOD 63.0% 反超）、R5 阶段二对照（任务天花板 ~77–78%）。见 [GRPO_DEEP_DIVE.md §10](./GRPO_DEEP_DIVE.md) 与 [EXPERIMENT_LOG.md §14](./EXPERIMENT_LOG.md) |
+| **多模态 DPO（真实数据）** | ✅ **跑通到终局** | RLAIF-V 上 SFT→DPO，POPE 幻觉率 10.97%→8.82%（McNemar p<1e-4）。见 [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md) |
+| **多模态 GRPO（真实数据）** | ✅ **跑通到终局** | CLEVR 计数 + 可验证奖励，400 步 held-out 准确率 44.6%→77.4%（win rate 0.977）。见 [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md) |
+| **GRPO 对照与边界实验** | ✅ **闭环** | 通用回归（MME/POPE/MMBench **零退化**）、SuperCLEVR OOD（37.5%→54.5%）、配平 SFT 对照（26min 达 75.4%，OOD 63.0% 反超）、R5 阶段二对照（任务天花板 ~77–78%）。见 [GRPO_DEEP_DIVE.md §10](../03-experiments/GRPO_DEEP_DIVE.md) 与 [EXPERIMENT_LOG.md §14](../03-experiments/EXPERIMENT_LOG.md) |
 | web demo | ❌ **不可用** | `flask`/`flask_socketio`/`vllm`/`onnxruntime` 均未装；还缺 `web_demo/wakeup_and_vad/resource/` 下的 `silero_vad.onnx`/`.jit` |
 | VLMEvalKit 评测 | ✅ **已跑通** | omegaconf/antlr4 冲突已解（见下），基线与 DPO 对比数字已产出：MME 2353.5、MMBench 77.8、POPE 见上行。历史排障记录保留在下节 |
 | Video-MME 评测 | ⚠️ 未测 | 需另下 Video-MME 数据集 |
-| 语音输出（TTS） | ⚠️ 存疑 | 见 [PRIMER.md §9](./PRIMER.md#9-语音输出论文与代码不一致)——代码与论文描述不一致 |
+| 语音输出（TTS） | ⚠️ 存疑 | 见 [PRIMER.md §9](../00-background/PRIMER.md#9-语音输出论文与代码不一致)——代码与论文描述不一致 |
 
 ### VLMEvalKit：进行到哪一步了
 
@@ -474,7 +474,7 @@ if cur_len != total_len:
 ### 6.3 `get_prompt()` 不幂等
 
 同一个 conversation 对象调两次，system prompt 会塌成一个字母。
-详见 [PRIMER.md §6.2](./PRIMER.md#62-get_prompt-不幂等未记录的缺陷)。
+详见 [PRIMER.md §6.2](../00-background/PRIMER.md#62-get_prompt-不幂等未记录的缺陷)。
 **写 RL rollout 循环时每次都要重新 `.copy()`。**
 
 ### 6.4 零长度切片不能删
@@ -823,7 +823,7 @@ GRPO 的优势是组内归一化，所有 rollout 得分相同的组
 **log-prob 复用缓存的 prompt embeds 重算。** 把采样 token 的 embedding
 拼到缓存的 prompt embeds 后面再前向。实测与生成时的 scores 一致
 （最大差 0.0042，bf16 正常范围）。这解决了
-[ARCHITECTURE §13](./ARCHITECTURE.md#13-where-rl-would-attach)
+[ARCHITECTURE §13](../00-background/ARCHITECTURE.md#13-where-rl-would-attach)
 列为主要障碍的「prompt token 序列不复原」。
 
 **采样时必须 `model.eval()`。** 否则 LoRA dropout 会让采样策略与
@@ -863,7 +863,7 @@ python tools/eval_grpo_heldout.py --before <base> --after <merged> ...     # hel
   通用基准零退化、SuperCLEVR OOD +17pt、配平 SFT 对照分布内追平且 OOD
   反超（工具：`make_clevr_sft_data.py` / `make_superclevr_eval_data.py` /
   `make_clevr_stage2_data.py`，训练脚本 `sft_clevr.sh`）。全程记录、超参
-  与指标手册见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)。
+  与指标手册见 [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)。
 
 仍然的限制：
 
@@ -887,9 +887,9 @@ python tools/eval_grpo_heldout.py --before <base> --after <merged> ...     # hel
 
 ### 下一步做什么
 
-- **想训真实数据** → [DATASETS.md](./DATASETS.md)；本 fork RL 实际用的数据见其 §3.3
-- **想看 RL 的完整结果** → DPO 见 [EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)，
-  GRPO 见 [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)；设计走读见
-  [ARCHITECTURE.md §14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
-- **想弄懂原理** → [PRIMER.md](./PRIMER.md)
+- **想训真实数据** → [DATASETS.md](../02-data/DATASETS.md)；本 fork RL 实际用的数据见其 §3.3
+- **想看 RL 的完整结果** → DPO 见 [EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)，
+  GRPO 见 [GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)；设计走读见
+  [ARCHITECTURE.md §14](../00-background/ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)
+- **想弄懂原理** → [PRIMER.md](../00-background/PRIMER.md)
 - **换机器重建** → [MIGRATION.md](./MIGRATION.md)

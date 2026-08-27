@@ -5,9 +5,9 @@
 > 数学细节（advantage 归一化 / KL 估计器 / 重要性采样 / 长度偏置）、
 > 多模态扩展的六个要点、Reward 设计与 Reward Hacking，以及面试问答清单。
 >
-> 姊妹篇：[`SFT_DPO_DEEP_DIVE.md`](SFT_DPO_DEEP_DIVE.md)（SFT+DPO 路线深读）。
-> 实验过程与数字见 [`EXPERIMENT_LOG.md`](EXPERIMENT_LOG.md)，
-> 架构见 [`ARCHITECTURE.md`](ARCHITECTURE.md) §14。
+> 姊妹篇：[`SFT_DPO_DEEP_DIVE.md`](./SFT_DPO_DEEP_DIVE.md)（SFT+DPO 路线深读）。
+> 实验过程与数字见 [`EXPERIMENT_LOG.md`](./EXPERIMENT_LOG.md)，
+> 架构见 [`ARCHITECTURE.md`](../00-background/ARCHITECTURE.md) §14。
 
 ---
 
@@ -386,7 +386,7 @@ KL 拴着一个移动的桩子，日志看不出异常。
 **LoRA 对照**：可训练 161.5M（2.12%），优化器状态 ~2.6GB，单卡峰值 23.3GB
 （一张 24GB 卡就能训）。DPO/GRPO 用 ZeRO-2 即可；GRPO 额外成本是 G=8 rollout 的
 生成 KV cache 与三份 logp 前向（其中参考前向 no_grad + 关 adapter，零额外权重）。
-详细推导见 [`SFT_DPO_DEEP_DIVE.md`](SFT_DPO_DEEP_DIVE.md) §4。
+详细推导见 [`SFT_DPO_DEEP_DIVE.md`](./SFT_DPO_DEEP_DIVE.md) §4。
 
 ---
 

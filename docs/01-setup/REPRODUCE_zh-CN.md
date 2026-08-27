@@ -4,7 +4,7 @@
 
 > 语言：[English](./REPRODUCE.md) | **中文**
 >
-> 配套文档：[README_zh-CN.md](./README_zh-CN.md) 是项目说明，[ARCHITECTURE_zh-CN.md](./ARCHITECTURE_zh-CN.md) 是代码走读。
+> 配套文档：[README_zh-CN.md](../../README_zh-CN.md) 是项目说明，[ARCHITECTURE_zh-CN.md](../00-background/ARCHITECTURE_zh-CN.md) 是代码走读。
 
 以下内容均在下一节所述机器上验证通过。路径统一写作 `$VITA_WEIGHTS` / `$VITA_REPO`，因此在另一台机器上只需设置这两个变量即可直接粘贴执行：
 
@@ -145,7 +145,7 @@ conv 模式：default、llama、minicpm、mixtral_two、mixtral_zh、
 
 `pip check` 仅报告 `decord 0.6.0 is not supported on this platform`，这是平台元数据提示而非依赖冲突；decord 实际可正常导入与运行。
 
-精确解析出的版本记录在 [`requirements-lock.txt`](./requirements-lock.txt)。请把它当作**核对结果**用，而非安装路径——直接照它安装可能失败，因为上面的顺序很重要。
+精确解析出的版本记录在 [`requirements-lock.txt`](../../requirements-lock.txt)。请把它当作**核对结果**用，而非安装路径——直接照它安装可能失败，因为上面的顺序很重要。
 
 在下载 20 GB 权重之前，先做一次环境自检：
 
@@ -356,8 +356,8 @@ AdamW 为每个参数保存两个 fp32 动量（7B 约 56 GB），外加 fp32 �
 - [x] 真实数据训练——RLAIF-V（SFT + DPO）与 CLEVR-70k（GRPO）
 
 本 fork 的 RL 工作（均在真实数据上端到端测量——DPO 全程见
-[EXPERIMENT_LOG.md](./EXPERIMENT_LOG.md)，GRPO 全程见
-[GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md)）：
+[EXPERIMENT_LOG.md](../03-experiments/EXPERIMENT_LOG.md)，GRPO 全程见
+[GRPO_DEEP_DIVE.md](../03-experiments/GRPO_DEEP_DIVE.md)）：
 
 - [x] 离线 DPO——首步 loss 精确落在 `-log(0.5)`；SFT→DPO 使 POPE 幻觉率
       10.97% → 8.82%（McNemar p<1e-4）
@@ -369,7 +369,7 @@ AdamW 为每个参数保存两个 fp32 动量（7B 约 56 GB），外加 fp32 �
 - [x] PPO 式样本复用（`--grpo_num_iterations`）——复用步 ratio≠1、clip 生效
 - [x] 五套 CPU 测试（合计 118 项检查），无需 checkpoint
 - [x] VLMEvalKit 基线——omegaconf/antlr4 冲突已解决，见
-      [BENCHMARKS.md](./BENCHMARKS.md)
+      [BENCHMARKS.md](../04-evaluation/BENCHMARKS.md)
 
 ## 在另一台机器上复现
 
