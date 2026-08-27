@@ -85,7 +85,9 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 
 从已回收开发机上抢救下来的原始实验产物（各轮训练日志、逐 step trainer
 state、评测原始输出）在 [artifacts/](./artifacts/README.md)——上面文档里的
-每个数字都能在那里找到原始文件。
+每个数字都能在那里找到原始文件。GRPO 时代的 5 个 LoRA adapter 托管在
+HF [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)，用
+`tools/merge_and_eval.py` 合并进基座即可精确复原对应轮次的评测模型。
 
 两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
 §5](./ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)

@@ -128,7 +128,8 @@ PY
 
 ### 本仓库自产的模型
 
-合并后的完整模型（~16 GB/个）没有上传；LoRA adapter（~310 MB/个）
-可用 `tools/merge_and_eval.py` 合并进基座精确复原任何一轮的评测模型。
-adapter 是否托管到 HF 见仓库 Releases / README 顶部说明（若无说明则未上传，
-需按 REPRODUCE.md 重训）。
+GRPO 时代的 5 个 LoRA adapter（R4 / SFT 对照 / R5 两臂 / R6-β0，每个 ~310 MB）
+已上传 [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)，
+用 `tools/merge_and_eval.py` 合并进基座即可精确复原任何一轮的评测模型。
+合并后的完整模型（~16 GB/个）未上传（adapter + 基座可复原，无需冗余）。
+DPO 时代的 adapter 随上一台开发机丢失，只能按 REPRODUCE.md 重训。

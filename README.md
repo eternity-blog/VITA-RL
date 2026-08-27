@@ -101,7 +101,10 @@ four-stage path through the code, with timings and which parts need a GPU.
 Raw run artifacts (per-run training logs, step-by-step trainer state, raw
 evaluation outputs) salvaged from the now-decommissioned dev machine live in
 [artifacts/](./artifacts/README.md) — every number in the documents above can
-be traced back to a file there.
+be traced back to a file there. The five GRPO-era LoRA adapters are hosted at
+[lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL) on Hugging Face;
+merging one into the base model with `tools/merge_and_eval.py` exactly
+reproduces the corresponding evaluated checkpoint.
 
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
 §5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)

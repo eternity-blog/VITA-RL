@@ -6,7 +6,9 @@
 > 都能在这里找到原始出处。
 >
 > **不在这里的东西**：
-> - 模型权重 / checkpoint / 合并后模型 —— 太大，且可按 `REPRODUCE.md` 重新训练
+> - 模型权重 / checkpoint / 合并后模型 —— 太大。GRPO 时代 5 个 LoRA adapter
+>   已上传 [lee31221/VITA-RL](https://huggingface.co/lee31221/VITA-RL)（HF），
+>   合并方法见其模型卡；其余可按 `REPRODUCE.md` 重新训练
 > - 数据集 —— 可用 `tools/make_*_data.py` 系列脚本重新生成
 > - **DPO 时代（第 1–6 轮，2026-08 上旬）的原始日志** —— 跑在上一台开发机
 >   （`/usr/local/kai/lx`），机器已回收，**原始文件不可恢复**。
