@@ -71,6 +71,9 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 | 4 · 评测 | [docs/04-evaluation/](./docs/04-evaluation/) | [BENCHMARKS](./docs/04-evaluation/BENCHMARKS.md)——实测数字、噪声带、耗时与显存 |
 | 5 · 复习 | [docs/05-review/](./docs/05-review/) | [KNOWLEDGE](./docs/05-review/KNOWLEDGE.md)（**面试复习总索引**：每个知识点一句话核心 + 精确出处）· [PROJECT_SUMMARY](./docs/05-review/PROJECT_SUMMARY.md)——一页总结 + 阅读路线 |
 
+用 AI 编码工具跑这个仓库？[AGENTS.md](./AGENTS.md) 是给 AI 代理的
+入口文件：环境重建的硬约束、按成本排序的验证命令、仓库约定。
+
 从已回收开发机上抢救下来的原始实验产物（各轮训练日志、逐 step trainer
 state、评测原始输出）在 [artifacts/](./artifacts/README.md)——上面文档里的
 每个数字都能在那里找到原始文件。GRPO 时代的 5 个 LoRA adapter 托管在

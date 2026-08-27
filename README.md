@@ -87,6 +87,10 @@ project — background, setup, data, training, evaluation, review:
 | 4 · Evaluation | [docs/04-evaluation/](./docs/04-evaluation/) | [BENCHMARKS](./docs/04-evaluation/BENCHMARKS.md) — measured numbers, noise bands, timings, memory |
 | 5 · Review | [docs/05-review/](./docs/05-review/) | [KNOWLEDGE](./docs/05-review/KNOWLEDGE.md) (**master index for interview prep**: one-line takeaway + exact source per knowledge point) · [PROJECT_SUMMARY](./docs/05-review/PROJECT_SUMMARY.md) — one-page summary + reading route |
 
+Working on this repo with an AI coding agent? [AGENTS.md](./AGENTS.md) is the
+machine-oriented entry point: environment-rebuild constraints, verification
+commands ordered by cost, and repo conventions.
+
 Raw run artifacts (per-run training logs, step-by-step trainer state, raw
 evaluation outputs) salvaged from the now-decommissioned dev machine live in
 [artifacts/](./artifacts/README.md) — every number in the documents above can
