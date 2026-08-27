@@ -16,6 +16,8 @@
 
 `log.txt` 是 deepspeed 启动器完整 stdout（含完整命令行参数，可直接复原超参）；
 `trainer_state.json` 是 HF Trainer 的逐 step 指标（loss、reward、KL、ratio 等）。
+个别目录只有 `log.txt`（R2/R3 的 checkpoint 已被磁盘清理），逐 step 指标
+在 `log.txt` 里同样有一份。
 
 | 目录 | 轮次 | 一句话 | 文档 |
 |---|---|---|---|
