@@ -84,7 +84,7 @@ panel(
 panel(
     axes[0][1],
     [("r1_grpo_rlaif", "reward/mean", "reward/mean (proxy mix)", "tab:red")],
-    "R1 - RLAIF-V, proxy reward: rises, benchmarks flat",
+    "R1 - RLAIF-V, proxy reward: early rise, then plateau",
     "reward",
     annotate="MME/POPE/MMBench: no movement",
 )
@@ -110,7 +110,7 @@ panel(
     ],
     "R4 - degenerate group fraction: headroom runs out",
     "fraction",
-    annotate="4% -> 44%: groups become all-correct",
+    annotate="~5% -> 44% (10-step means): groups become all-correct",
 )
 
 fig.suptitle(
