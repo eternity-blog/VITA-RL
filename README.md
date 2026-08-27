@@ -88,6 +88,7 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | You want to know why a piece of code is the way it is | EN + [中文](./ARCHITECTURE_zh-CN.md) |
 | [REPRODUCE.md](./REPRODUCE.md) | Setting up the environment | EN + [中文](./REPRODUCE_zh-CN.md) |
 | [DATASETS.md](./DATASETS.md) | Ready to train on real data | 中文 |
+| [ENVIRONMENT.md](./ENVIRONMENT.md) | **Rebuilding the conda env from scratch + download links for every weight / dataset / benchmark** (the dev machine is gone; this is the checklist) | 中文 |
 | [MIGRATION.md](./MIGRATION.md) | Moving to another machine | EN + [中文](./MIGRATION_zh-CN.md) |
 | [CODEMAP.md](./CODEMAP.md) | Reading on GitHub and want to jump straight to a function | 中文 |
 | [BENCHMARKS.md](./BENCHMARKS.md) | You need the measured numbers: timings, memory, the reproducible loss values to check a change against | 中文 |
