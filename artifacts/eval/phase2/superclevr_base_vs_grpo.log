@@ -1,0 +1,27 @@
+/data/agent/conda/envs/vita-rl/lib/python3.10/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/data/agent/conda/envs/vita-rl/lib/python3.10/site-packages/torch/_jit_internal.py:739: FutureWarning: ignore(True) has been deprecated. TorchScript will now drop the function call on compilation. Use torch.jit.unused now. {}
+  warnings.warn(
+200 held-out prompts
+Please build and install Nvidia apex package with option '--cuda_ext' according to https://github.com/NVIDIA/apex#from-source .
+Please install mamba_ssm to use MambaSSM component.
+the number of whale encoder params: 341.3681640625M
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:10<00:31, 10.60s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:20, 10.16s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:32<00:10, 10.94s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:37<00:00,  8.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:37<00:00,  9.39s/it]
+the number of vision encoder params: 289.9287109375M
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 50/200
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 100/200
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 150/200
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 200/200
+the number of whale encoder params: 341.3681640625M
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.54s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.55s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:07<00:02,  2.56s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:08<00:00,  1.97s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:08<00:00,  2.18s/it]
+the number of vision encoder params: 289.9287109375M
+  /data/agent/lixiao29/vita-outputs/r4/merged: 50/200
+  /data/agent/lixiao29/vita-outputs/r4/merged: 100/200
+  /data/agent/lixiao29/vita-outputs/r4/merged: 150/200
+  /data/agent/lixiao29/vita-outputs/r4/merged: 200/200
+
+answer_accuracy: 0.3750 -> 0.5450 (+0.1700)
+keyword_recall: 0.0000 -> 0.0000 (+0.0000)
+win_rate:       0.793  [95% CI 0.690, 0.897]  (decided on 58/200 prompts)
+  -> after is better beyond noise
+per-sample results -> /data/agent/lixiao29/VITA-RL-sync/outputs/eval_phase2/superclevr_base_vs_grpo.json

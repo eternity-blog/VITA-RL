@@ -97,6 +97,11 @@ four-stage path through the code, with timings and which parts need a GPU.
 | [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **The GRPO experiment end to end**: math details, hyperparameters, reward design, metric handbook, five rounds of training + controls (proxy-reward failure → verifiable-reward +32.8pt → benchmark regression / OOD / matched SFT control / stage-2 ceiling), GRPO successors (vLLM/DAPO/GSPO), training & inference framework selection, interview Q&A | 中文 |
 | [RESULTS.md](./RESULTS.md) | An earlier, narrower write-up of the same experiment; superseded by the above | 中文 |
 
+Raw run artifacts (per-run training logs, step-by-step trainer state, raw
+evaluation outputs) salvaged from the now-decommissioned dev machine live in
+[artifacts/](./artifacts/README.md) — every number in the documents above can
+be traced back to a file there.
+
 The two walkthroughs worth knowing about: [ARCHITECTURE.md
 §5](./ARCHITECTURE.md#5-prepare_inputs_labels_for_multimodal-the-heart-of-the-model)
 dissects the function that makes this model work, and [§14](./ARCHITECTURE.md#14-the-rl-stack-dpo-and-grpo)

@@ -28,6 +28,10 @@ logs/
 # Exception: measured-run excerpts kept on purpose as a baseline record.
 # The machine they came from is not permanent; see BENCHMARKS.md.
 !logs/
+# Exception: salvaged raw run artifacts from the (decommissioned) dev machine.
+# See artifacts/README.md.
+!artifacts/
+!artifacts/**
 !logs/*.log
 wandb/
 mm_projector.bin

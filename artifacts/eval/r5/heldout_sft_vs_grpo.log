@@ -1,0 +1,39 @@
+/data/agent/conda/envs/vita-rl/lib/python3.10/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/data/agent/conda/envs/vita-rl/lib/python3.10/site-packages/torch/_jit_internal.py:739: FutureWarning: ignore(True) has been deprecated. TorchScript will now drop the function call on compilation. Use torch.jit.unused now. {}
+  warnings.warn(
+500 held-out prompts
+Please build and install Nvidia apex package with option '--cuda_ext' according to https://github.com/NVIDIA/apex#from-source .
+Please install mamba_ssm to use MambaSSM component.
+the number of whale encoder params: 341.3681640625M
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:10<00:30, 10.12s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:19<00:19,  9.93s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.73s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:32<00:00,  7.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:32<00:00,  8.13s/it]
+the number of vision encoder params: 289.9287109375M
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 50/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 100/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 150/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 200/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 250/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 300/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 350/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 400/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 450/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 500/500
+the number of whale encoder params: 341.3681640625M
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:08,  2.94s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.82s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:08<00:02,  2.81s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:09<00:00,  2.15s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:09<00:00,  2.40s/it]
+the number of vision encoder params: 289.9287109375M
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 50/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 100/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 150/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 200/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 250/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 300/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 350/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 400/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 450/500
+  /data/agent/lixiao29/vita-outputs/r5_grpo/merged: 500/500
+
+answer_accuracy: 0.7540 -> 0.7620 (+0.0080)
+keyword_recall: 0.0000 -> 0.0000 (+0.0000)
+win_rate:       0.750  [95% CI 0.375, 1.000]  (decided on 8/500 prompts)
+  -> not separable from noise at n = 500
+per-sample results -> /data/agent/lixiao29/VITA-RL-sync/outputs/eval_r5/heldout_sft_vs_grpo.json

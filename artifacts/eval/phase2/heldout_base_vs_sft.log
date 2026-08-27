@@ -1,0 +1,39 @@
+/data/agent/conda/envs/vita-rl/lib/python3.10/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/data/agent/conda/envs/vita-rl/lib/python3.10/site-packages/torch/_jit_internal.py:739: FutureWarning: ignore(True) has been deprecated. TorchScript will now drop the function call on compilation. Use torch.jit.unused now. {}
+  warnings.warn(
+500 held-out prompts
+Please build and install Nvidia apex package with option '--cuda_ext' according to https://github.com/NVIDIA/apex#from-source .
+Please install mamba_ssm to use MambaSSM component.
+the number of whale encoder params: 341.3681640625M
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:10<00:31, 10.59s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:20, 10.12s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:31<00:10, 10.78s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:36<00:00,  8.38s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:36<00:00,  9.16s/it]
+the number of vision encoder params: 289.9287109375M
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 50/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 100/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 150/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 200/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 250/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 300/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 350/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 400/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 450/500
+  /data/agent/lixiao29/vita-weights/VITA-1.5: 500/500
+the number of whale encoder params: 341.3681640625M
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.56s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.56s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:07<00:02,  2.59s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:08<00:00,  2.00s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:08<00:00,  2.21s/it]
+the number of vision encoder params: 289.9287109375M
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 50/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 100/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 150/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 200/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 250/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 300/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 350/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 400/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 450/500
+  /data/agent/lixiao29/vita-outputs/sft_clevr/merged: 500/500
+
+answer_accuracy: 0.4460 -> 0.7540 (+0.3080)
+keyword_recall: 0.0000 -> 0.0000 (+0.0000)
+win_rate:       0.987  [95% CI 0.968, 1.000]  (decided on 158/500 prompts)
+  -> after is better beyond noise
+per-sample results -> /data/agent/lixiao29/VITA-RL-sync/outputs/eval_phase2/heldout_base_vs_sft.json

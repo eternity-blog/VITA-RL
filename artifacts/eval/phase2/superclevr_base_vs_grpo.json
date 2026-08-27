@@ -1,0 +1,1802 @@
+[
+ {
+  "id": "superclevr_0000",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a blue and gold airplane, a red car, a purple and teal motorcycle, and a green bicycle. Each item has a unique color combination and design, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a teal airplane, a red car, a purple and teal motorcycle, and a green bicycle. Each item is distinct in its shape and color, making them easily identifiable.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0001",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a purple scooter, a red bicycle, a green motorcycle, a gray car, a yellow bicycle, a red and green box, and a gray scooter.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a purple scooter, a red bicycle, a green car, a gray car, a green motorcycle, a yellow bicycle, a red and yellow train, and a gray motorcycle.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0002",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a yellow school bus, a blue bicycle, a green motorcycle, a brown car, a red car, a blue scooter, and a green car. Each item is distinct and can be counted separately.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a yellow school bus, a blue bicycle, a green car, a brown car, a green motorcycle, a blue scooter, a red and yellow toy car, and a small yellow car.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0003",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a purple dirt bike, a brown BMX bike, a blue mountain bike, and a red BMX bike. Each item is distinct in color and design.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a purple dirt bike, a brown BMX bike, a blue mountain bike, and a red BMX bike. Each item is distinct in color and design.</think>\n<answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0004",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three items in the image: a small yellow car, a small blue car, and a motorcycle. Each item is distinct and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a small yellow car, a small blue car, and a motorcycle. Each item is distinct and separate from the others.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0005",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a toy airplane, a toy helicopter, and a toy scooter. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a fighter jet, an airplane, and a scooter. Each item is distinct in its design and function.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0006",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a purple biplane, a blue pickup truck, and a gray motorcycle. Each item is clearly separate from the others, making it easy to count them individually.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a purple biplane, a blue pickup truck, and a gray motorcycle.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0007",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four items in the image: a bicycle, a small scooter, a larger scooter, and a dirt bike. Each item is distinct and separate from the others.</think> <answer>4</answer>",
+  "after": "<think>There are four items in the image: a bicycle, a small scooter, a larger scooter, and a dirt bike. Each item is distinct and separate from the others.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0008",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a bicycle, a motorcycle, a car, a truck, a plane, a helicopter, a train, a rocket, and a robot.</think>\n<answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a bicycle, an airplane, a truck, a car, a motorcycle, a motor scooter, a bus, a train, and a helicopter.</think>\n<answer>9</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0009",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a green bicycle, a blue car, a brown SUV, a purple and green van, a blue motorcycle, a purple airplane, a small wooden airplane, a red train, and a gray train.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a green bicycle, a blue car, a brown SUV, a purple and green van, a blue motorcycle, a purple airplane, a small wooden airplane, a red train, and a gray train.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0010",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a motorcycle, a bicycle, an airplane, a fighter jet, and a small red object that appears to be a toy. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "after": "<think>There are a total of 6 items in the image. They are: a blue and silver motorcycle, a green and brown airplane, a yellow and red motorcycle, a blue and silver fighter jet, a green and silver bicycle, and a blue and silver fighter jet. Each item is distinct and can be counted individually.</think> <answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0011",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a green bus, a blue motorcycle, a red train, a purple car, a yellow scooter, a grey motorcycle, and a blue scooter.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a green bus, a blue motorcycle, a red train, a purple school bus, a pink car, a gray motorcycle, a yellow scooter, and a black scooter.</think>\n<answer>8</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0012",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a brown van, a red car, a green bus, a blue pickup truck, a green motorcycle, and a pink object. Each item is distinct and separate from the others.</think> <answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a brown van, a red car, a green motorcycle, a blue pickup truck, a yellow car, and a green bus.</think> <answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0013",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five distinct items in the image: a purple bus, a green bus, a blue scooter, a yellow motorcycle, and a gray bus. Each item is unique in its color and type.</think>\n<answer>5</answer>",
+  "after": "<think>There are 5 different items in the image: a purple bus, a green bus, a yellow motorcycle, a blue scooter, and a gray bus. I counted each distinct object based on their unique colors and shapes.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0014",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a pink car, a red car, a bicycle, and a bus. Each item has a unique color and design, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a car, a bicycle, a bus, and a train. I can see these distinct objects clearly.</think> <answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0015",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a red car, a gold truck, a green car, a blue bicycle, a gray bicycle, a silver scooter, and a purple motorcycle.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a red car, a gold truck, a green car, a silver bicycle, a blue bicycle, a gray motorcycle, a purple motorcycle, and a yellow bicycle.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0016",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a motorcycle, a car, and two airplanes. Each item is unique in its form and function.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a motorcycle, a car, and two airplanes. The motorcycle is brown, the car is tan with green and blue details, and the airplanes are purple and cyan.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0017",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a green van, a yellow school bus, a blue and yellow bicycle, and a small yellow car. Each item is distinct in its color and shape.</think>\n<answer>4</answer>",
+  "after": "<think>There are four different items in the image: a green van, a yellow school bus, a blue and yellow bicycle, and a small yellow car. Each item is distinct in its shape and color.</think>\n<answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0018",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five distinct items in the image: a red double-decker bus, a yellow motorcycle, a brown motorcycle, a cyan car, and a purple motorcycle. Each item is unique in its color and type.</think>\n<answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a red double-decker bus, a yellow motorcycle, a purple motorcycle, a brown motorcycle, a blue car, and a green car.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0019",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a red motorcycle, a brown motorcycle, a pink and gray train, a blue bicycle, a green car, a gold van, and a gold scooter.</think>\n<answer>7</answer>",
+  "after": "<think>There are 7 different items in the image: a red motorcycle, a brown motorcycle, a pink and gray train, a blue bicycle, a green car, a gold van, and a gold scooter.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0020",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a green bicycle, a gray bus, a blue scooter, a brown bicycle, a yellow car, a green car, a cyan bus, and a yellow airplane.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a green bicycle, a gray bus, a pink bicycle, a blue scooter, a yellow car, a green car, a cyan bus, a yellow airplane, and a green helicopter.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0021",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, an airplane, and a car. Each item is separate and can be identified by its unique shape and color.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, an airplane, and a car. I can see them clearly and they are distinct from each other.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0022",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a brown van, a blue motorcycle, an airplane, and a green bus. Each item is clearly visible and separate from the others.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a van, a motorcycle, an airplane, and a bus. I can see each of these items distinctly.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0023",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a purple motorcycle, a gold motorcycle, a green bus, and a red airplane. Each item is separate and can be counted individually.</think> <answer>4</answer>",
+  "after": "<think>There are four distinct items in the image: a purple motorcycle, a gold motorcycle, a green bus, and a red airplane. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0024",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five distinct items in the image: a green bicycle, a blue airplane, a purple airplane, a red and green biplane, and a green helicopter. Each item is unique in its design and color.</think> <answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a green bicycle, a blue airplane, a purple airplane, a red airplane, a green helicopter, and a blue helicopter.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0025",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a purple motorcycle, a purple bus, a teal bicycle, and a blue motorcycle. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a purple motorcycle, a purple bus, a teal bicycle, and a blue motorcycle. Each item is distinct in color and design, making them easily identifiable.</think>\n<answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0026",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bicycle, a car, an airplane, a motorcycle, a bus, a small car, and a red car. I counted each distinct object present.</think> <answer>7</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a car, an airplane, a small car, a motorcycle, a bus, and a small bicycle.</think> <answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0027",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a toy airplane, a toy bus, and a toy motorcycle. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a toy airplane, a toy bus, and a toy motorcycle. I can see them clearly and they are distinct from each other.</think> <answer>3</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0028",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a green pickup truck, a blue bus, a brown car, and a blue bicycle. Each item is separate and can be counted individually.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a green pickup truck, a blue bus, a brown car, and a blue bicycle. Each item is distinct and separate from the others.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0029",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a red motorcycle, a yellow bus, a green car, a blue bicycle, a brown school bus, a silver car, a purple car, and an airplane.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a red motorcycle, a yellow bus, a green car, a blue bicycle, a brown school bus, a silver car, a purple car, and an airplane.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0030",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a blue motorcycle, a green bicycle, a green motorcycle, a star-shaped object, a fighter jet, and an airplane. I counted each distinct item carefully.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a blue motorcycle, a green bicycle, a green motorcycle, a star-shaped object, a fighter jet, a red ball, and an airplane.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0031",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a purple bus, a green and blue bicycle, a green motorcycle, a brown car, and a yellow bicycle. Each item is distinct and can be identified by its unique color and shape.</think> <answer>5</answer>",
+  "after": "<think>There are five different items in the image: a purple bus, a green and blue bicycle, a green motorcycle, a brown car, and a yellow bicycle. Each item is distinct and can be identified by its unique color and shape.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0032",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a tricycle, and a motorcycle. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a tricycle, and a motorcycle.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0033",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 10 different items in the image. I counted each distinct object, including the bicycle, cars, buses, and the airplane.</think> <answer>10</answer>",
+  "after": "<think>There are 9 different items in the image. I counted each distinct object, including the bicycle, cars, buses, and the airplane.</think> <answer>9</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0034",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a school bus, a car, a motorcycle, a scooter, a truck, a bicycle, and a motorbike.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a golden scooter, a yellow school bus, a green helicopter, a pink and yellow truck, a gray pickup truck, a teal car, a red motorcycle, and a green bicycle.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0035",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a red motorcycle, a purple motorcycle, a green bicycle, a blue and yellow airplane, a gray fighter jet, a purple bus, a green car, a gold and purple bus, and a silver motorcycle.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a red motorcycle, a purple motorcycle, a small blue motorcycle, a green bicycle, a purple bus, a green car, a silver airplane, a purple and gold airplane, and a gray helicopter.</think> <answer>9</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0036",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bus, a car, and a train. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bus, a car, and a train. The bus is large and purple with yellow and red details, the car is small and green, and the train is long and white with purple and yellow details.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0037",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a purple bicycle, a green scooter, a green bus, a purple bus, a blue motorcycle, and a purple car. Each item is distinct in color and type.</think>\n<answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a bicycle, a scooter, a bus, a car, a train, and a motorcycle.</think>\n<answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0038",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a small airplane, a pickup truck, a bus, a motorcycle, a helicopter, and a large airplane. I identified each item by its distinct shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are a total of 6 different items in the image: a small airplane, a truck, a bus, a motorcycle, a helicopter, and an airplane. So the answer is 6.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0039",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a blue and yellow bicycle, a silver motorcycle, and a purple bus. Each item has unique characteristics that differentiate it from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a motorcycle, and a bus. The bicycle is yellow with a green wheel, the motorcycle is blue, and the bus is purple with red and green details.</think> <answer>3</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0040",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a toy airplane, and a model of an old-fashioned car. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a toy airplane, and a model of an old-fashioned car. The bicycle is a real object, while the toy airplane and the car are models or toys.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0041",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bus, a small airplane, a helicopter, a motorcycle, a dirt bike, a sports car, and a bicycle.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a bus, a small airplane, a helicopter, a motorcycle, a dirt bike, a sports car, a bicycle, and a jet. Each item is distinct and can be identified by its unique shape and color.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0042",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a motorcycle, a bicycle, a bus, and a car. Each item is distinct and can be identified by its unique features and shape.</think>\n<answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a motorcycle, a bicycle, a tricycle, a bus, and a van.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0043",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three items in the image: two bicycles and one tricycle. The bicycles have different colors, and the tricycle has a unique design with three wheels.</think>\n<answer>3</answer>",
+  "after": "<think>There are three items in the image: two bicycles and one tricycle. The bicycles have different colors, and the tricycle has a unique design with three wheels.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0044",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a blue car, a yellow car, a purple bus, a green bicycle, a brown car, and a teal train. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a blue car, a yellow car, a purple bus, a green bicycle, a brown car, and a teal train.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0045",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a red motorcycle, a blue bicycle, a gold scooter, and a yellow bicycle. Each item is unique in its design and color.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a red motorcycle, a purple and yellow bus, a blue bicycle, a gold scooter, and a silver bicycle. Each item is distinct and can be identified by its unique color and shape.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0046",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a red car, a yellow bicycle, a purple car, a blue bus, a green car, a brown and gray bus, and a teal bicycle.</think> <answer>7</answer>",
+  "after": "<think>There are 7 different items in the image: a bus, a bicycle, a car, a small car, a train, another bicycle, and a motorcycle.</think>\n<answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0047",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four items in the image: two airplanes and two cars. The airplanes are distinguishable by their wings and fuselage, while the cars have a more boxy shape with wheels visible. So the answer is 4.</think> <answer>4</answer>",
+  "after": "<think>There are 5 items in the image: a small green airplane, a large purple car, a small green car, a large gray airplane, and a small red car. So the answer is 5.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0048",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a purple car, a purple airplane, a brown van, and a teal van. Each item is distinct and separate from the others.</think> <answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a purple car, a purple airplane, a brown car, a teal van, and a yellow school bus. I counted each distinct object to determine the total number.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0049",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a motorcycle, a bicycle, a car, a van, a bus, a school bus, a scooter, and a pickup truck.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a motorcycle, a bicycle, a car, a van, a bus, a school bus, a scooter, a truck, and a train.</think>\n<answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0050",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a green motorcycle, a cyan bicycle, a brown and gold airplane, a small brown and gold airplane, and a silver scooter. Each item is distinct in its design and color.</think>\n<answer>5</answer>",
+  "after": "<think>There are a total of 6 items in the image. They are: a green motorcycle, a cyan bicycle, a brown and gold tandem bicycle, a small brown airplane, a green tricycle, and a silver scooter.</think> <answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0051",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a purple car, a gold car, and a yellow bicycle. Each item is separate and can be identified by its unique color and shape.</think>\n<answer>3</answer>",
+  "after": "<think>There are three items in the image: a purple car, a gold car, and a yellow bicycle. Each item is distinct and separate from the others.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0052",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a red bicycle, a green car, a blue and brown tandem bicycle, a cyan car, a blue airplane, and a gray car. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a red bicycle, a green car, a blue and brown tandem bicycle, a cyan car, a blue airplane, a gray car, and a green bus.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0053",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a blue car, a purple van, a green bicycle, a red bicycle, a yellow motorcycle, a silver car, a brown and yellow airplane, and a gray car.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a blue car, a purple van, a green bicycle, a red bicycle, a yellow motorcycle, a silver car, a brown and yellow airplane, and a gray car.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0054",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a blue scooter, a yellow bicycle, a red and brown bus, a cyan motorcycle, a purple and yellow train, and a green and blue helicopter.</think>\n<answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a blue scooter, a yellow bicycle, a red and brown bus, a cyan motorcycle, a purple and yellow train, a green and blue helicopter, and a pink and blue airplane.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0055",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a bicycle, a scooter, a bus, a pickup truck, an airplane, and a small toy car. I identified each item by its distinct shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a scooter, a bus, a pickup truck, a car, an airplane, and a small toy car.</think> <answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0056",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a bicycle, a motorcycle, a car, a van, a scooter, and a small car. I can see each of these items distinctly.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a motorcycle, a car, a van, a small car, a large car, and a small van. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0057",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a gold car, a blue car, a purple car, a green bus, a red bus, a cyan motorcycle, and a cyan airplane.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a gold car, a blue car, a purple car, a green bus, a red bus, a cyan motorcycle, a cyan airplane, and a small green bus.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0058",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a bicycle, a motorbike, a car, a bus, a train, a school bus, a small car, and a motorcycle.</think>\n<answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a bicycle, a motorbike, a car, a bus, a train, a school bus, a small car, a small bus, and a small train.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0059",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a yellow car, a purple van, a green motorcycle, a green chopper, a blue bicycle, a green helicopter, a purple and yellow train, and a green and yellow airplane.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image. They are: a yellow car, a purple van, a green motorcycle, a green and yellow motorcycle, a blue bicycle, a green airplane, a purple and yellow train, a green helicopter, and a blue and white train.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0060",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a purple bus, a pink motorcycle, a purple car, a yellow bicycle, a blue car, and a blue bus. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a purple bus, a pink motorcycle, a purple car, a yellow bicycle, a blue car, a green and blue car, and a blue bus.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0061",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a purple motorcycle, a yellow scooter, a red bus, a green van, a blue bicycle, a red car, and a gray car.</think>\n<answer>7</answer>",
+  "after": "<think>There are 7 different items in the image: a purple motorcycle, a purple scooter, a yellow scooter, a red bus, a green van, a blue bicycle, and a pink car.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0062",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a gold car, a red and grey bus, a blue and yellow bicycle, a green and yellow motorcycle, a blue and yellow airplane, a pink and purple helicopter, and a brown and black scooter.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a gold car, a red and grey bus, a blue and yellow bicycle, a green and yellow motorcycle, a blue and yellow scooter, a purple and pink airplane, a brown and black train, and a silver and black helicopter.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0063",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a green bicycle, a blue car, a gold car, a purple bicycle, a red pickup truck, a teal car, a purple scooter, a red school bus, and a silver car.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a green bicycle, a blue car, a gold car, a purple bicycle, a teal scooter, a red pickup truck, a purple motorcycle, a pink school bus, and a silver car.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0064",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a blue airplane, a green bus, and a brown train. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a blue airplane, a green bus, and a brown train. Each item is distinct and separate from the others.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0065",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a purple object, a teal bus, a yellow school bus, and a teal motorcycle. Each item has a unique color and shape, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a purple helicopter, a teal bus, a teal motorcycle, and a yellow school bus. Each item is distinct and separate from the others.</think>\n<answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0066",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a truck, a motorcycle, a car, an airplane, and a fighter jet. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a truck, a motorcycle, a car, an airplane, a helicopter, and a fighter jet.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0067",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a green bus, a red car, a turquoise pickup truck, a blue motorcycle, a yellow bicycle, a small blue bicycle, and a brown bicycle.</think>\n<answer>7</answer>",
+  "after": "<think>There are 7 different items in the image: a green bus, a red car, a turquoise pickup truck, a blue motorcycle, a yellow bicycle, a small turquoise bicycle, and a brown skateboard.</think>\n<answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0068",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bus, a train, and an airplane. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a bus, a train, and an airplane. The bus is large and has a red body with a blue roof. The train is smaller and has a pink body with a green roof. The airplane is small and has a yellow body with blue wings.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0069",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a red and white bus, a green bicycle, a blue car, a brown motorcycle, a blue train, a yellow school bus, a gray airplane, and a purple scooter.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a red and white bus, a green bicycle, a blue car, a brown car, a blue train, a yellow school bus, a purple motorcycle, a gray scooter, and a black and silver scooter.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0070",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a toy airplane, a toy motorcycle, a toy car, a toy bus, a toy bicycle, and a toy train. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bus, a car, a motorcycle, a bicycle, a train, an airplane, and a small blue car. I counted each distinct object present.</think> <answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0071",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a yellow car, a small car, a bus, and a motorcycle. I can see them clearly and they are distinct from each other.</think> <answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a yellow car, a small car, a bus, a motorcycle, and a bicycle.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0072",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bicycle, a motorcycle, a car, a truck, a jet, a fighter jet, and a small blue car. I counted each distinct object present in the image.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a small airplane, a motorcycle, a bicycle, a green box, a tandem bicycle, a car, a blue car, and a fighter jet.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0073",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a small blue airplane, a large red and gray motorcycle, a small purple and gray airplane, and a small gold motorcycle. Each item is unique in its design and color scheme.</think>\n<answer>4</answer>",
+  "after": "<think>There are four different items in the image: a small blue airplane, a large red and gray motorcycle, a small purple and gray airplane, and a small gold motorcycle. Each item is distinct and separate from the others.</think> <answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0074",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a green bus, a gold pickup truck, a green car, a red bicycle, a yellow and red scooter, a silver bicycle, a gray fighter jet, and a yellow airplane. I counted each distinct object to determine the total number.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a green bus, a gold pickup truck, a green car, a red bicycle, a yellow and red scooter, a silver bicycle, a gray fighter jet, and a yellow airplane. I counted each distinct object to determine the total number.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0075",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a green bus, a purple car, a red biplane, and a small yellow object. Each item is separate and can be counted individually.</think>\n<answer>4</answer>",
+  "after": "<think>There are four different items in the image: a green bus, a purple car, a red biplane, and a small yellow object. Each item is distinct and separate from the others.</think>\n<answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0076",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a purple car, a gold motorcycle, a small gold airplane, and a silver bicycle. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a purple car, a gold motorcycle, a small gold airplane, a silver bicycle, and a small purple car. Each item is distinct and can be identified by its unique shape and color.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0077",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a green bicycle, a white bicycle, a yellow airplane, and a red airplane. I can see them clearly and count them individually.</think> <answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a large airplane, a small airplane, a green bicycle, a white bicycle, and a motorbike.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0078",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a yellow car, a small airplane, a blue and green van, and a green bus. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a yellow car, a small airplane, a blue and green bus, a blue van, and a large airplane. I identified each item by its distinct shape and color.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0079",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a red car, a green bus, a yellow car, a purple bicycle, a blue airplane, a gray train, a pink van, and a red scooter.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a red car, a green bus, a yellow car, a purple bicycle, a red scooter, a pink van, a gray train, a blue airplane, and a silver motorcycle.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0080",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a small green car, a red and yellow airplane, a green motorcycle, and a purple van. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a small green car, a red and yellow airplane, a green motorcycle, a purple van, and a red bus. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0081",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a yellow car, a cyan van, a brown bus, and a purple airplane. Each item is clearly visible and separate from the others.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a yellow car, a cyan van, a brown bus, a green bicycle, and a purple airplane.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0082",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a van, a motorcycle, a bicycle, a car, an airplane, a bus, and a small blue vehicle. I counted each distinct object present in the image.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a van, a motorcycle, a dirt bike, a bicycle, a car, an airplane, a bus, and a train.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0083",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a toy motorcycle, a toy bicycle, and a toy airplane. Each item is unique in its design and function.</think>\n<answer>3</answer>",
+  "after": "<think>There are three different items in the image: a toy motorcycle, a toy bicycle, and a toy airplane. Each item is distinct in its design and function.</think>\n<answer>3</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0084",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a bicycle, a car, a train, an airplane, a motorcycle, and a van. I can see each of these items distinctly.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a car, an airplane, a train, a motorcycle, a bus, and a minivan.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0085",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a purple bus, a bicycle, a car, a motorcycle, a van, a red truck, and a blue airplane. I counted each distinct object present in the image.</think> <answer>7</answer>",
+  "after": "<think>There are 7 different items in the image: a purple bus, a bicycle, a car, a motorcycle, a van, a red truck, and a blue airplane.</think> <answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0086",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a purple motorcycle, a red and white bus, a green bicycle, a blue airplane, a pink car, a red car, and a small purple airplane. Each item is distinct and can be counted separately.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a purple motorcycle, a red and white bus, a green bicycle, a blue airplane, a pink car, a red car, a purple airplane, and a red fire truck.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0087",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a motorcycle, a bus, a car, a small car, an airplane, a fighter jet, and a helicopter. I identified each item by its unique shape and color.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a motorcycle, a bus, a car, a small car, an airplane, a fighter jet, a helicopter, and a large car.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0088",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a bus, and a motorcycle. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a bus, and a motorcycle.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0089",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a bicycle, a car, an airplane, and a small toy plane. Each item is separate and can be identified by its unique shape and color.</think>\n<answer>4</answer>",
+  "after": "<think>There are four different items in the image: a bicycle, a car, an airplane, and a toy plane. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0090",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a green bicycle, a blue van, a red and white bus, a purple airplane, a red car, a yellow school bus, and a red train. I counted each distinct object to determine the total number.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a green bicycle, a blue van, a red and white bus, a purple airplane, a red car, a yellow school bus, a silver car, and a red train.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0091",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a yellow school bus, a purple and yellow bus, a red car, a bicycle, a motorcycle, and an airplane. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a yellow school bus, a purple bus, a red car, a green bicycle, a gold motorcycle, a blue airplane, and a small blue car. Each item is distinct and can be counted separately.</think> <answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0092",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a car, a bus, a train, a fighter jet, and a helicopter. I can see these distinct objects clearly.</think> <answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a gray car, a yellow car, a red bus, a blue bus, a green bus, and a fighter jet.</think> <answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0093",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a green car, a purple car, a turquoise car, a red and black airplane, a blue and white airplane, a brown bicycle, a purple bicycle, a gold bicycle, and a silver bicycle.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a green car, a purple car, a turquoise car, a red and black helicopter, a cyan airplane, a brown bicycle, a purple bicycle, a gold bicycle, and a small turquoise car.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0094",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a purple van, a yellow bicycle, a yellow motorcycle, a blue and gray car, and a blue and yellow airplane. Each item is distinct and separate from the others.</think> <answer>5</answer>",
+  "after": "<think>There are 5 different items in the image: a purple van, a yellow bicycle, a yellow motorcycle, a blue and gray car, and a blue and yellow airplane.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0095",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a green bus, a blue car, a purple bicycle, a yellow airplane, a pink motorcycle, and a brown school bus. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a green bus, a blue car, a purple bicycle, a yellow airplane, a pink motorcycle, and a brown school bus.</think>\n<answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0096",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a green bus, a blue and white bus, a purple bicycle, a pink bicycle, a blue airplane, and a silver train. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a green bus, a cyan bus, a purple bicycle, a blue bicycle, a purple and gold airplane, and a silver and teal train.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0097",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a purple and gray bus, a silver airplane, a yellow bicycle, a blue car, and a teal motorcycle. Each item is distinct and separate from the others.</think> <answer>5</answer>",
+  "after": "<think>There are 5 different items in the image: a purple and gray bus, a silver airplane, a yellow bicycle, a blue car, and a teal motorcycle.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0098",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a blue van, a purple bus, a red bicycle, a yellow school bus, a silver car, a green train, a blue motorcycle, a blue airplane, and a cyan car. I counted each distinct object to determine the total number.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a blue van, a purple bus, a red bicycle, a yellow school bus, a silver car, a green train, a blue motorcycle, a blue airplane, and a cyan car.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0099",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a yellow car, a blue car, a red bus, a small blue car, a green and yellow motorcycle, a brown airplane, a small green car, a small blue car, and a small red car.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a yellow car, a blue car, a red bus, a small blue car, a green and yellow motorcycle, a brown airplane, a small green car, a small blue car, and a small red car.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0100",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a bicycle, a car, a motorcycle, a train, and an airplane. I can see each of these items distinctly.</think> <answer>5</answer>",
+  "after": "<think>There are five different items in the image: a bicycle, a car, a train, a motorcycle, and an airplane. I can see each of these items distinctly.</think> <answer>5</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0101",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bicycle, a car, a scooter, a fighter jet, a bus, an airplane, and a small propeller plane. I counted each distinct object to determine the total number.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a bicycle, a car, a scooter, a fighter jet, a school bus, a propeller plane, a helicopter, and an airplane. I counted each distinct object present in the image.</think> <answer>8</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0102",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three items in the image: a green bus, a red car, and a red truck. Each item is distinct and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a green bus, a red car, and a red truck. Each item is distinct and separate from the others.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0103",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a gold car, a blue bus, a green bus, a red van, and a brown object that appears to be a part of a larger structure or vehicle. Each item is distinct in color and shape, making them easily identifiable.</think> <answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a gold car, a blue bus, a green bus, a red van, a brown object, and a purple object. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0104",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 10 different items in the image. I counted each distinct object, including the bicycle, cars, and truck.</think> <answer>10</answer>",
+  "after": "<think>There are 10 different items in the image. I counted each distinct object, including the bicycle, cars, and truck.</think> <answer>10</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0105",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a small car, a large car, a motorcycle, a bicycle, a bus, and a scooter.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a small car, a large car, a motorcycle, a bicycle, a bus, a scooter, and a truck.</think> <answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0106",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 6 different items in the image: a green car, a small green car, a purple and yellow bus, a silver bus, a blue and purple airplane, and a cyan airplane. Each item is distinct in color and shape.</think>\n<answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a green car, a small green car, a purple and yellow bus, a silver bus, a blue and purple airplane, and a cyan airplane.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0107",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a blue van, a turquoise bicycle, a gold motorcycle, a purple and yellow helicopter, a brown car, a red pickup truck, and a green and gold motorcycle.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a blue van, a turquoise bicycle, a gold motorcycle, a purple and yellow helicopter, a brown car, a red pickup truck, a green and brown motorcycle, and a gold scooter.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0108",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three items in the image: a small car, a bus, and a larger car. Each item is distinct and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a small car, a bus, and a larger car. Each item is distinct and separate from the others.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0109",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a gold van, a blue car, a red scooter, a cyan car, a yellow bus, a purple helicopter, and a green motorcycle.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a brown van, a blue car, a red scooter, a yellow motorcycle, a green bus, a cyan car, a purple helicopter, and a gray scooter.</think>\n<answer>8</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0110",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a red car, a blue van, a teal pickup truck, a purple bicycle, a pink scooter, a green motorcycle, a yellow car, a brown car, and a teal scooter.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image. They are: a blue car, a red car, a teal pickup truck, a purple bicycle, a pink scooter, a teal motorcycle, a brown car, a blue and white bicycle, and a teal scooter.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0111",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a double-decker bus, a bicycle, an airplane, a car, a train, another car, a small airplane, and a minivan. Each item is distinct and can be identified by its unique shape and color.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a double-decker bus, a bicycle, an airplane, a car, a train, another car, a small airplane, and a minivan. I counted each distinct object present in the image.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0112",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a motorcycle, a car, a bus, a scooter, a bicycle, a truck, and a small car. I identified each item by its distinct shape and color.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a motorcycle, a car, a bus, a scooter, a bicycle, a small car, a large car, and a toy car.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0113",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a bicycle, a scooter, a car, and a motorcycle. I can see each of these items distinctly.</think> <answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a bicycle, a scooter, a car, a motorcycle, and a small bicycle.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0114",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a yellow bus, a green airplane, a green bus, a blue motorcycle, and a small yellow airplane. Each item is distinct and can be identified by its unique color and shape.</think> <answer>5</answer>",
+  "after": "<think>There are six different items in the image: a yellow bus, a green airplane, a green bus, a blue motorcycle, a small yellow airplane, and a purple bus. I counted each distinct object to determine the total number.</think> <answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0115",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a purple motorcycle, a green motorcycle, a brown car, a green car, a pink airplane, a yellow school bus, and a small blue airplane. I counted each distinct object to determine the total number.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a purple motorcycle, a green motorcycle, a brown car, a purple bicycle, a pink airplane, a green car, a yellow school bus, and a red airplane. I counted each distinct object to determine the total number.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0116",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a bicycle, a bus, an airplane, a car, another bus, and a train. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a bus, an airplane, a car, another bus, a train, and another airplane. I counted each distinct object present.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0117",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a green bicycle, a yellow bicycle, a purple car, a red pickup truck, a brown fighter jet, a gray fighter jet, a green fighter jet, and a gold fighter jet.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: two bicycles, three cars, and four airplanes.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0118",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a green and red bus, a gray and purple train, a blue car, and two bicycles (one blue and one yellow).</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a green and red bus, a gray and purple train, a blue car, and two bicycles (one blue and one yellow).</think> <answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0119",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a purple bus, a green car, a blue car, a brown and blue airplane, a green and yellow airplane, a purple and white train, a silver car, and a brown bicycle.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a purple bus, a blue car, a green car, a silver car, a green airplane, a brown and blue airplane, a yellow and blue bicycle, a red and white train, and a gray and blue car.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0120",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a purple airplane, a red and yellow train, a cyan bicycle, a green and gray helicopter, a black motorcycle, and a gray and black scooter.</think>\n<answer>6</answer>",
+  "after": "<think>There are six different items in the image: a purple airplane, a red and yellow bus, a cyan bicycle, a green and gray helicopter, a black and gray motorcycle, and a brown and gray car. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0121",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a green train, a yellow car, a red airplane, a blue bicycle, a purple bicycle, a green car, a blue car, and a cyan bus.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a green train, a blue bicycle, a yellow car, a red airplane, a green car, a purple and brown bicycle, a blue car, a cyan bus, and a cyan train.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0122",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a bicycle, a car, a motorcycle, a truck, a small car, a scooter, a van, and a pickup truck.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image. I counted each distinct object, including the bicycle, cars, and motorcycle.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0123",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a scooter, a motorcycle, a car, a bicycle, a small car, and a van. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a scooter, a motorcycle, a car, a bicycle, a small car, and two larger cars. I counted each distinct object present.</think>\n<answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0124",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a pickup truck, a bus, a motorcycle, a bicycle, an airplane, a school bus, and a train. I counted each distinct object present in the image.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a pickup truck, a bus, a motorcycle, a bicycle, an airplane, a school bus, a train, and a helicopter.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0125",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a green car, a red motorcycle, a blue motorcycle, a silver scooter, a brown bicycle, a wooden bicycle, and a blue bicycle. Each item is distinct and can be identified by its unique color and design.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image. I can see a green car, a red motorcycle, a blue motorcycle, a brown bicycle, a blue bicycle, a gold motorcycle, a silver motorcycle, and a wooden bicycle. Each item is distinct and can be identified by its unique color and design.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0126",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a small bus, and a larger bus. Each item is separate and can be identified by its unique shape and color.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a small bus, and a larger bus. The bicycle is unique in its form and structure compared to the two buses.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0127",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a bicycle, a van, a car, a scooter, an airplane, and a small toy. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a van, a car, a scooter, a small airplane, a large airplane, and a motorcycle.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0128",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a biplane, a double-decker bus, a motorcycle, and a double-decker tour bus. Each item is distinct and can be identified by its unique features.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a biplane, a double-decker bus, a single-decker bus, a motorcycle, and a school bus. I can see them all distinctly.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0129",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a purple motorcycle, a gray scooter, a green car, and a biplane. Each item is separate and can be identified by its unique shape and color.</think>\n<answer>4</answer>",
+  "after": "<think>There are four different items in the image: a purple motorcycle, a gray motorcycle, a green car, and a biplane. I can see each item distinctly and they are all separate from one another.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0130",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five items in the image: a purple car, a blue car, a pink car, a brown car, and a blue train. Each item is distinct and separate from the others.</think> <answer>5</answer>",
+  "after": "<think>There are 5 items in the image: a purple car, a blue car, a pink car, a brown car, and a blue train.</think> <answer>5</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0131",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a bicycle, a scooter, a bus, a car, a van, a motorcycle, an airplane, and a small car. I identified each item by its distinct shape and color.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a bicycle, a scooter, a bus, a car, a van, a motorcycle, a small car, an airplane, and a helicopter.</think>\n<answer>9</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0132",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a red car, a blue bicycle, and a purple car. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a red car, a cyan bicycle, and a small purple object. The red car is on the left side, the cyan bicycle is in the middle, and the small purple object is on the right side. So the answer is 3.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0133",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a bicycle, a bus, a train, and an airplane. Each item is unique in its form and function.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a bicycle, a bus, a train, and an airplane. I can identify them based on their distinct shapes and colors.</think> <answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0134",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a green bus, a purple bus, a red motorcycle, a yellow airplane, a green train, a brown double-decker bus, and a yellow motorcycle.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a green bus, a purple bus, a red motorcycle, a yellow airplane, a green train, a brown double-decker bus, a blue helicopter, and a yellow helicopter.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0135",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bicycle, a car, a bus, a small car, an airplane, a train, and a motorcycle.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a bicycle, a car, a bus, a small car, an airplane, a train, a motorcycle, and a helicopter.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0136",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a car, a scooter, an airplane, a fighter jet, a motorcycle, and a pickup truck. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are six different items in the image: a car, a scooter, an airplane, a fighter jet, a motorcycle, and a pickup truck.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0137",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a scooter, an airplane, a bicycle, a fighter jet, and a small green plane. I can see each item distinctly and they are all separate from one another.</think> <answer>5</answer>",
+  "after": "<think>There are six different items in the image: a blue scooter, a purple and white airplane, a gray and red airplane, a green airplane, a cyan and yellow fighter jet, and a silver bicycle.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0138",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a purple bus, a bicycle, and a fighter jet. Each item is clearly separate from the others, making it easy to count them individually.</think>\n<answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a bus, and an airplane. I can see them clearly and they are distinct from each other.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0139",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a red and blue bicycle, a green bicycle, a yellow bus, and a silver motorcycle. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a red and blue bicycle, a green bicycle, a yellow bus, and a silver motorcycle.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0140",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a van, and a bus. Each item is clearly visible and separate from the others.</think>\n<answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a van, and a bus.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0141",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a yellow scooter, a blue motorcycle, a gray car, a green fighter jet, a purple car, a yellow car, a green fighter jet, and a purple airplane.</think> <answer>8</answer>",
+  "after": "<think>There are 9 different items in the image: a yellow scooter, a blue motorcycle, a gray car, a green fighter jet, a purple car, a yellow car, a green fighter jet, a purple fighter jet, and a silver fighter jet.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0142",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a green car, a red train, a blue bus, a silver bus, a brown bicycle, a gold bicycle, a cyan motorcycle, a red and purple bus, and a small cyan car.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a green car, a red train, a blue bus, a silver bus, a turquoise bus, a purple bus, a brown bicycle, a gold bicycle, and a cyan motorcycle.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0143",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a purple car, a green bicycle, a gray and brown dirt bike, and a red airplane. Each item is distinct and separate from the others.</think>\n<answer>4</answer>",
+  "after": "<think>There are five different items in the image: a purple car, a green bicycle, a gray and brown dirt bike, a blue and white scooter, and a red airplane. Each item is distinct and separate from the others.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0144",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a car, a bicycle, a motorcycle, a scooter, and an airplane. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a car, a bicycle, a motorcycle, a scooter, a fighter jet, and a drone. I identified each item by its distinct shape and color.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0145",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>Counting each distinct object in the image, we have: 1 bus, 1 car, 1 bicycle, 1 motorcycle, 1 airplane, and 1 starfish. So, there are a total of 6 different items.</think> <answer>6</answer>",
+  "after": "<think>There are 10 different items in the image. They are: a purple bus, a starfish, a small car, a blue bicycle, a blue motorcycle, a purple airplane, a red train, a pink airplane, a yellow motorcycle, and a brown train.</think> <answer>10</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0146",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a purple car, a teal bicycle, a brown bicycle, and a purple bus. Each item is unique in its color and type.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a purple car, a teal bicycle, a brown bicycle, and a purple bus. Each item is distinct in color and type.</think>\n<answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0147",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a motorcycle, an airplane, a school bus, a car, a small airplane, and a toy car. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a motorcycle, an airplane, a school bus, a car, a small airplane, a helicopter, and a purple object that looks like a toy. So the answer is 7.</think>\n<answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0148",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a yellow motorcycle, a green bus, a purple motorcycle, a gray car, a teal car, and a small red bicycle. Each item is distinct and can be identified by its unique color and shape.</think>\n<answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a yellow motorcycle, a green bus, a purple airplane, a gray car, a teal car, a red scooter, and a purple motorcycle.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0149",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a biplane, a jet plane, a bicycle, a car, a van, and a bus. I can see each of these items distinctly.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a biplane, a jet plane, a bicycle, a school bus, a van, a car, and a train. I counted each distinct object present in the image.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0150",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a bicycle, a motorcycle, a car, a bus, an airplane, a helicopter, a small car, and a toy figure.</think>\n<answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a bicycle, a motorcycle, a car, a bus, an airplane, a helicopter, a small car, and a toy figure.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0151",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a bicycle, a scooter, a car, a van, a small car, and a small van. I can see each of these items distinctly.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a bicycle, a scooter, a car, a van, a small car, a motorcycle, and a small motorcycle.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0152",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a bicycle, a car, a motorcycle, a bus, a van, a scooter, a truck, a train, and a helicopter.</think>\n<answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a bicycle, a car, a motorcycle, a bus, a van, a scooter, a truck, a train, and a helicopter.</think>\n<answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0153",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a motor scooter, and a box. The bicycle is purple with pink accents, the motor scooter is yellow with green details, and the box is brown with a red top. Each item has unique features that differentiate it from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a bicycle, a motorcycle, and a box. The bicycle is purple with pink details, the motorcycle is yellow with green details, and the box is brown with a red top.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0154",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a purple motorcycle, a blue and yellow bicycle, a green and blue car, and a teal bus. Each item is distinct in its color and type.</think>\n<answer>4</answer>",
+  "after": "<think>There are five different items in the image: a purple motorcycle, a blue and yellow bicycle, a green and blue car, a red and blue bus, and a teal bus. Each item is distinct and can be identified by its unique color and shape.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0155",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bicycle, a motorcycle, a bus, a car, a small car, a scooter, and a van.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a bicycle, a motorcycle, a bus, a car, a small car, a scooter, a car, and a car. So the answer is 8.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0156",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a blue motorcycle, a green and white bus, and a brown school bus. Each item is separate and can be identified by its unique color and shape.</think>\n<answer>3</answer>",
+  "after": "<think>There are three different items in the image: a blue motorcycle, a green and white bus, and a brown and yellow school bus. Each item is distinct in its color and design.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0157",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a gold car, a blue motorcycle, a green car, a yellow school bus, a purple bicycle, and a small cyan car. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a gold car, a blue motorcycle, a green car, a yellow school bus, a purple bicycle, and a small cyan car.</think>\n<answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0158",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a red and blue airplane, a green motorcycle, a cyan motorcycle, and a small cyan motorcycle. Each item has unique characteristics that differentiate it from the others.</think> <answer>4</answer>",
+  "after": "<think>There are four items in the image: a red and blue airplane, a green motorcycle, a cyan motorcycle, and a small cyan motorcycle. So the answer is 4.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0159",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a yellow airplane, a blue airplane, a green truck, and a red double-decker bus. Each item is distinct in color and type, making them separate entities.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a yellow airplane, a blue airplane, a green truck, a black and gold bus, and a red double-decker bus. Each item is distinct and can be identified by its unique color and shape.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0160",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a purple car, a yellow airplane, a green car, a red motorcycle, a cyan motorcycle, a gray tank, a green bicycle, a blue truck, and a red car. Each item is distinct and can be counted separately.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a purple car, a yellow airplane, a green car, a red motorcycle, a cyan motorcycle, a gray tank, a green bicycle, a blue truck, and a red car. Each item is distinct and can be counted separately.</think> <answer>9</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0161",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a tricycle, and a toy train. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a bicycle, a tricycle, and a toy train. The bicycle is yellow with red wheels, the tricycle is silver with yellow wheels, and the toy train is green and yellow. Each item is distinct and separate from the others.</think>\n<answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0162",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a blue double-decker bus, a yellow single-decker bus, a green biplane, a small gold airplane, and a cyan bicycle. Each item is distinct and separate from the others.</think> <answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a blue double-decker bus, a yellow single-decker bus, a green biplane, a purple bicycle, a gold helicopter, and a pink tricycle.</think> <answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0163",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a purple bicycle, a red motorcycle, a blue airplane, a yellow school bus, a green and white train, a brown car, a cyan bus, a red double-decker bus, and a purple and yellow tandem bicycle.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a purple bicycle, a red motorcycle, a blue airplane, a yellow school bus, a green and white train, a brown car, a cyan bus, a red double-decker bus, and a purple and yellow tandem bicycle.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0164",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a green bus, a turquoise bus, a red bicycle, a brown motorcycle, a blue airplane, a purple train, a green scooter, and a yellow helicopter.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a green bus, a turquoise bus, a red bicycle, a brown motorcycle, a blue airplane, a purple train, a silver scooter, and a yellow helicopter.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0165",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a red bus, a gold bicycle, a green and blue van, a green motorcycle, a yellow airplane, and a purple bicycle.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a red bus, a gold bicycle, a green and blue van, a green motorcycle, a yellow airplane, a purple bicycle, and a gold motorcycle.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0166",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a green motorcycle, a purple bicycle, a yellow car, a purple airplane, a blue bicycle, a green car, and a red bus.</think>\n<answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a green motorcycle, a purple bicycle, a yellow car, a purple airplane, a blue bicycle, a green car, a red and white bus, and a small gray airplane.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0167",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a red bicycle, a green and yellow helicopter, a yellow motorcycle, a blue and yellow tricycle, a green airplane, and a silver airplane. Each item is distinct and can be identified by its unique shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are a total of 7 different items in the image. They are: a red bicycle, a green and yellow helicopter, a yellow motorcycle, a blue and yellow tricycle, a green airplane, a silver airplane, and a red and yellow scooter.</think> <answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0168",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a small brown motorcycle, a large green bus, and a purple scooter. Each item is separate and can be identified by its unique color and shape.</think>\n<answer>3</answer>",
+  "after": "<think>There are three distinct items in the image: a small brown motorcycle, a large green bus, and a purple scooter. Each item is separate and can be clearly identified by its unique color and shape.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0169",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a bus, a bicycle, a car, a motorcycle, a train, a scooter, and a truck. I identified each item by its distinct shape and color.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a purple bicycle, a yellow and red bus, a blue car, a green car, a brown car, a silver car, a purple and blue bus, and a wooden bicycle.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0170",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a yellow van, a green motorcycle, a gold car, a green bicycle, a red and blue bus, a blue and purple train, a brown car, and a gray train.</think>\n<answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a yellow van, a green motorcycle, a gold car, a green bicycle, a red and blue bus, a blue and purple train, a brown car, and a gray train.</think>\n<answer>8</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0171",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a purple motorcycle, a green and yellow scooter, a silver airplane, a green bus, a gold car, and a blue train. I identified each item by its distinct shape and color.</think> <answer>6</answer>",
+  "after": "<think>There are 7 different items in the image: a purple motorcycle, a green scooter, a silver airplane, a green and yellow train, a gold car, a blue bus, and a gray box.</think>\n<answer>7</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0172",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a small blue bus, a gold-colored car, a blue motorcycle, and a silver car with purple and red details. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a small bus, a large SUV, a motorcycle, and a small car. Each item is distinct in size and type.</think>\n<answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0173",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a green bus, a purple and yellow school bus, a blue motorcycle, a brown car, a blue bicycle, a green and purple airplane, a blue and white airplane, a green and purple helicopter, and a blue and white helicopter.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a green bus, a purple and yellow school bus, a blue motorcycle, a brown car, a blue bicycle, a green and purple airplane, a blue and white airplane, a black motorcycle, and a gray and purple airplane.</think> <answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0174",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a green bus, a gold car, a blue airplane, a brown bus, a red biplane, a purple car, a yellow bicycle, a silver motorcycle, and a gold motorcycle.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a green bus, a gold car, a blue airplane, a brown bus, a red biplane, a purple car, a yellow bicycle, a silver motorcycle, and a gold motorcycle.</think>\n<answer>9</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0175",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a green and red bus, a small green car, a blue bicycle, and a yellow object that appears to be a part of the bus. So the answer is 4.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a green and red bus, a small green car, a blue and red bicycle, and a yellow object that appears to be a part of the bus. So the answer is 4.</think> <answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0176",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a red car, a blue car, a yellow school bus, a green and yellow bicycle, a gray excavator, a purple and blue train, a gold car, and a pink and green car. I counted each distinct object to determine the total number.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a red car, a blue car, a yellow school bus, a green and yellow bicycle, a gray excavator, a purple and blue train, a gold car, and a pink and green car. I counted each distinct object by looking at their unique shapes and colors.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0177",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a yellow motorcycle, a purple car, a blue car, a teal airplane, a brown and red bus, and a gold and brown bus. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are 6 different items in the image: a yellow motorcycle, a purple car, a blue car, a teal airplane, a brown and red bus, and a gold and brown bus.</think>\n<answer>6</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0178",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 9 different items in the image: a motorcycle, a truck, a car, two airplanes, a scooter, a van, and three other objects that are not clearly identifiable as any of these categories.</think> <answer>9</answer>",
+  "after": "<think>There are 9 different items in the image: a motorcycle, a truck, a car, a scooter, two airplanes, a helicopter, and three other vehicles. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>9</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0179",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a green car, a blue motorcycle, a yellow bicycle, a brown dirt bike, and a gray scooter.</think>\n<answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a green car, a small green car, a blue motorcycle, a brown dirt bike, a gray scooter, and a purple bicycle.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0180",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are two items in the image: a bicycle and a car.</think> <answer>2</answer>",
+  "after": "<think>There are two items in the image: a bicycle and a car.</think> <answer>2</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0181",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a motorcycle, and a car. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bicycle, a motorcycle, and a car. I can see these items clearly and they are distinct from each other.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0182",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 7 different items in the image: a purple airplane, a blue bicycle, a brown motorcycle, a green car, a red bicycle, a yellow bicycle, and a gray car. I counted each distinct object to determine the total number.</think> <answer>7</answer>",
+  "after": "<think>There are 8 different items in the image: a purple airplane, a blue bicycle, a brown motorcycle, a green car, a red bicycle, a yellow bicycle, a gray car, and a brown airplane.</think> <answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0183",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four different items in the image: a bus, a scooter, a car, and a bicycle. Each item is distinct and can be identified by its unique shape and features.</think>\n<answer>4</answer>",
+  "after": "<think>There are 5 different items in the image: a bus, a scooter, a car, a bicycle, and a small car. I can see them all clearly and count them individually.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0184",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a motorcycle, a biplane, a car, a small airplane, and a van. Each item is distinct and can be identified by its unique shape and color.</think> <answer>5</answer>",
+  "after": "<think>There are five different items in the image: a motorcycle, a biplane, a car, a small airplane, and a van. I can see them all distinctly.</think> <answer>5</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0185",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are two items in the image: a red van and a purple car. The red van is larger and has multiple windows, while the purple car is smaller and appears to be a compact model. Both vehicles are distinct from each other in terms of size and color.</think> <answer>2</answer>",
+  "after": "<think>There are two items in the image: a red van and a purple car. The red van has multiple colors on its body, but it is still one item. The purple car is also one item. So, there are two different items.</think> <answer>2</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0186",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a motorcycle, a scooter, and a car. Each item is clearly visible and separate from the others.</think> <answer>3</answer>",
+  "after": "<think>There are four different items in the image: a bicycle, a motorcycle, a scooter, and a car. I can see each of these items distinctly.</think> <answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0187",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a green car, a purple and blue airplane, a brown motorcycle, and a yellow bus. Each item is separate and can be counted individually.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a green car, a purple and blue airplane, a brown motorcycle, a yellow school bus, and a small green motorcycle. Each item is distinct and can be identified by its unique shape and color.</think> <answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0188",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a car, a bicycle, a motorcycle, and a motor scooter. Each item is clearly visible and separate from the others.</think>\n<answer>4</answer>",
+  "after": "<think>There are four different items in the image: a car, a bicycle, a motorcycle, and a motor scooter.</think> <answer>4</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0189",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bicycle, a motorbike, and a car. The bicycle is yellow, the motorbike is brown, and the car is red. Each item has its own unique color and form, making them easily distinguishable from one another.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a bicycle, a car, and a motorcycle.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0190",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a green scooter, a gray bus, a yellow airplane, a brown fighter jet, and a blue bicycle. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "after": "<think>There are five different items in the image: a green scooter, a gray bus, a yellow airplane, a brown fighter jet, and a blue bicycle. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0191",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are five different items in the image: a green and blue airplane, a blue bicycle, a red car, a purple motorcycle, and a yellow and blue airplane. Each item is distinct and can be identified by its unique shape and color.</think> <answer>5</answer>",
+  "after": "<think>There are 6 different items in the image: a green and blue airplane, a blue bicycle, a red car, a yellow and blue airplane, a purple motorcycle, and a green and yellow box.</think>\n<answer>6</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0192",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a bus, an airplane, and a motorcycle. Each item is separate and can be identified by its unique shape and color.</think> <answer>3</answer>",
+  "after": "<think>There are three different items in the image: a bus, an airplane, and a motorcycle.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0193",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 8 different items in the image: a bus, a car, a bicycle, an airplane, a train, a motorcycle, a boat, and a helicopter.</think> <answer>8</answer>",
+  "after": "<think>There are 8 different items in the image: a bus, a truck, an airplane, a bicycle, a car, a train, a boat, and a double-decker bus.</think>\n<answer>8</answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0194",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are 10 different items in the image. They are: a red and gray car, a green and yellow car, a blue car, a purple and blue airplane, a silver airplane, a blue and white bus, a yellow bicycle, a pink and yellow helicopter, a blue and red train, and a blue and white train.</think> <answer>10</answer>",
+  "after": "<think>There are 10 different items in the image. They are: a red and gray car, a green and yellow car, a blue car, a purple and blue airplane, a silver airplane, a blue and white bus, a yellow bicycle, a pink and yellow helicopter, a blue and red train, and a blue and white train.</think> <answer>10</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0195",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a brown car, a purple and yellow motorcycle, a green car, and a gray fighter jet. Each item is unique in its design and color, making them easily distinguishable from one another.</think> <answer>4</answer>",
+  "after": "<think>There are five different items in the image: a brown car, a purple and yellow motorcycle, a green car, a purple and yellow bus, and a gray fighter jet. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>5</answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0196",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are six different items in the image: a purple motorcycle, a green car, a blue and yellow airplane, a brown school bus, a cyan helicopter, and a gold car. Each item is distinct and can be identified by its unique color and shape.</think> <answer>6</answer>",
+  "after": "<think>There are a total of 7 items in the image. They are: a purple motorcycle, a green airplane, a brown school bus, a cyan helicopter, a green car, a gold car, and a blue car.</think> <answer>7</answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0197",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a purple bus, a blue and white airplane, and another purple bus. Each item is separate and can be identified by its unique color and shape.</think>\n<answer>3</answer>",
+  "after": "<think>There are three different items in the image: a purple bus, a blue and white airplane, and another purple bus. So the answer is 3.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0198",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are four distinct items in the image: a green car, a red bus, a small airplane, and a blue bus. Each item is separate and can be counted individually.</think> <answer>4</answer>",
+  "after": "<think>There are four different items in the image: a green car, a red bus, a small airplane, and a blue bus. Each item is distinct and can be identified by its unique shape and color.</think>\n<answer>4</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0199",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<think>There are three distinct items in the image: a purple car, a cyan car, and an airplane. Each item is separate and can be identified by its unique color and shape.</think> <answer>3</answer>",
+  "after": "<think>There are three items in the image: a purple car, a cyan car, and an airplane. So the answer is 3.</think> <answer>3</answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ }
+]

@@ -1,0 +1,1802 @@
+[
+ {
+  "id": "superclevr_0000",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0001",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0002",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0003",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0004",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0005",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0006",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0007",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0008",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0009",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0010",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0011",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0012",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0013",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0014",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0015",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0016",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0017",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0018",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0019",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0020",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0021",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0022",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0023",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0024",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0025",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0026",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0027",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0028",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0029",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0030",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0031",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0032",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0033",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 10 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0034",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0035",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0036",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0037",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0038",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0039",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0040",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0041",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0042",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0043",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0044",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0045",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0046",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0047",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0048",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0049",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0050",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0051",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0052",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0053",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0054",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0055",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0056",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0057",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0058",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0059",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0060",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0061",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0062",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0063",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0064",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0065",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0066",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0067",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0068",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0069",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0070",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0071",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0072",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0073",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0074",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0075",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0076",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0077",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0078",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0079",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0080",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0081",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0082",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0083",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0084",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0085",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0086",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0087",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0088",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0089",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0090",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0091",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0092",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0093",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0094",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0095",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0096",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0097",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0098",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 10 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0099",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 10 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0100",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0101",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0102",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0103",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0104",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 10 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0105",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0106",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0107",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0108",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0109",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0110",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0111",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0112",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0113",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0114",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0115",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0116",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0117",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0118",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0119",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0120",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0121",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0122",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0123",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0124",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0125",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0126",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0127",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0128",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0129",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0130",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0131",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0132",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0133",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0134",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0135",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0136",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0137",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0138",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0139",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0140",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0141",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0142",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0143",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0144",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0145",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 10 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0146",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0147",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0148",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0149",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0150",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0151",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0152",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0153",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0154",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0155",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0156",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0157",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0158",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0159",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0160",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0161",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0162",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0163",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0164",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0165",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0166",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0167",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0168",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0169",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0170",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0171",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0172",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0173",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0174",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0175",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0176",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0177",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0178",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0179",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0180",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0181",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0182",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 8 </answer>",
+  "after": "<answer> 8 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0183",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0184",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0185",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0186",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0187",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0188",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0189",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0190",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0191",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 6 </answer>",
+  "after": "<answer> 6 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0192",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0193",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 9 </answer>",
+  "after": "<answer> 9 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0194",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 10 </answer>",
+  "after": "<answer> 10 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0195",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 5 </answer>",
+  "after": "<answer> 5 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0196",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 7 </answer>",
+  "after": "<answer> 7 </answer>",
+  "acc_before": 0.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0197",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 0.0
+ },
+ {
+  "id": "superclevr_0198",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 4 </answer>",
+  "after": "<answer> 4 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ },
+ {
+  "id": "superclevr_0199",
+  "kr_before": 0.0,
+  "kr_after": 0.0,
+  "before": "<answer> 3 </answer>",
+  "after": "<answer> 3 </answer>",
+  "acc_before": 1.0,
+  "acc_after": 1.0
+ }
+]

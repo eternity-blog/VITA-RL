@@ -1,0 +1,4 @@
+train=69500  stage1 excluded=6400  pool=63100
+wrote 6400 SFT records  -> /data/agent/lixiao29/vita-weights/clevr_sft_s2/clevr_sft_train.json
+wrote 6400 GRPO records -> /data/agent/lixiao29/vita-weights/clevr_grpo_s2/clevr_grpo_train.json
+NOTE: link the original images/ dir into both output dirs.

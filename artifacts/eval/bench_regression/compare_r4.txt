@@ -1,0 +1,59 @@
+
+=== MMBench_DEV_EN_V11 ===
+  Overall                     0.7779 ->    0.7763   -0.0015  (within noise)
+  AR                          0.8476 ->    0.8476   +0.0000
+  CP                          0.7873 ->    0.7873   +0.0000
+  FP-C                        0.7095 ->    0.7095   +0.0000
+  FP-S                        0.8408 ->    0.8408   +0.0000
+  LR                          0.5887 ->    0.5726   -0.0161
+  RR                          0.7931 ->    0.7931   +0.0000
+  action_recognition          0.8077 ->    0.8077   +0.0000
+  attribute_comparison        0.7843 ->    0.7843   +0.0000
+  attribute_recognition       0.9833 ->    0.9833   +0.0000
+  celebrity_recognition       0.8687 ->    0.8687   +0.0000
+  function_reasoning          0.9000 ->    0.9000   +0.0000
+  future_prediction           0.5200 ->    0.5200   +0.0000
+  identity_reasoning          0.9608 ->    0.9608   +0.0000
+  image_emotion               0.9000 ->    0.9000   +0.0000
+  image_quality               0.4524 ->    0.4524   +0.0000
+  image_scene                 0.9062 ->    0.9062   +0.0000
+  image_style                 0.8226 ->    0.8226   +0.0000
+  image_topic                 0.9167 ->    0.9167   +0.0000
+  nature_relation             0.7742 ->    0.7742   +0.0000
+  object_localization         0.6429 ->    0.6429   +0.0000
+  ocr                         0.8833 ->    0.8833   +0.0000
+  physical_property_reasoning    0.6792 ->    0.6792   +0.0000
+  physical_relation           0.7000 ->    0.7000   +0.0000
+  social_relation             0.8871 ->    0.8871   +0.0000
+  spatial_relationship        0.4800 ->    0.4800   +0.0000
+  structuralized_imagetext_understanding    0.6351 ->    0.6081   -0.0270
+  [1.96-sigma on Overall: +/-0.0227]
+
+=== MME ===
+  perception                 1728.86 ->   1729.61   +0.75
+  reasoning                   624.64 ->    624.64   +0.00
+  TOTAL                      2353.51 ->   2354.26   +0.75
+
+  OCR                       192.5000 ->  192.5000   +0.0000
+  artwork                   122.5000 ->  123.2500   +0.7500
+  celebrity                 181.4706 ->  181.4706   +0.0000
+  code_reasoning            155.0000 ->  155.0000   +0.0000
+  color                     185.0000 ->  185.0000   +0.0000
+  commonsense_reasoning     137.1429 ->  137.1429   +0.0000
+  count                     175.0000 ->  175.0000   +0.0000
+  existence                 195.0000 ->  195.0000   +0.0000
+  landmark                  187.2500 ->  187.2500   +0.0000
+  numerical_calculation     147.5000 ->  147.5000   +0.0000
+  position                  138.3333 ->  138.3333   +0.0000
+  posters                   173.8095 ->  173.8095   +0.0000
+  scene                     178.0000 ->  178.0000   +0.0000
+  text_translation          185.0000 ->  185.0000   +0.0000
+
+=== POPE ===
+  Overall                    89.1391 ->   89.0703   -0.0688
+  acc                        89.0667 ->   88.9889   -0.0778
+  precision                  88.5526 ->   88.4169   -0.1357
+  recall                     89.7333 ->   89.7333   +0.0000
+
+  hallucination read: precision -0.14, recall +0.00
+    -> neither moved: the intervention did not change object-existence judgements

@@ -82,6 +82,10 @@ KL 涨了 6 倍而内容奖励纹丝不动——开放式描述里 8 个 rollout
 | [GRPO_DEEP_DIVE.md](./GRPO_DEEP_DIVE.md) | **GRPO 实验全程**：数学细节、超参、Reward 设计、指标手册、五轮训练与对照记录（代理奖励失败→可验证奖励 +32.8pt→通用回归/OOD/配平 SFT 对照/阶段二天花板）、GRPO 演进（vLLM/DAPO/GSPO）、训练与推理框架选型、面试问答 | 中文 |
 | [RESULTS.md](./RESULTS.md) | 同一实验更早期、更窄的记录；已被上面取代 | 中文 |
 
+从已回收开发机上抢救下来的原始实验产物（各轮训练日志、逐 step trainer
+state、评测原始输出）在 [artifacts/](./artifacts/README.md)——上面文档里的
+每个数字都能在那里找到原始文件。
+
 两处值得专门一读的走读：[ARCHITECTURE_zh-CN.md
 §5](./ARCHITECTURE_zh-CN.md#5-prepare_inputs_labels_for_multimodal模型的心脏)
 拆解了让这个模型成立的那个函数，[§14](./ARCHITECTURE_zh-CN.md#14-rl-栈dpo-与-grpo)

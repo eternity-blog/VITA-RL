@@ -908,7 +908,12 @@ CPU 预处理是瓶颈；后来实测只占 12 ms/图，真正耗时是 7B 生�
 | `script/train/dpo_rlaif_v_8gpu.sh` | 多卡 LoRA DPO（含 `/dev/shm` 与 audio encoder 路径规避） |
 | `script/train/sft_rlaif_v_8gpu.sh` | 8 卡全参 SFT（ZeRO-3） |
 
-### 13.3 磁盘产物（本机，不在 git 里）
+### 13.3 磁盘产物（原开发机，不在 git 里）
+
+> **2026-08-27 更新**：开发机回收前，GRPO 时代（§14）各轮的训练日志、
+> trainer_state 与评测原始结果已抢救进仓库 [`artifacts/`](./artifacts/README.md)。
+> 下面列的 DPO 时代磁盘产物跑在更早一台机器上（已回收），原始文件不可恢复，
+> 数字以本文档为准，wandb 云端 run 仍可查。
 
 ```
 $VITA_WEIGHTS/rlaif_v/shard00{0,1,3,4}.parquet   原始分片，约 4 GB
