@@ -13,12 +13,6 @@
 
 > 语言：[English](./README.md) | **中文**
 
-<p align="center">
-    <img src="./asset/vita_newlog.jpg" width="100%" height="100%">
-</p>
-
-<font size=7><div align='center' > [[📖 VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)] [[🏠 上游仓库](https://github.com/VITA-MLLM/VITA)] [[🤖 基础 Demo](https://modelscope.cn/studios/modelscope/VITA1.5_demo)] [[🍎 VITA-1.0](https://vita-home.github.io/)]</div></font>
-
 ---
 
 ## 🎯 关于本 Fork
@@ -94,7 +88,7 @@ DPO 时代的权重随更早一台开发机丢失，完整记录与复现路径�
 
 ### 如何复现
 
-下文上游的安装与快速开始说明**并非在所有机器上都能照做跑通**（原因见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md)）。请从这里开始：
+上游 README 的安装与快速开始说明**并非在所有机器上都能照做跑通**（原因见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md)）。请从这里开始：
 
 ```bash
 export VITA_REPO=$(pwd) VITA_WEIGHTS=/path/to/weights   # 需约 25 GB 可用空间
@@ -135,93 +129,17 @@ python tools/localize_config.py \
 
 ---
 
-<p align="center">
-    <img src="./asset/vita_demo.jpg" width="80%" height="80%">
-</p>
+## 📚 上游（VITA-1.5）资源
 
-<font size=7><div align='center' > [[📽 VITA-1.5 Demo 演示 🔥](https://youtu.be/tyi6SVFT5mM?si=fkMQCrwa5fVnmEe7)] </div></font>  
-<font size=7><div align='center' > VITA-1.5 同时支持**英文**和**中文**。🌟 </div></font>  
-你可以直接在 ModelScope 上体验上游的[基础 Demo](https://modelscope.cn/studios/modelscope/VITA1.5_demo)。实时交互 Demo 需按[说明](#-实时交互-demo)配置。
-
-## 🔥 上游动态
-
-*以下里程碑均来自原 VITA 项目。*
-
-* **`2025.01.17`** 🌟 ModelScope 已支持 VITA-1.5！可在其上试用[基础 Demo](https://modelscope.cn/studios/modelscope/VITA1.5_demo)！
-* **`2025.01.06`** 🌟 OpenCompass 的 [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) 已同时支持 VITA-1.5 与 VITA-1.0 模型！
-* **`2025.01.06`** 🌟 VITA-1.5 的[技术报告](https://huggingface.co/VITA-MLLM)已发布！
-* **`2024.12.20`** 🌟 VITA 团队推出 **VITA-1.5**，一个更强、更实时的版本！
-* **`2024.08.12`** 🌟 VITA 团队发布 **VITA-1.0**，首个开源的交互式全模态多模态 LLM！
-
-
-## 目录 <!-- omit in toc -->
-
-- [VITA-RL：为 VITA-1.5 引入强化学习](#vita-rl为-vita-15-引入强化学习)
-  - [🎯 关于本 Fork](#-关于本-fork)
-  - [🔥 上游动态](#-上游动态)
-  - [👀 VITA-1.5 概览](#-vita-15-概览)
-    - [🌟 VITA-1.5 有哪些新变化？](#-vita-15-有哪些新变化)
-  - [📈 实验结果](#-实验结果)
-  - [🛠 复现注意事项](#-复现注意事项)
-  - [⭐ 训练](#-训练)
-    - [环境与安装](#环境与安装)
-    - [数据准备](#数据准备)
-    - [续训](#续训)
-  - [📐 推理](#-推理)
-    - [快速开始](#快速开始)
-    - [Demo](#demo)
-      - [📍 基础 Demo](#-基础-demo)
-      - [📍 实时交互 Demo](#-实时交互-demo)
-  - [📏 在 MLLM 基准上评测](#-在-mllm-基准上评测)
-    - [VLMEvalKit](#vlmevalkit)
-    - [Video-MME](#video-mme)
-  - [✒️ 引用](#️-引用)
-  - [📣 声明](#-声明)
-  - [📜 相关工作](#-相关工作)
-  - [👍 致谢](#-致谢)
-
-
-
-## 👀 VITA-1.5 概览
-
-*本节描述上游模型。以下所有结果均由原作者报告。*
-
-2024.08.12，VITA 团队发布了 **VITA-1.0**，**首个开源的交互式全模态 LLM**。2024.12.20，他们发布了 **VITA-1.5**。
-
-### 🌟 VITA-1.5 有哪些新变化？
-
-**VITA-1.5** 带来了一系列改进：
-
-1. **交互延迟大幅降低**。端到端语音交互延迟从约 **4 秒**降至 **1.5 秒**，实现近乎即时的交互，显著改善用户体验。
-
-2. **多模态性能提升**。在 *MME*、*MMBench*、*MathVista* 等多模态基准上的平均性能从 **59.8** 显著提升至 **70.8**。
-
-3. **语音处理能力改进**。语音处理能力提升到新水平，ASR 词错误率（WER，Test Other）从 **18.4** 降至 **7.5**。此外，VITA-1.0 中独立的 TTS 模块被替换为**端到端 TTS 模块**，直接以 LLM 的 embedding 作为输入。
-
-4. **渐进式训练策略**。通过这种方式，加入语音对其他多模态（视觉-语言）性能影响很小。图像理解平均性能仅从 71.3 下降到 70.8。
-
-
-## 📈 实验结果
-
-*以下所有数字均由上游 VITA 团队在 [VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)中报告。本 fork 自己的实测在别处：复测基线（MME 2353.5、MMStar 59.8、MMBench 77.8、AI2D 79.2——全部落在论文值 1.2 分以内）见 [BENCHMARKS.md §2.6](./docs/04-evaluation/BENCHMARKS.md)，DPO 结果见 [EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md)，GRPO 结果见 [GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md)。*
-
-- **图像与视频理解基准评测。**
-
-<p align="center">
-    <img src="./asset/vita_mllm_performance.png" width="100%" height="100%">
-</p>
-
-- **VITA-1.5 在 ASR 基准上超越专业语音模型。**
-
-<p align="center">
-    <img src="./asset/vita_15_audio_2.jpg" width="96%" height="96%">
-</p>
-
-- **加入音频模态对图像与视频理解能力影响很小。**
-
-<p align="center">
-    <img src="./asset/vita_15_audio_training.png" width="68%" height="50%">
-</p>
+本 README 只讲 fork 本身。上游模型介绍、论文成绩、官方训练配方、推理
+快速开始、网页 Demo 与基准评测教程，见
+[上游 README](https://github.com/VITA-MLLM/VITA#readme) 与
+[VITA-1.5 论文](https://arxiv.org/pdf/2501.01957)
+（[ModelScope Demo](https://modelscope.cn/studios/modelscope/VITA1.5_demo)）。
+本 fork 自己的实测数字在
+[BENCHMARKS.md](./docs/04-evaluation/BENCHMARKS.md)、
+[EXPERIMENT_LOG.md](./docs/03-experiments/EXPERIMENT_LOG.md) 与
+[GRPO_DEEP_DIVE.md](./docs/03-experiments/GRPO_DEEP_DIVE.md)。
 
 ## 🛠 复现注意事项
 
@@ -240,213 +158,6 @@ python tools/localize_config.py \
 5. **依赖版本固定且偏旧。** `torch==2.3.1` 和 `transformers==4.41.1`。`vita/model/language_model/vita_qwen2.py` 对 `Qwen2ForCausalLM.forward` 打了猴子补丁，这使其与该 `transformers` 版本紧密耦合——升级极可能导致崩坏。
 
 6. **上游的 `command.sh` 已从本 fork 删除。** 它是原作者的命令备忘（不是构建脚本），引用的文件早已不存在；如需查看可在 git 历史中找到。
-
-## ⭐ 训练
-
-*下面的配方是上游的训练流程，此处照录以便查阅。*
-
-### 环境与安装
-```
-git clone https://github.com/eternity-blog/VITA-RL
-cd VITA-RL
-conda create -n vita python=3.10 -y
-conda activate vita
-pip install --upgrade pip
-pip install -r requirements.txt
-pip install flash-attn --no-build-isolation
-```
-
-> ⚠️ 上述上游安装步骤在本项目的验证机器上**无法成功**。可用的分步安装方案见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md#安装顺序顺序很重要)。
-
-### 数据准备
-- 训练数据的 json 示例：
-```
-[
-    ...
-    {
-        "set": "sharegpt4",
-        "id": "000000000164",
-        "conversations": [
-            {
-                "from": "human",
-                "value": "<image>\n<audio>\n"
-            },
-            {
-                "from": "gpt",  // 沿用 llava 的设定，"gpt" 仅用于表示这是模型输出的 ground truth
-                "value": "This is a well-organized kitchen with a clean, modern aesthetic. The kitchen features a white countertop against a white wall, creating a bright and airy atmosphere. "
-            }
-        ],
-        "image": "coco/images/train2017/000000000164.jpg",
-        "audio": [
-            "new_value_dict_0717/output_wavs/f61cf238b7872b4903e1fc15dcb5a50c.wav"
-        ]
-    },
-    ...
-]
-```
-
-- `set` 字段用于在数据加载时定位图像或视频目录。你需要把对应的键值对加到 [./vita/config/dataset_config.py](./vita/config/dataset_config.py) 的 `FolderDict` 中：
-```
-AudioFolder = ""
-FolderDict = {
-    #### NaturalCap
-    "sharegpt4": "",
-}
-#### NaturalCap
-ShareGPT4V = {"chat_path": ""}
-```
-
-- 在 [./vita/config/dataset_config.py](./vita/config/dataset_config.py) 相应字典中设置 `"chat_path"` 的 JSON 路径。
-- 在 [./vita/config/dataset_config.py](./vita/config/dataset_config.py) 中设置 `AudioFolder` 的音频目录路径。**注意**：加载器实际拼接的是 `AudioFolder/audio/<文件名>`，因此 `AudioFolder` 应指向 `audio/` 的**父目录**。
-- 在 [`./vita/config/__init__.py`](./vita/config/__init__.py) 的 `DataConfig` 中添加数据类：
-```
-from .dataset_config import *
-
-NaturalCap = [ShareGPT4V]
-
-DataConfig = {
-    "Pretrain_video": NaturalCap,
-}
-```
-
-> ⚠️ **上游未提供训练数据集。** 论文中约 2000 万条 QA 来自约 20 个第三方数据集，另有约 570 万条未发布的合成数据和 11 万小时**内部** ASR 数据。因此**论文级别的训练复现客观上无法完成**。但用你自己的数据做续训完全可行——已发布的 checkpoint 本身就是训练好的。
-
-### 续训
-- 下载所需权重（均由上游 VITA 团队发布）：(1) [VITA-1.5 checkpoint](https://huggingface.co/VITA-MLLM/VITA-1.5/tree/main)，(2) [InternViT-300M-448px](https://huggingface.co/OpenGVLab/InternViT-300M-448px)，(3) 阶段 2 音频-语言对齐的[预训练音频编码器](https://huggingface.co/VITA-MLLM/VITA-1.5/tree/main/audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning)（参见论文图 3）。**实际上音频编码器就在 VITA-1.5 仓库内部，只需下载两份。**
-
-- 替换 [./script/train/finetuneTaskNeg_qwen_nodes.sh](./script/train/finetuneTaskNeg_qwen_nodes.sh) 中的路径：
-```
-    ...
-    --model_name_or_path VITA1.5_ckpt \
-    ...
-    --vision_tower InternViT-300M-448px \
-    ...
-    --audio_encoder audio-encoder-Qwen2-7B-1107-weight-base-11wh-tunning \
-    ...
-```
-
-- 执行以下命令开始训练（把 `OUTPUT_DIR` 设为你自己机器上的路径）：
-
-```
-export PYTHONPATH=./
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-OUTPUT_DIR=/path/to/your/outputs/vita_video_audio
-bash script/train/finetuneTaskNeg_qwen_nodes.sh ${OUTPUT_DIR}
-```
-
-> 💡 7B 全参数训练在单张 80GB 卡上**放不下**（AdamW 优化器状态需约 84 GB，靠 ZeRO-3 切分）。**至少需要 8 张卡。** 详见 [REPRODUCE_zh-CN.md](./docs/01-setup/REPRODUCE_zh-CN.md#显存说明)。
-
-
-## 📐 推理
-### 快速开始
-- 文本查询
-```
-CUDA_VISIBLE_DEVICES=2 python video_audio_demo.py \
-    --model_path [vita/path] \
-    --image_path asset/vita_newlog.jpg \
-    --model_type qwen2p5_instruct \
-    --conv_mode qwen2p5_instruct \
-    --question "Describe this images."
-```
-
-- 音频查询
-```
-CUDA_VISIBLE_DEVICES=4 python video_audio_demo.py \
-    --model_path [vita/path] \
-    --image_path asset/vita_newlog.jpg \
-    --model_type qwen2p5_instruct \
-    --conv_mode qwen2p5_instruct \
-    --audio_path asset/q1.wav
-```
-
-- 噪声音频查询
-```
-CUDA_VISIBLE_DEVICES=4 python video_audio_demo.py \
-    --model_path [vita/path] \
-    --image_path asset/vita_newlog.jpg \
-    --model_type qwen2p5_instruct \
-    --conv_mode qwen2p5_instruct \
-    --audio_path asset/q2.wav
-```
-
-> 注：上游 README 在音频示例中写的是 `asset/vita_newlog.png`，但仓库里并无该文件——此处已改为实际存在的 `.jpg`。
->
-> 回复开头的 `☜` / `☞` / `☟` 是状态符号，分别表示"回复文本查询"、"回复语音查询"、"负样本（噪声）条件下的回复"。详见 [ARCHITECTURE_zh-CN.md](./docs/00-background/ARCHITECTURE_zh-CN.md#6-状态符号拒答机制)。
-
-
-### Demo
-
-上游使用 [vLLM](https://github.com/vllm-project/vllm) 对模型做了加速。由于 VITA 尚未合入 vLLM，你需要修改 vLLM 的代码使其适配 VITA。
-
-```bash
-conda create -n vita_demo python==3.10
-conda activate vita_demo
-pip install -r web_demo/web_demo_requirements.txt
-
-# 备份一份新的权重文件
-cp -rL  VITA_ckpt/ demo_VITA_ckpt/
-
-mv demo_VITA_ckpt/config.json demo_VITA_ckpt/origin_config.json
-
-cd ./web_demo/vllm_tools
-cp -rf qwen2p5_model_weight_file/*  ../../demo_VITA_ckpt/
-cp -rf vllm_file/*  your_anaconda/envs/vita_demo/lib/python3.10/site-packages/vllm/model_executor/models/
-```
-
-#### 📍 基础 Demo
-
-https://github.com/user-attachments/assets/43edd44a-8c8d-43ea-9d2b-beebe909377a
-
-```bash
-python -m web_demo.web_ability_demo  demo_VITA_ckpt/
-```
-
-#### 📍 实时交互 Demo
-
-运行实时交互 demo 需要做以下准备：
-
-- 确认已执行 [Demo](#demo) 一节中的指令（把文件从 `vllm_tools` 中 `cp` 出来）。
-
-- 准备 VAD（语音活动检测）模块。可下载 [silero_vad.onnx](https://github.com/snakers4/silero-vad/tree/v4.0/files) 和 [silero_vad.jit](https://github.com/snakers4/silero-vad/tree/v4.0/files)，放到 `./web_demo/wakeup_and_vad/resource/` 目录下。
-
-- 为获得更好的实时交互体验，需在 `demo_VITA_ckpt/config.json` 中把 `max_dynamic_patch` 设为 1。运行基础 demo 时可保持默认值 12，以增强模型的视觉能力。
-
-```bash
-pip install flask==3.1.0 flask-socketio==5.5.0 cryptography==44.0.0 timm==1.0.12
-python -m web_demo.server --model_path demo_VITA_ckpt --ip 0.0.0.0 --port 8081
-```
-
-
-## 📏 在 MLLM 基准上评测
-### [VLMEvalKit](https://github.com/open-compass/VLMEvalKit)
-修改 `VLMEvalKit/vlmeval/config.py` 中 `vita_qwen2` 的模型路径：
-```
-vita_series = { 
-    'vita': partial(VITA, model_path='/path/to/model'),
-    'vita_qwen2': partial(VITAQwen2, model_path='/path/to/model'),
-}
-```
-
-按 [VLMEvalKit 的说明](https://github.com/open-compass/VLMEvalKit/blob/main/docs/en/Quickstart.md)把 GPT 配置为裁判模型。
-
-如果无法使用 openai api，可以用本地模型作裁判。上游作者发现除 MM-Vet 外，[Qwen1.5-1.8B-Chat](https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat) 作裁判的效果与 GPT-4 相当。启动裁判服务：
-```
-CUDA_VISIBLE_DEVICES=0 lmdeploy serve api_server /path/to/Qwen1.5-1.8B-Chat --server-port 23333
-```
-然后配置 `VLMEvalKit` 目录下的 `.env` 文件：
-```
-OPENAI_API_KEY=sk-123456
-OPENAI_API_BASE=http://0.0.0.0:23333/v1/chat/completions
-LOCAL_LLM=/path/to/Qwen1.5-1.8B-Chat
-```
-在以下基准上评测：
-```
-CUDA_VISIBLE_DEVICES=0 python run.py --data MMBench_TEST_EN_V11 MMBench_TEST_CN_V11 MMStar MMMU_DEV_VAL MathVista_MINI HallusionBench AI2D_TEST OCRBench MMVet MME --model vita_qwen2 --verbose
-```
-
-### Video-MME
-
-数据准备：下载 [Video-MME 数据集](https://github.com/BradyFU/Video-MME)并抽帧存为图像，以提升 IO 效率。完整的评测命令见[英文版 README](./README.md#video-mme)。
 
 ## ✒️ 引用
 
@@ -476,15 +187,6 @@ CUDA_VISIBLE_DEVICES=0 python run.py --data MMBench_TEST_EN_V11 MMBench_TEST_CN_
 **VITA 在大规模开源语料上训练，其输出具有随机性。VITA 生成的任何内容不代表模型开发者的观点。我们不对因使用、误用和传播 VITA 而引起的任何问题负责，包括但不限于舆论风险和数据安全问题。**
 
 此外：本 fork 是非官方的、仅供研究用途的扩展，未获得原 VITA 作者的认可、关联或支持。代码及上游权重的使用仍受 [`License.txt`](./License.txt) 约束——该协议**仅允许学术、研究与教育用途**，禁止商业或生产用途。
-
-
-## 📜 相关工作
-
-原作者的上游相关研究：
--  **[VITA-1.0]** [VITA: Towards Open-Source Interactive Omni Multimodal LLM](https://vita-home.github.io/)
--  **[Awesome-MLLM]** [A Survey on Multimodal Large Language Models](https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models)
--  **[MME]** [MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models](https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models/tree/Evaluation)
--  **[Video-MME]** [Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis](https://github.com/BradyFU/Video-MME) 
 
 
 ## 👍 致谢
